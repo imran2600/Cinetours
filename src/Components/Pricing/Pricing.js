@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './Pricing.module.css';
 import { Container, Row, Col } from 'react-bootstrap';
-import useAdminData from '../../pages/AdminPortal/hooks/useAdminData';
+import useAdminData from '../../pages/AdminPortal/hooks/useAdminData.js';
 import { gsap, ScrollTrigger } from '../../utils/gsapConfig';
 import buildingImage from '../../assets/images/building1.png';
 

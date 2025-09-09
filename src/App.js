@@ -12,6 +12,8 @@ import Testimonials from "./Components/Testimonials/Testimonials.js";
 import Footer from "./Components/Footer/Footer.js";
 import ClientPortal from "./pages/ClientPortal/ClientPortal.js";
 import AdminPanel from "./pages/AdminPortal/AdminPortal";
+import PricingPage from "../src/pages/Pricing_page/Pricing.js"; // Add this import
+
 import { useEffect } from 'react';
 
 // Register GSAP plugins ONLY HERE
@@ -78,7 +80,7 @@ function App() {
           <Route path="/portal" element={<ClientPortal />} />
 
           {/* Pricing Page Route */}
-          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/Pricing" element={<PricingPage />} />
 
           {/* Admin Panel Route */}
           <Route path="/admin" element={<AdminPanel />} />
