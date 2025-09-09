@@ -1,33 +1,26 @@
-import React from 'react';
-import styles from './Footer.module.css';
-import { Container, Row, Col } from 'react-bootstrap';
+// src/Components/Footer/Footer.js
+import React from "react";
+import styles from "./Footer.module.css";
+import { Container, Row, Col } from "react-bootstrap";
+import { useLocation } from "react-router-dom";
 
 /**
  * Modern footer component with social links and copyright
- * @component
+ * Hidden on auth pages (signin / signup, etc)
  */
 const Footer = () => {
+  const { pathname } = useLocation();
+
+  // Hide footer on auth routes (expand this list any time)
+  const HIDE_ON = ["/signin", "/signup", "/register", "/auth", "/forgot-password"];
+  const shouldHide = HIDE_ON.some((p) => pathname.startsWith(p));
+  if (shouldHide) return null;
+
   const socialLinks = [
-    {
-      name: 'Facebook',
-      icon: 'bi bi-facebook',
-      url: 'https://facebook.com'
-    },
-    {
-      name: 'Instagram',
-      icon: 'bi bi-instagram',
-      url: 'https://instagram.com'
-    },
-    {
-      name: 'Twitter',
-      icon: 'bi bi-twitter-x',
-      url: 'https://twitter.com'
-    },
-    {
-      name: 'LinkedIn',
-      icon: 'bi bi-linkedin',
-      url: 'https://linkedin.com'
-    }
+    { name: "Facebook",  icon: "bi bi-facebook",   url: "https://facebook.com" },
+    { name: "Instagram", icon: "bi bi-instagram",  url: "https://instagram.com" },
+    { name: "Twitter",   icon: "bi bi-twitter-x",  url: "https://twitter.com" },
+    { name: "LinkedIn",  icon: "bi bi-linkedin",   url: "https://linkedin.com" },
   ];
 
   return (
@@ -45,16 +38,16 @@ const Footer = () => {
           {/* Social Links */}
           <Col md={4} className="text-center mb-3 mb-md-0">
             <div className={styles.socialLinks}>
-              {socialLinks.map((social, index) => (
+              {socialLinks.map((social) => (
                 <a
-                  key={index}
+                  key={social.name}
                   href={social.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={social.name}
                   className={styles.socialIcon}
                 >
-                  <i className={social.icon}></i>
+                  <i className={social.icon} />
                 </a>
               ))}
             </div>
@@ -63,7 +56,7 @@ const Footer = () => {
           {/* Copyright */}
           <Col md={3} className="text-center text-md-end">
             <p className={styles.copyright}>
-              &copy; 2025 QuantumTours. All rights reserved.
+              &copy; {new Date().getFullYear()} QuantumTours. All rights reserved.
             </p>
           </Col>
         </Row>

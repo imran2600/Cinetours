@@ -1,63 +1,115 @@
-import React, { useState } from 'react';
-import { Form, Button, Card, Spinner } from 'react-bootstrap';
-import styles from './UploadOrder.module.css';
-import { useOrders } from '../../hooks/useOrders';
+import React, { useEffect, useState } from "react";
+import { Form, Button, Card, Spinner } from "react-bootstrap";
+import styles from "./UploadOrder.module.css";
+import { useOrders } from "../../hooks/useOrders";
 
-/**
- * Order upload component - Client Portal
- * @component
- * @param {Array} packages - Available pricing packages
- * @param {boolean} isLoading - Loading state (will be used with backend)
- */
-const UploadOrder = ({ packages, isLoading: propLoading }) => {
+/** --- Pricing tables (required to compute add-ons total) --- */
+const ADDON_PRICES = {
+  voiceoverAI: 30,
+  talkThrough: 80,
+  reelSplit: 50,
+  extraReel: 10,
+  rush12h: 50,
+  revisionRound: 10,
+  premiumEdit: 40,
+};
+
+const BUNDLES = {
+  socialBoost: { price: 90, includes: ["reelSplit", "voiceoverAI", "rush12h"] },
+  agentPresenter: { price: 150, includes: ["talkThrough", "premiumEdit"] },
+  fullMarketing: {
+    price: 200,
+    includes: ["voiceoverAI", "talkThrough", "reelSplit", "rush12h", "premiumEdit"],
+  },
+};
+
+function computeAddonsTotal(a = {}) {
+  let total = 0;
+  if (a.bundle && BUNDLES[a.bundle]) total += BUNDLES[a.bundle].price;
+  const covered = new Set(a.bundle ? BUNDLES[a.bundle].includes : []);
+  if (a.voiceoverAI && !covered.has("voiceoverAI")) total += ADDON_PRICES.voiceoverAI;
+  if (a.talkThrough && !covered.has("talkThrough")) total += ADDON_PRICES.talkThrough;
+  if (a.reelSplit && !covered.has("reelSplit")) total += ADDON_PRICES.reelSplit;
+  if (a.rush12h && !covered.has("rush12h")) total += ADDON_PRICES.rush12h;
+  if (a.premiumEdit && !covered.has("premiumEdit")) total += ADDON_PRICES.premiumEdit;
+  if (a.extraReels > 0) total += a.extraReels * ADDON_PRICES.extraReel;
+  if (a.revisionRounds > 0) total += a.revisionRounds * ADDON_PRICES.revisionRound;
+  return total;
+}
+
+const UploadOrder = ({
+  packages,
+  isLoading: propLoading,
+  preselectedPackageId,
+  initialAddons = null, // read-only add-ons coming from previous screen
+  onSubmit,
+}) => {
   const { addOrder } = useOrders();
+
   const [selectedFiles, setSelectedFiles] = useState([]);
-  const [selectedPackage, setSelectedPackage] = useState('');
-  const [addons, setAddons] = useState({
-    voiceover: false,
-    droneFootage: false
-  });
+  const [selectedPackage, setSelectedPackage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Lock package chosen earlier (Gate step)
+  useEffect(() => {
+    if (preselectedPackageId != null) setSelectedPackage(String(preselectedPackageId));
+  }, [preselectedPackageId]);
+
+  const selectedPkg = packages.find((p) => String(p.id) === String(selectedPackage));
+  const pkgPrice = selectedPkg?.price ?? 0;
+
+  // Use add-ons from Add-on screen (read-only here)
+  const addons =
+    initialAddons ?? {
+      voiceoverAI: false,
+      talkThrough: false,
+      reelSplit: false,
+      rush12h: false,
+      premiumEdit: false,
+      extraReels: 0,
+      revisionRounds: 0,
+      bundle: null,
+    };
+
+  const addonsTotal = computeAddonsTotal(addons);
+  const grandTotal = pkgPrice + addonsTotal;
+
+  // small, readable add-on list
+  const addonChips = [];
+  if (addons.bundle) addonChips.push(addons.bundle);
+  if (addons.voiceoverAI) addonChips.push("Voiceover AI");
+  if (addons.talkThrough) addonChips.push("Talk-through");
+  if (addons.reelSplit) addonChips.push("Reel Split");
+  if (addons.rush12h) addonChips.push("Rush 12h");
+  if (addons.premiumEdit) addonChips.push("Premium Edit");
+  if (addons.extraReels > 0) addonChips.push(`+${addons.extraReels} extra reel${addons.extraReels > 1 ? "s" : ""}`);
+  if (addons.revisionRounds > 0) addonChips.push(`${addons.revisionRounds} revision${addons.revisionRounds > 1 ? "s" : ""}`);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    if (selectedFiles.length === 0) return alert("Please upload at least one photo.");
+    if (!selectedPackage) return alert("Please select a package.");
 
+    setIsSubmitting(true);
     try {
-      const selectedPkg = packages.find(p => p.id === selectedPackage);
-      if (!selectedPkg) throw new Error('Please select a package');
+      if (!selectedPkg) throw new Error("Please select a package");
 
       const newOrder = {
         package: selectedPkg.name,
         photos: selectedFiles.length,
         addons,
-        // These will come from backend/auth:
-        // clientId: 'current_client_id',
-        // paymentMethod: 'stripe'
+        addonsTotal,
       };
 
-      /**
-       * TEMPORARY: Using local state
-       * REPLACE WITH API CALL WHEN BACKEND IS READY:
-       * try {
-       *   const response = await axios.post('/api/orders', newOrder);
-       *   // Handle response
-       * } catch (error) {
-       *   console.error('Order submission failed:', error);
-       *   // Show error to user
-       * }
-       */
       addOrder(newOrder);
+      onSubmit?.(newOrder);
 
-      // Reset form
+      // reset (optional)
       setSelectedFiles([]);
-      setSelectedPackage('');
-      setAddons({ voiceover: false, droneFootage: false });
-      
-      alert('Order submitted successfully!');
-    } catch (error) {
-      console.error('Order submission error:', error);
-      alert(error.message);
+      setSelectedPackage("");
+    } catch (err) {
+      console.error("Order submission error:", err);
+      alert(err.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -65,107 +117,115 @@ const UploadOrder = ({ packages, isLoading: propLoading }) => {
 
   return (
     <Card className={styles.portalCard}>
-  <Card.Header as="h4" className={styles.portalCardHeader}>
-    Create New Order
-  </Card.Header>
-  <Card.Body className={styles.portalCardBody}>
-    <Form onSubmit={handleSubmit} className={styles.orderForm}>
-      
-      {/* File Upload */}
-      <Form.Group className={`mb-4 ${styles.fileUploadGroup}`}>
-        <Form.Label className={styles.fileUploadLabel}>
-          Upload Property Photos
-        </Form.Label>
-        <Form.Control 
-          type="file" 
-          multiple 
-          onChange={(e) => setSelectedFiles([...e.target.files])}
-          accept="image/*"
-          required
-          className={styles.fileUploadInput}
-        />
-        <Form.Text className={styles.fileUploadText}>
-          Upload 5-30 high quality photos of your property
-        </Form.Text>
-        {selectedFiles.length > 0 && (
-          <div className={`mt-2 ${styles.fileUploadInfo}`}>
-            <small>{selectedFiles.length} files selected</small>
-          </div>
-        )}
-      </Form.Group>
+      <Card.Header as="h4" className={styles.portalCardHeader}>
+        Create New Order
+      </Card.Header>
 
-      {/* Package Selection */}
-      <Form.Group className={`mb-4 ${styles.packageGroup}`}>
-        <Form.Label className={styles.packageLabel}>
-          Select Package
-        </Form.Label>
-        <div className={styles.packageOptions}>
-          {packages.map(pkg => (
-            <div 
-              key={pkg.id}
-              className={`${styles.packageCard} ${
-                selectedPackage === pkg.id ? styles.selected : ''
-              }`}
-              onClick={() => setSelectedPackage(pkg.id)}
-            >
-              <h5 className={styles.packageName}>{pkg.name}</h5>
-              <p className={styles.packagePhotos}>{pkg.photos} photos</p>
-              <p className={styles.price}>${pkg.price}</p>
+      <Card.Body className={styles.portalCardBody}>
+        <Form onSubmit={handleSubmit} className={styles.orderForm}>
+          {/* File Upload */}
+          <Form.Group className={`mb-4 ${styles.fileUploadGroup}`}>
+            <Form.Label className={styles.fileUploadLabel}>Upload Property Photos</Form.Label>
+            <Form.Control
+              type="file"
+              multiple
+              onChange={(e) => setSelectedFiles([...e.target.files])}
+              accept="image/*"
+              required
+              className={styles.fileUploadInput}
+            />
+            <Form.Text className={styles.fileUploadText}>
+              Upload 5–30 high quality photos of your property
+            </Form.Text>
+            {!!selectedFiles.length && (
+              <div className={`mt-2 ${styles.fileUploadInfo}`}>
+                <small>{selectedFiles.length} file(s) selected</small>
+              </div>
+            )}
+          </Form.Group>
+
+          {/* Selected Package (read-only if preselected) */}
+          {preselectedPackageId ? (
+            <div className={`mb-4 ${styles.packageGroup}`}>
+              <div className={styles.packageLabel}>Selected Package</div>
+              <div className={styles.selectedChip}>
+                {selectedPkg?.name} • {selectedPkg?.photos} photos • ${pkgPrice}
+              </div>
             </div>
-          ))}
-        </div>
-      </Form.Group>
+          ) : (
+            <Form.Group className={`mb-4 ${styles.packageGroup}`}>
+              <Form.Label className={styles.packageLabel}>Select Package</Form.Label>
+              <div className={styles.packageOptions}>
+                {packages.map((pkg) => (
+                  <div
+                    key={pkg.id}
+                    className={`${styles.packageCard} ${
+                      String(selectedPackage) === String(pkg.id) ? styles.selected : ""
+                    }`}
+                    onClick={() => setSelectedPackage(String(pkg.id))}
+                  >
+                    <h5 className={styles.packageName}>{pkg.name}</h5>
+                    <p className={styles.packagePhotos}>{pkg.photos} photos</p>
+                    <p className={styles.price}>${pkg.price}</p>
+                  </div>
+                ))}
+              </div>
+            </Form.Group>
+          )}
 
-      {/* Add-ons */}
-      <Form.Group className={`mb-4 ${styles.addonsGroup}`}>
-        <Form.Label className={styles.addonsLabel}>
-          Add-ons
-        </Form.Label>
-        <Form.Check 
-          type="checkbox"
-          label="Professional Voiceover (+$25)"
-          checked={addons.voiceover}
-          onChange={(e) => setAddons({...addons, voiceover: e.target.checked})}
-          className={styles.addonOption}
-        />
-        <Form.Check 
-          type="checkbox"
-          label="Drone Footage Integration (+$50)"
-          checked={addons.droneFootage}
-          onChange={(e) => setAddons({...addons, droneFootage: e.target.checked})}
-          className={styles.addonOption}
-        />
-      </Form.Group>
+          {/* Order Summary (read-only) */}
+          <div className={`mb-4 ${styles.summaryCard}`}>
+            <div className={styles.summaryRow}>
+              <span>Package</span>
+              <strong>${pkgPrice.toFixed(0)}</strong>
+            </div>
 
-      {/* Submit Button */}
-      <Button 
-        variant="primary" 
-        type="submit"
-        disabled={!selectedFiles.length || !selectedPackage || isSubmitting || propLoading}
-        className={`w-100 ${styles.submitButton}`}
-      >
-        {isSubmitting || propLoading ? (
-          <>
-            <Spinner animation="border" size="sm" className={`me-2 ${styles.submitSpinner}`} />
-            Processing...
-          </>
-        ) : 'Submit Order'}
-      </Button>
-    </Form>
-  </Card.Body>
-</Card>
+            <div className={styles.summaryRow}>
+              <span>Add-ons</span>
+              <strong>${addonsTotal.toFixed(0)}</strong>
+            </div>
 
+            <div className={styles.summaryAddonsList}>
+              {addonChips.length ? addonChips.join(" • ") : "No add-ons selected"}
+            </div>
+
+            <hr className={styles.summaryDivider} />
+
+            <div className={`${styles.summaryRow} ${styles.summaryGrand}`}>
+              <span>Total</span>
+              <strong>${grandTotal.toFixed(0)}</strong>
+            </div>
+          </div>
+
+          {/* Submit */}
+          <Button
+            variant="primary"
+            type="submit"
+            disabled={!selectedFiles.length || !selectedPackage || isSubmitting || propLoading}
+            className={`w-100 ${styles.submitButton}`}
+          >
+            {isSubmitting || propLoading ? (
+              <>
+                <Spinner animation="border" size="sm" className={`me-2 ${styles.submitSpinner}`} />
+                Processing...
+              </>
+            ) : (
+              "Submit Order"
+            )}
+          </Button>
+        </Form>
+      </Card.Body>
+    </Card>
   );
 };
 
-// Default props for local development
 UploadOrder.defaultProps = {
   packages: [
-    { id: 1, name: 'Starter', photos: '5-10', price: 49 },
-    { id: 2, name: 'Professional', photos: '11-20', price: 99 },
-    { id: 3, name: 'Premium', photos: '21-30', price: 149 }
+    { id: 1, name: "Starter", photos: "5-10", price: 49 },
+    { id: 2, name: "Professional", photos: "11-20", price: 99 },
+    { id: 3, name: "Premium", photos: "21-30", price: 149 },
   ],
-  isLoading: false
+  isLoading: false,
 };
 
 export default UploadOrder;

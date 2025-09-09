@@ -1,53 +1,277 @@
-/* BrandAssets.module.css */
-
-.portalCard {
-  background: hsl(0, 0%, 0%);
-  color: white;
-  border: 1px solid;
-  border-image: linear-gradient(135deg, #a855f7 0%, #1fb454 100%);
-  border-image-slice: 1;
+:root{
+  --surface-1:#0d1117;
+  --surface-2:#121821;
+  --line-soft:rgba(196, 200, 206, 0.16);
+  --ink-strong:rgba(255,255,255,.95);
+  --ink:rgba(255,255,255,.86);
+  --ink-weak:rgba(255,255,255,.72);
+  --g-500:#22c55e; --g-700:#15803d; --violet:#a855f7;
 }
 
-.cardHeader {
-  background: #000;
-  color: white;
+/* host for particles + form */
+.bgHost{
+  position: relative;
+  min-height: 72vh;
+  padding: 12px 0;
+  /* fallback accent if JS hasn’t set it yet */
+  --accent: #22c55e;
 }
 
-.cardBody {
-  background: #000;
-  color: white;
+/* Give the card a stacking context so particles sit behind */
+.portalCard{
+  position:relative;
+  z-index: 1;
+   --bg-top: rgba(10,14,20,.78);   /* was ~.04–.02 */
+  --bg-bot: rgba(7,10,16,.72);
+  --edge:   rgba(236,242,255,.28);
+
+  border: 1.5px solid var(--edge);
+  border-radius: 18px;
+  background: linear-gradient(180deg, var(--bg-top), var(--bg-bot));
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  box-shadow:
+    0 20px 50px rgba(0,0,0,.45),
+    inset 0 1px 0 rgba(255,255,255,.06);
 }
 
-.formGroup {
-  background: #000 !important;
-  color: white !important;
+/* Header + Body */
+.cardHeader{
+  background: transparent !important;
+  color: var(--ink-strong) !important;
+  border-bottom: 1px solid var(--line-soft) !important;
+  padding: 1rem 1.25rem !important;
+}
+.cardBody{
+  background: transparent !important;
+  color: var(--ink) !important;
+  padding: 1.5rem !important;
+  max-width: 880px;      /* wider */
+  margin: 0 auto;
 }
 
-.logoUploadWrapper {
-  background: #000 !important;
-  color: white !important;
+/* Section “cards” (fieldset) */
+.groupCard{
+  margin: 18px 0;
+  width: 800px;
+  padding: 16px 16px 18px;
+  border-radius: 14px;
+  border: 1px solid var(--line-soft);
+  background: linear-gradient(180deg, rgba(8, 0, 0, 0.02), rgba(28, 11, 11, 0));
+  position: relative;
+}
+.groupCard:hover{
+  border-color: rgba(168,85,247,.38);
+  box-shadow: 0 6px 22px rgba(168,85,247,.08);
+}
+.groupTitle{
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--ink-strong);
+  padding: 0 .5rem;
+  margin: 0 8px;
+  margin-bottom: 8px;
 }
 
-.fileInput {
-  background: #000 !important;
-  color: white !important;
-  border-image: linear-gradient(135deg, #a855f7 0%, #1fb454 100%);
-  border-image-slice: 1;
+/* Logo preview */
+.logoUploadWrapper{ display:block; margin:16px 0; }
+.logoPreview{
+  display:flex; align-items:center; justify-content:center;
+  width:100%; min-height:160px;     /* taller */
+  border:1px dashed var(--line-soft);
+  border-radius:12px; color:var(--ink-weak); margin-bottom:10px;
+  opacity:0; transform:scale(.95);
+  transition:opacity .4s ease, transform .4s ease, filter .25s ease;
+  backdrop-filter: blur(0px);
+}
+.logoPreview.show{ opacity:1; transform:scale(1); }
+.logoPreview:hover{ filter:brightness(1.05); }
+
+/* Wiggle on error container */
+.isError .logoPreview{ animation: wiggle .5s ease; }
+@keyframes wiggle{ 0%,100%{transform:rotate(-2deg)} 50%{transform:rotate(2deg)} }
+
+/* Inputs */
+.fileInput,
+.cardBody :global(input[type="file"]){
+  background: linear-gradient(180deg, var(--surface-2), var(--surface-1)) !important;
+  color: var(--ink-strong) !important;
+  border: 1px solid var(--line-soft) !important;
+  border-radius: 12px !important;
+  padding: .65rem .9rem !important;
+  height:52px; /* a little taller */
+}
+.fileInput:focus,
+.cardBody :global(input[type="file"]:focus){
+  border-color: rgba(168,85,247,.34) !important;
+  box-shadow: 0 0 0 6px rgba(168,85,247,.12) !important;
+}
+.fileInput::file-selector-button,
+.cardBody :global(input[type="file"]::file-selector-button){
+  margin-right:.8rem; padding:.55rem .95rem;
+  border-radius:10px; border:1px solid rgba(255,255,255,.14);
+  color:#fff; background:linear-gradient(135deg, var(--g-500), var(--g-700));
+  transition:transform .18s ease, filter .18s ease, box-shadow .18s ease;
+}
+.fileInput::file-selector-button:hover,
+.cardBody :global(input[type="file"]::file-selector-button:hover){
+  transform:translateY(-2px);
+  box-shadow:0 0 0 0 rgba(168,85,247,.5);
+  animation: pulseGlow 1.5s ease-out infinite;
+}
+@keyframes pulseGlow{
+  0%{ box-shadow: 0 0 0 0 rgba(168,85,247,.45); }
+  70%{ box-shadow: 0 0 0 14px rgba(168,85,247,0); }
+  100%{ box-shadow: 0 0 0 0 rgba(168,85,247,0); }
 }
 
-.colorPicker {
-  background: #000 !important;
-  color: white !important;
+/* Color picker */
+.colorPicker,
+.cardBody :global(input[type="color"]){
+  width:56px !important; height:44px !important;
+  background: var(--surface-1) !important;
+  border: 1px solid var(--line-soft) !important;
+  border-radius: 12px !important;
+  overflow:hidden; cursor:pointer;
 }
 
-.fontSelect {
-  background: #000 !important;
-  color: white !important;
-  border-image: linear-gradient(135deg, #a855f7 0%, #1fb454 100%);
-  border-image-slice: 1;
+/* DARK SELECT (no white popout) */
+.fontSelect,
+.cardBody :global(select.form-select){
+  background: linear-gradient(180deg, var(--surface-2), var(--surface-1)) !important;
+  color: var(--ink-strong) !important;
+  border: 1px solid var(--line-soft) !important;
+  border-radius: 12px !important;
+  height:52px;
+  color-scheme: dark; /* native dark popout */
+}
+.fontSelect option,
+.cardBody :global(select.form-select option){
+  background-color: #0b1116;
+  color: #fff;
+}
+.fontSelect:focus,
+.cardBody :global(select.form-select:focus){
+  border-color: rgba(168,85,247,.34) !important;
+  box-shadow: 0 0 0 6px rgba(168,85,247,.12) !important;
 }
 
-.submitButton {
-  margin-top: 20px;
-  color: white;
+/* Submit button */
+.submitButton{
+  margin-top:22px; width:100% !important; border:none !important; color:#fff !important;
+  padding:1rem 1.15rem !important; border-radius:12px !important;
+  background:linear-gradient(135deg, var(--g-500), var(--g-700)) !important;
+  box-shadow:0 10px 28px rgba(21,128,61,.28) !important;
+  font-weight:600;
+
+  transition:transform .18s ease, box-shadow .18s ease, filter .18s ease !important;
+}
+.submitButton:hover{
+  transform:translateY(-2px) !important; filter:brightness(1.05) !important;
+  box-shadow:0 16px 34px rgba(21,128,61,.32) !important;
+}
+
+/* Animated background layers */
+.fx{
+  position: absolute;
+  inset: -12% -6% -18% -6%;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(120% 90% at 50% 110%, rgba(0,0,0,.18), transparent 55%),
+    radial-gradient(120% 120% at -10% -10%, rgba(124,58,237,.08), transparent 48%);
+}
+.fx::before,
+.fx::after{
+  content: "";
+  position: absolute;
+  width: 58vmax; height: 58vmax;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: .55;
+  will-change: transform;
+}
+.fx::before{
+  left: -12vmax; top: -14vmax;
+  background: radial-gradient(closest-side, rgba(124,58,237,.30), rgba(124,58,237,0) 70%);
+  animation: driftA 28s ease-in-out infinite;
+}
+.fx::after{
+  right: -16vmax; bottom: -18vmax;
+  background: radial-gradient(closest-side, rgba(34,197,94,.22), rgba(34,197,94,0) 72%);
+  animation: driftB 32s ease-in-out infinite;
+}
+
+/* A gentle accent glow that follows the chosen Primary Color */
+.accentGlow{
+  position: absolute;
+  left: 70%; top: 42%;
+  width: 30vmax; height: 30vmax;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(closest-side, var(--accent), transparent 70%);
+  opacity: .18;
+  filter: blur(42px) saturate(1.06);
+  mix-blend-mode: screen;
+  will-change: transform, opacity;
+  animation: pulseAccent 6.5s ease-in-out infinite, driftC 46s ease-in-out infinite;
+}
+
+.bubbles {
+  position: fixed;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  z-index: 0;            /* behind content */
+  pointer-events: none;   /* don’t block UI */
+  overflow: hidden;
+}
+
+.bubbles li {
+  position: absolute;
+  width: clamp(60px, 9vw, 160px);
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(168,85,247,.55), rgba(168,85,247,0) 60%),
+    radial-gradient(circle at 70% 70%, rgba(34,197,94,.40), rgba(34,197,94,0) 55%),
+    radial-gradient(circle at 40% 80%, rgba(56,189,248,.22), rgba(56,189,248,0) 50%);
+  opacity: var(--a, .25);
+  filter: saturate(110%) blur(var(--blur, 0px));
+  transform: translate(var(--x0), var(--y0)) scale(var(--s, 1));
+  animation: wander var(--d, 20s) cubic-bezier(.22,.61,.36,1) var(--delay, 0s) infinite;
+}
+
+@keyframes wander {
+  0%   { transform: translate(var(--x0), var(--y0)) scale(var(--s)); }
+  25%  { transform: translate(var(--x1), var(--y1)) scale(calc(var(--s)*1.03)); }
+  50%  { transform: translate(var(--x2), var(--y2)) scale(var(--s)); }
+  75%  { transform: translate(var(--x3), var(--y3)) scale(calc(var(--s)*1.02)); }
+  100% { transform: translate(var(--x4), var(--y4)) scale(var(--s)); }
+}
+
+/* motion */
+@keyframes driftA{
+  0%,100%{ transform: translate3d(0,0,0) scale(1); }
+  50%    { transform: translate3d(6%, -4%, 0) scale(1.05); }
+}
+@keyframes driftB{
+  0%,100%{ transform: translate3d(0,0,0) scale(1); }
+  50%    { transform: translate3d(-5%, 4%, 0) scale(1.04); }
+}
+@keyframes driftC{
+  0%,100%{ transform: translate3d(0,0,0); }
+  50%    { transform: translate3d(-2%, 3%, 0); }
+}
+@keyframes pulseAccent{
+  0%,100%{ transform: scale(.96); opacity:.14; }
+  50%    { transform: scale(1.05); opacity:.22; }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .fx::before, .fx::after, .accentGlow { animation: none !important; }
+  *{ animation: none !important; transition: none !important; }
 }

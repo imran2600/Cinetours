@@ -1,6 +1,6 @@
 // File: src/App.js
 import "./App.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Header from "./Components/Header/header.js";
 import Hero from "./Components/Herosection/Hero.js";
 import ClientLogos from "./Components/ClientLogos/ClientLogos.js";
@@ -15,6 +15,12 @@ import AdminPanel from "./pages/AdminPortal/AdminPortal";
 import PricingPage from "../src/pages/Pricing_page/Pricing.js"; // Add this import
 
 import { useEffect } from 'react';
+
+// ✅ Auth
+import { AuthProvider } from "./auth/AuthContext.jsx";
+import ProtectedRoute from "./auth/ProtectedRouts.jsx"; // keep your filename
+import SignIn from "./pages/Auth/SignIn.js";
+import SignUp from "./pages/Auth/SignUp.js";
 
 // Register GSAP plugins ONLY HERE
 import { gsap } from "gsap";
@@ -68,7 +74,8 @@ function App() {
   }, []);
 
   return (
-    <Router>
+    <AuthProvider>
+      <Router>
       <div className="App">
         <Header />
 
@@ -77,18 +84,37 @@ function App() {
           <Route path="/" element={<HomePage />} />
 
           {/* Client Portal Route */}
-          <Route path="/portal" element={<ClientPortal />} />
+          {/* <Route path="/portal" element={<ClientPortal />} /> */}
 
           {/* Pricing Page Route */}
           <Route path="/Pricing" element={<PricingPage />} />
 
           {/* Admin Panel Route */}
           <Route path="/admin" element={<AdminPanel />} />
+
+          {/* Auth pages */}
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+
+          {/* Protected portal */}
+          <Route
+            path="/portal"
+            element={
+              <ProtectedRoute>
+                <ClientPortal />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Optional alias + fallback */}
+          <Route path="/client-portal" element={<Navigate to="/portal" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
 
         <Footer />
       </div>
     </Router>
+    </AuthProvider>
   );
 }
 

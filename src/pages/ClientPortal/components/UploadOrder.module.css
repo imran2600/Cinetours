@@ -1,92 +1,561 @@
-/* ================= UploadOrder Styles ================= */
+/* ================= UploadOrder Styles (CINEMATIC) ================= */
 
-/* Portal Card */
-.portalCardHeader {
-  background-color: black;
-  color: white;
-  border: 1px solid;
-  border-image: linear-gradient(135deg, #a855f7 0%, #1fb454 100%);
-  border-image-slice: 1;
-}
-.portalCardBody {
-  background-color: #000;
-}
+/* ---- Design tokens ---- */
+:root{
+  --surface-0:#0a0d12;          /* page bg */
+  --surface-1:#0d1117;          /* panels/cards */
+  --surface-2:#121821;          /* elevated */
+  --line-soft:rgba(148,163,184,.16);
 
-/* File Upload Section */
-.fileUploadGroup {
-  color: white;
-  margin-bottom: 1.5rem;
-}
-.fileUploadLabel {
-  color: #fff;
-}
-.fileUploadInput {
-  background-color: #1fb454;
-  color: black;
-}
-.fileUploadText {
-  color: #fff;
-  font-size: 0.9rem;
-  margin-top: 0.5rem;
-}
-.fileUploadInfo {
-  color: white;
+  --ink-strong:rgba(255,255,255,.96);
+  --ink:rgba(255,255,255,.88);
+  --ink-weak:rgba(255,255,255,.72);
+
+  --violet:#a855f7;
+  --emerald:#22c55e;
+
+  --ring:rgba(168,85,247,.34);
+
+  /* emerald palette */
+  --g-400:#34d399;
+  --g-500:#22c55e;
+  --g-600:#16a34a;
+  --g-700:#15803d;
 }
 
-/* Package Selection Section */
-.packageGroup {
+/* Bootstrap card baseline */
+:global(.card){
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 16px !important;
+  overflow: hidden;
+}
+
+/* ---------- CARD SHELL ---------- */
+.portalCard{
+  position: relative;
+  width: min(980px, 100%);
+  margin: 10px auto 26px;
+  background: transparent;
+  border: 0;
+  isolation:isolate;
+}
+
+/* Subtle spinning gradient ring */
+.portalCard::after{
+  content:"";
+  position:absolute; inset:-1px;
+  border-radius:18px;
+  padding:1px; pointer-events:none;
+  background:
+    conic-gradient(from 0deg,
+      rgba(168,85,247,.12),
+      rgba(34,197,94,.14),
+      rgba(56,189,248,.12),
+      rgba(168,85,247,.12));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  animation: ring-spin 24s linear infinite;
+}
+@keyframes ring-spin{ to{ transform: rotate(360deg); } }
+
+/* Soft aurora glow behind the card (no lines) */
+.portalCard::before{
+  content:"";
+  position:absolute; inset:-16% -8% -28% -8%;
+  background:
+    radial-gradient(48% 58% at 18% 22%, rgba(168,85,247,.22), transparent 60%),
+    radial-gradient(50% 50% at 82% 28%, rgba(34,197,94,.16), transparent 60%),
+    radial-gradient(46% 62% at 54% 86%, rgba(56,189,248,.13), transparent 60%);
+  filter: blur(40px) saturate(112%);
+  z-index:-1;
+  animation: aurora-shift 26s ease-in-out infinite alternate;
+}
+@keyframes aurora-shift{
+  0%{ transform: translate3d(-2%, -1%, 0) scale(1); }
+  50%{ transform: translate3d(3%, 2%, 0) scale(1.04); }
+  100%{ transform: translate3d(-1%, 1%, 0) scale(1.01); }
+}
+
+/* ---------- header + body (single joined frame) ---------- */
+.portalCardHeader{
+  background: transparent !important;
+  color: var(--ink-strong) !important;
+  border: 1px solid var(--line-soft) !important;
+  border-bottom: 0 !important;
+  border-radius: 16px 16px 0 0 !important;
+  padding: 1rem 1.25rem !important;
+  backdrop-filter: blur(2px);
+}
+.portalCardHeader h4{ margin: 2px 0 0 !important; }
+
+.portalCardBody{
+  position: relative;
+  background:
+    radial-gradient(1000px 600px at 10% -10%, rgba(168,85,247,.10), transparent 60%),
+    radial-gradient(900px 520px at 110% 120%, rgba(34,197,94,.08), transparent 60%),
+    linear-gradient(180deg, var(--surface-1), var(--surface-0)) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line-soft) !important;
+  border-top: 0 !important;
+  border-radius: 0 0 16px 16px !important;
+  padding: 1.1rem 1.25rem !important;
+  overflow:hidden;
+}
+
+/* drifting micro-particles inside the body (tiny dots, not lines) */
+.portalCardBody::before{
+  content:"";
+  position:absolute; inset:0;
+  background:
+    radial-gradient(2px 2px at 10% 20%, rgba(255,255,255,.18), transparent),
+    radial-gradient(1.5px 1.5px at 35% 65%, rgba(255,255,255,.12), transparent),
+    radial-gradient(2px 2px at 70% 30%, rgba(255,255,255,.10), transparent),
+    radial-gradient(1.5px 1.5px at 85% 80%, rgba(255,255,255,.12), transparent);
+  opacity:.55;
+  animation: dust-drift 26s linear infinite;
+  pointer-events:none;
+}
+@keyframes dust-drift{
+  0%  { transform: translateY(2%) translateX(0); }
+  50% { transform: translateY(-2%) translateX(1%); }
+  100%{ transform: translateY(2%) translateX(0); }
+}
+
+/* ---------- Section titles / helper text ---------- */
+.fileUploadGroup{ margin-bottom: 18px; }
+.packageGroup,.addonsGroup{ color: var(--ink) !important; }
+
+.fileUploadLabel,.packageLabel,.addonsLabel{
+  color: var(--ink-strong) !important;
+  margin-bottom: .35rem;
+}
+
+.fileUploadText{
+  margin-top: .45rem;
+  color: var(--ink-weak) !important;
+  font-size: .95rem;
+}
+.fileUploadInfo{
+  color: var(--ink-weak) !important;
+  font-size: .95rem;
+  margin-top: .45rem; /* fixed typo */
+}
+
+/* ---------- File input (animated) ---------- */
+.fileUploadInput{
+  background: linear-gradient(180deg, var(--surface-2), var(--surface-1)) !important;
+  color: var(--ink-strong) !important;
+  border: 1px solid var(--line-soft) !important;
+  border-radius: 12px !important;
+  padding: .65rem .9rem !important;
+  transition: box-shadow .18s ease, border-color .18s ease, filter .18s ease;
+}
+
+/* Focus breathing ring + sparkle halo */
+.fileUploadGroup:focus-within .fileUploadInput{
+  border-color: var(--ring) !important;
+  box-shadow: 0 0 0 6px rgba(168,85,247,.12), 0 0 24px rgba(168,85,247,.18) !important;
+  animation: field-breathe 2.8s ease-in-out infinite;
+}
+@keyframes field-breathe{
+  0%  { box-shadow: 0 0 0 6px rgba(168,85,247,.10); }
+  50% { box-shadow: 0 0 0 9px rgba(168,85,247,.16); }
+  100%{ box-shadow: 0 0 0 6px rgba(168,85,247,.10); }
+}
+
+/* Sparkles that appear when focused */
+.fileUploadGroup:focus-within::after{
+  content:"";
+  position:absolute;
+  width:180px; height:180px;
+  translate: -18px -24px;
+  background:
+    radial-gradient(3px 3px at 12% 28%, rgba(255,255,255,.9), transparent 40%),
+    radial-gradient(2px 2px at 42% 16%, rgba(255,255,255,.7), transparent 50%),
+    radial-gradient(2px 2px at 76% 34%, rgba(255,255,255,.65), transparent 50%),
+    radial-gradient(1.6px 1.6px at 62% 78%, rgba(255,255,255,.7), transparent 50%);
+  filter: blur(.2px);
+  animation: spark-drift 2.2s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes spark-drift{
+  0%  { transform: translateY(0); opacity:.9;}
+  50% { transform: translateY(-6px); opacity:.6;}
+  100%{ transform: translateY(0); opacity:.9;}
+}
+
+/* Sheen + wave on the native file button */
+.fileUploadInput::file-selector-button,
+.fileUploadInput::-webkit-file-upload-button{
+  margin-right: .8rem;
+  padding: .58rem .98rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.14);
   color: #fff;
-}
-.packageLabel {
-  color: black;
-}
-.packageOptions {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
-}
-.packageCard {
-  border: 1px solid #dee2e6;
-  border-image: linear-gradient(135deg, #a855f7 0%, #1fb454 100%);
-  border-image-slice: 1;
-  border-radius: 8px;
-  padding: 1.25rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  text-align: center;
+  background:
+    linear-gradient(135deg, var(--g-500), var(--g-700)),
+    linear-gradient(120deg, rgba(255,255,255,0) 0%,
+                           rgba(255,255,255,.32) 35%,
+                           rgba(255,255,255,0) 70%);
+  background-size: 100% 100%, 230% 100%;
+  background-position: 0 0, -200% 0;
+  animation: file-sheen 2.6s linear infinite;
+  transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
 }
-.packageCard:hover {
-  background-color: #1fb454;
-}
-.packageCard.selected {
-  border-color: hsl(var(--primary));
-  background: rgba(var(--primary-rgb), 0.05);
-}
-.packageName {
-  color: white;
-}
-.packagePhotos {
-  color: white;
-}
-.price {
-  font-weight: 700;
-  color: white;
-  font-size: 1.25rem;
-  margin-top: 0.5rem;
+@keyframes file-sheen{ to{ background-position: 0 0, 200% 0; } }
+.fileUploadInput::file-selector-button:hover,
+.fileUploadInput::-webkit-file-upload-button:hover{
+  transform: translateY(-1px);
+  filter:brightness(1.06);
+  box-shadow: 0 12px 26px rgba(0,0,0,.38);
 }
 
-/* Add-ons Section */
-.addonsGroup {
-  color: white;
-}
-.addonsLabel {
-  color: white;
-}
-.addonOption {
-  color: white;
+/* ---------- Package picker grid ---------- */
+.packageOptions{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 22px;
+  perspective: 900px; /* enables 3D tilt */
 }
 
-/* Submit Button */
-.submitButton {
-  background-image: linear-gradient(135deg, #1fb454 0, #15803d 100%);
+.packageCard{
+  position: relative;
+  background: linear-gradient(180deg, #131a23, var(--surface-1)) !important;
+  border: 1px solid var(--line-soft) !important;
+  border-radius: 16px !important;
+  padding: 28px 22px !important;
+  text-align: center !important;
+  color: #fff !important;
+  cursor: pointer !important;
+  transition: transform .3s cubic-bezier(.2,.6,.2,1), box-shadow .22s ease, border-color .22s ease, background-color .22s ease, filter .22s ease;
+  transform-style: preserve-3d;
+  overflow:hidden;
+}
+
+/* top gloss band */
+.packageCard::before{
+  content: "";
+  position: absolute; inset: 0 0 auto 0; height: 38%;
+  background: linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+  border-radius: 16px 16px 0 0;
+  pointer-events: none;
+}
+
+/* gliding gloss on hover */
+.packageCard::after{
+  content:"";
+  position:absolute; inset:-2px;
+  background:
+    linear-gradient(100deg, rgba(255,255,255,.18), rgba(255,255,255,0) 35%);
+  transform: translateX(-120%);
+  filter: blur(10px);
+  pointer-events:none;
+  transition: transform .5s ease;
+}
+.packageCard:hover::after{ transform: translateX(110%); }
+
+/* subtle parallax tilt */
+.packageCard:hover{
+  transform: perspective(900px) rotateX(1.2deg) rotateY(.8deg) translateY(-3px);
+  border-color: rgba(255,255,255,.22) !important;
+  box-shadow: 0 18px 38px rgba(0,0,0,.40), 0 0 0 6px rgba(168,85,247,.08) inset !important;
+  background: linear-gradient(180deg, #15202a, var(--surface-1)) !important;
+}
+
+/* selected: living gradient border */
+.packageCard.selected{
+  border: 2px solid transparent !important;
+  background:
+    linear-gradient(180deg, #111a23, var(--surface-1)) padding-box,
+    conic-gradient(from 0deg, var(--violet), var(--emerald), #38bdf8, var(--violet)) border-box !important;
+  box-shadow: 0 22px 48px rgba(0,0,0,.48), 0 0 0 6px rgba(168,85,247,.09) inset !important;
+  animation: selected-flow 8s linear infinite;
+}
+@keyframes selected-flow{ to { background-position: 0 0, 360deg 0; } }
+
+.packageName,.packagePhotos,.price{ color: #fff !important; }
+.price{ margin-top: .45rem !important; font-weight: 700 !important; font-size: 1.16rem !important; }
+
+/* ---------- Add-ons: center + tight checkbox spacing ---------- */
+.addonsGroup{ text-align: center; margin-top: .75rem; }
+.addonsGroup :global(.form-check){
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: .55rem;
+  margin: 0 .9rem !important;
+}
+
+/* keep your white tick + add pulse ring on focus */
+.addonsGroup :global(.form-check-input),
+:global(.form-check-input){
+  transition: box-shadow .18s ease, border-color .18s ease, background-color .18s ease;
+}
+.addonsGroup :global(.form-check-input:focus),
+:global(.form-check-input:focus){
+  outline: none;
+  box-shadow: 0 0 0 0 rgba(34,197,94,.0);
+  animation: green-ring 1.4s ease-out 1;
+}
+@keyframes green-ring{
+  0%  { box-shadow: 0 0 0 0 rgba(34,197,94,.35); }
+  100%{ box-shadow: 0 0 0 8px rgba(34,197,94,0); }
+}
+
+/* white tick */
+.addonsGroup :global(.form-check-input:checked),
+:global(.form-check-input:checked){
+  background-color: var(--surface-1) !important;
+  border-color: var(--g-600) !important;
+  box-shadow: 0 0 0 2px rgba(34,197,94,.22) inset !important;
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 12'%3E%3Cpath fill='white' d='M6.1 11.5L.6 6l1.6-1.6L6.1 7.7 13.8.7 15.4 2.3z'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 12px 9px !important;
+}
+.addonsGroup :global(.form-check-label){ color: var(--ink) !important; }
+
+/* Neat defaults if any other checks render */
+:global(.form-check){
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: .55rem;
+}
+
+/* ---------- Submit button (cinematic) ---------- */
+.submitButton{
+  width: 100% !important;
+  border: none !important;
+  padding: .95rem 1.15rem !important;
+  border-radius: 12px !important;
+  color: #fff !important;
+  letter-spacing: .15px;
+  text-shadow: 0 1px 2px rgba(0,0,0,.55);
+
+  background:
+    linear-gradient(135deg, var(--g-500), var(--g-700)) !important;
+  background-size: 200% 100%;
+  animation: gradient-flow 6s linear infinite;
+
+  box-shadow: 0 10px 28px rgba(53,160,92,.28) !important;
+  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease !important;
+  position: relative;
+  overflow:hidden;
+}
+@keyframes gradient-flow{
+  0%{ background-position: 0% 0; }
+  100%{ background-position: -200% 0; }
+}
+
+/* ripple on hover */
+.submitButton::after{
+  content:"";
+  position:absolute; inset:0;
+  background: radial-gradient(1200px 300px at var(--mx,50%) 120%, rgba(255,255,255,.18), transparent 40%);
+  transform: translateY(40%);
+  opacity:0; pointer-events:none;
+  transition: opacity .28s ease, transform .28s ease;
+}
+.submitButton:hover{
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+  box-shadow: 0 18px 36px rgba(0,0,0,.34) !important;
+}
+.submitButton:hover::after{
+  opacity:1;
+  transform: translateY(0%);
+}
+
+/* disabled = loading stripes */
+.submitButton:disabled,
+.submitButton[disabled]{
+  opacity: 1 !important;
+  color:#fff !important;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      rgba(255,255,255,.08) 0 10px,
+      rgba(255,255,255,.03) 10px 20px
+    ),
+    linear-gradient(135deg, var(--g-500), var(--g-700));
+  background-size: 200% 100%, 100% 100%;
+  animation: load-stripes 1s linear infinite, gradient-flow 6s linear infinite;
+  cursor: wait;
+}
+@keyframes load-stripes{ to{ background-position: 40px 0, 0 0; } }
+
+/* tighten the gap beneath */
+.submitButton{ margin-top: .4rem !important; }
+
+/* ---------- Misc / responsive ---------- */
+.selectedChip{
+  display:inline-block;
+  padding:.55rem .8rem;
+  border-radius:999px;
+  border:1px solid rgba(148,163,184,.22);
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  font-weight:600;
+}
+@media (max-width: 992px){
+  .packageOptions{ grid-template-columns: 1fr; }
+}
+
+/* --- remove ONLY the diagonal sweep/scan overlays; keep aurora + ring --- */
+.portalCardHeader::before,
+.portalCardHeader::after,
+.portalCardBody::after{
+  content: none !important;
+  display: none !important;
+  animation: none !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+/* === NO-LINE FIX: keep aurora gradient, remove diagonal streaks === */
+
+/* 1) Kill the spinning conic ring (source of thin diagonal lines) */
+.portalCard::after{
+  content: none !important;
+  display: none !important;
+  animation: none !important;
+  background: none !important;
+  -webkit-mask: none !important;
+          mask: none !important;
+}
+
+/* 2) Keep a soft aurora glow only (pure blurred radials, no beams) */
+.portalCard::before{
+  content: "";
+  position: absolute;
+  inset: -14% -6% -22% -6%;
+  background:
+    radial-gradient(46% 58% at 18% 22%, rgba(168,85,247,.18), transparent 60%),
+    radial-gradient(48% 50% at 82% 28%, rgba(34,197,94,.14), transparent 60%),
+    radial-gradient(44% 60% at 54% 86%, rgba(56,189,248,.12), transparent 60%);
+  background-repeat: no-repeat !important;
+  filter: blur(42px) saturate(110%);
+  pointer-events: none;
+  z-index: -1;
+  animation: aurora-shift 26s ease-in-out infinite alternate;
+}
+
+/* 3) Make sure no other scan/sweep layers can slip back in */
+.portalCardHeader::before,
+.portalCardHeader::after,
+.portalCardBody::after{
+  content: none !important;
+  display: none !important;
+  animation: none !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+/* ---- Add-ons dropdown (glass) ---- */
+.addonsDropdown{
+  border:1px solid var(--line-soft);
+  border-radius:12px;
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  box-shadow: 0 12px 32px rgba(0,0,0,.32);
+  overflow:hidden;
+}
+
+.addonsHeader{
+  width:100%;
+  display:flex; align-items:center; justify-content:space-between;
+  gap:12px;
+  padding:12px 14px;
+  color:#fff; background:transparent; border:0; cursor:pointer;
+}
+.addonsHeader:hover{ background:rgba(255,255,255,.02); }
+
+.addonsHeaderLeft{ display:flex; align-items:center; gap:10px; font-weight:700; }
+.addonsHeaderLeft i{ opacity:.9; }
+
+.addonsHeaderRight{ display:flex; align-items:center; gap:12px; }
+.addonsSummary{
+  color:var(--ink-weak);
+  max-width:420px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.addonsTotal{
+  font-weight:800; padding:.15rem .55rem; border-radius:999px;
+  background:rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.28);
+}
+
+.addonsPanel{ padding:12px; border-top:1px solid var(--line-soft); display:grid; gap:12px; }
+
+.addonsGroup{
+  border:1px solid var(--line-soft); border-radius:10px; padding:10px;
+}
+.addonsGroup > legend{
+  padding:0 6px; font-size:.95rem; color:var(--ink); opacity:.95;
+}
+
+.itemRow{
+  display:grid; grid-template-columns:auto 1fr auto auto; align-items:center;
+  gap:12px; padding:10px 8px; border-radius:10px;
+}
+.itemRow:hover{ background:rgba(255,255,255,.03); }
+
+.itemRow input[type="checkbox"]{ width:18px; height:18px; }
+.itemName{ color:#fff; }
+.priceTag{ color:#fff; opacity:.9; font-weight:700; }
+
+.includedChip{
+  font-size:.75rem; padding:.2rem .5rem; border-radius:999px;
+  background:rgba(168,85,247,.14); border:1px solid rgba(168,85,247,.28);
+  color:#fff;
+}
+
+.qtyWrap{ display:flex; align-items:center; gap:10px; }
+.qtyWrap button{
+  width:28px; height:28px; border-radius:8px; border:1px solid var(--line-soft);
+  background:rgba(255,255,255,.04); color:#fff;
+}
+.qtyWrap button:hover{ filter:brightness(1.05); }
+.qtyWrap span{ min-width:20px; text-align:center; color:#fff; }
+
+.bundleRow{
+  display:flex; align-items:flex-start; gap:10px; padding:10px 8px; border-radius:10px;
+}
+.bundleRow:hover{ background:rgba(255,255,255,.03); }
+.bundleRow input[type="radio"]{ margin-top:3px; }
+
+.bundleText{ display:grid; gap:2px; }
+.bundleTitle{ color:#fff; font-weight:700; }
+.bundleBlurb{ color:var(--ink-weak); font-size:.92rem; }
+
+.clearBundle{
+  margin-top:6px; border:1px solid var(--line-soft); border-radius:8px;
+  background:rgba(255,255,255,.03); color:#fff; padding:.45rem .7rem;
+}
+.clearBundle:disabled{ opacity:.45; }
+
+.summaryCard {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 16px;
+}
+.summaryRow {
+  color: #fff !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+.summaryAddonsList {
+  font-size: 13px;
+  opacity: .8;
+  margin-top: 4px;
+}
+.summaryDivider {
+  border-color: rgba(255, 255, 255, 0.538);
+  margin: 10px 0;
+}
+.summaryGrand {
+  font-size: 18px;
 }

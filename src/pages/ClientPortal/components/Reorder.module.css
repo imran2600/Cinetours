@@ -1,80 +1,125 @@
-/* Card container */
-.reorderCard {
-  background-color: black;
-  color: white;
-    height: 100vh;
+/* ---------- Shell ---------- */
+.reorderCard{ background:transparent; color:#fff; border:none; }
+.reorderHeader{
+  background:transparent; color:rgba(255,255,255,.96);
+  border-bottom:1px solid rgba(148,163,184,.16);
+}
+.reorderBody{ background:transparent; color:rgba(255,255,255,.88); }
+.responsiveTableContainer{ width:100%; overflow-x:auto; }
 
+/* ---------- Table reset + alignment ---------- */
+.reorderTable{
+  width:100%;
+  table-layout: fixed;                     /* keep widths */
+  border-collapse: separate;
+  border-spacing: 0 14px;                  /* vertical gap between card rows */
+  --bs-table-bg: transparent;
+  --bs-table-striped-bg: transparent;
+  --bs-table-hover-bg: transparent;
+  --bs-table-border-color: transparent;
+  color: rgba(255,255,255,.88);
+  background: transparent !important;
 }
 
-/* Header */
-.reorderHeader {
-  background-color: black;
-  color: white;
-  border-bottom: 1px solid #a855f7;
-}
+/* make sure browser treats these as real table elements */
+.reorderTable thead{ display: table-header-group !important; }
+.reorderTable tbody{ display: table-row-group !important; }
+.reorderTable thead tr,
+.reorderTable tbody tr{ display: table-row !important; }
+.reorderTable th,
+.reorderTable td{ display: table-cell !important; vertical-align: middle; }
 
-/* Body */
-.reorderBody {
-  background-color: black;
-  color: white;
-}
-
-/* Responsive Table Container */
-.responsiveTableContainer {
-  width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Table */
-.reorderTable {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-/* Table Header */
-.tableHeaderRow {
-  border: 1px solid #a855f7;
-}
-.tableHeaderCell {
-  background-color: black !important;
-  color: white !important;
-  padding: 0.75rem;
+/* same padding left/right for th and td so columns line up */
+.reorderTable thead th,
+.reorderTable tbody td{
+  padding: 1rem 1.25rem !important;        /* 20px left/right */
   text-align: left;
+  border: 0 !important;
+  color: rgba(255,255,255,.88) !important;
 }
 
-/* Table Body & Rows */
-.tableBody {
-  background-color: black;
+/* header look */
+.reorderTable thead tr{
+  background: linear-gradient(180deg, rgba(255,255,255,.03), transparent);
 }
-.tableRow {
-  border-bottom: 1px solid #a855f7;
-}
-.tableCell {
-  background-color: black !important;
-  color: white !important;
-  border-bottom: 1px solid #a855f7;
-  padding: 0.75rem;
+.reorderTable thead th{
+  color: rgba(255,255,255,.96) !important;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
-/* Badge */
-.packageBadge {
-  background-color: transparent;
-  color: #1fb454;
-  border: 1px solid #1fb454;
-  border-radius: 4px;
-  padding: 0.25rem 0.5rem;
+/* hard-lock column widths (override Bootstrap) */
+.reorderTable th:nth-child(1), .reorderTable td:nth-child(1){ width: 32% !important; } /* Order ID */
+.reorderTable th:nth-child(2), .reorderTable td:nth-child(2){ width: 18% !important; } /* Date */
+.reorderTable th:nth-child(3), .reorderTable td:nth-child(3){ width: 22% !important; } /* Package */
+.reorderTable th:nth-child(4), .reorderTable td:nth-child(4){ width: 8%  !important; } /* Photos */
+.reorderTable th:nth-child(5), .reorderTable td:nth-child(5){ width: 20% !important; } /* Action */
+
+/* ---------- Card row look (like Invoice) ---------- */
+.tableRow td{
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)) !important;
+  border-top: 1px solid rgba(148,163,184,.16);
+  border-bottom: 1px solid rgba(148,163,184,.16);
+}
+.tableRow td:first-child{
+  border-left: 1px solid rgba(148,163,184,.16);
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+}
+.tableRow td:last-child{
+  border-right: 1px solid rgba(148,163,184,.16);
+  border-top-right-radius: 14px;
+  border-bottom-right-radius: 14px;
+}
+.tableRow:hover td{
+  background: rgba(255,255,255,.05) !important;
+  box-shadow: 0 10px 26px rgba(0,0,0,.30) inset, 0 8px 20px rgba(0,0,0,.28);
+  transition: background .18s ease, box-shadow .18s ease;
 }
 
-/* Reorder Button */
-.reorderButton {
-  color: white;
-  background-image: linear-gradient(135deg, #1fb454 0, #15803d 100%);
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  transition: background 0.3s ease;
+/* badge + button (unchanged) */
+.packageBadge{
+  display:inline-block;
+  padding:.28rem .65rem;
+  border-radius:999px;
+  border:1px solid #22c55e;
+  color:#22c55e;
+  background:rgba(34,197,94,.08);
+  font-weight:600; font-size:.875rem;
 }
-.reorderButton:hover {
-  background-image: linear-gradient(135deg, #15803d 0, #0f5e2a 100%);
+
+.reorderButton{
+  display:inline-flex; align-items:center; justify-content:center;
+  white-space:nowrap;
+  color:#fff !important;
+  background-image:linear-gradient(135deg, #22c55e, #15803d);
+  border:none !important;
+  border-radius:12px !important;
+  padding:.65rem 1.1rem !important;
+  box-shadow:0 10px 24px rgba(21,128,61,.28);
+  transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
 }
+.reorderButton:hover{ transform:translateY(-2px); filter:brightness(1.05); box-shadow:0 16px 30px rgba(21,128,61,.33); }
+.reorderButton:focus{ outline:none; box-shadow:0 0 0 6px rgba(34,197,94,.20); }
+
+/* responsive minimum like Invoice */
+@media (max-width:900px){
+  .reorderTable{ border-spacing: 0 10px; min-width: 640px; }
+}
+@media (max-width: 768px){
+  .backBtn{
+    position: static;    /* no absolute positioning */
+    transform: none;
+    margin: 0 0 12px;    /* space under the button */
+  }
+}
+
+@media (max-width: 480px){
+  .backBtn{
+    position: fixed ;
+    top: 72px;
+    left: 16px;
+    transform: none;
+  }
+}
+

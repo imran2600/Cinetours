@@ -2,92 +2,148 @@
 /* Invoices Component Styles     */
 /* ============================= */
 
-/* Card container */
-.invoiceCard {
-  background-color: black;
-  color: white;
-  border: 1px solid;
-  border-image: linear-gradient(135deg, #a855f7 0%, #1fb454 100%);
-  border-image-slice: 1;
+:root{
+  --brand1:#a855f7;
+  --brand2:#22c55e;
+  --hairline:rgba(148,163,184,.16);
+  --ink:rgba(255,255,255,.88);
+  --ink-strong:rgba(255,255,255,.96);
+}
+
+/* Card shell (page section) */
+.invoiceCard{
+  background: transparent;
+  color:#fff;
+  border: none;
 }
 
 /* Header */
-.invoiceHeader {
-  background-color: black !important;
-  color: white !important;
-  border-bottom: 1px solid #1fb454;
+.invoiceHeader{
+  background: transparent !important;
+  color:#fff !important;
+  border-bottom: 1px solid var(--hairline) !important;
+  padding: 1rem 1.25rem !important;
 }
 
 /* Body */
-.invoiceBody {
-  background-color: black;
-  color: white;
+.invoiceBody{
+  background: transparent;
+  color:#fff !important;
+  padding: 0 1rem 1.25rem;
 }
 
-/* Table wrapper */
-.invoiceTableWrapper {
-  overflow-x: auto;
+/* ---------- Table to “card rows” ---------- */
+.invoiceTableWrapper{ width:100%; overflow-x:auto; }
+
+/* neutralize Bootstrap table defaults */
+.invoiceTable{
+  width:100%;
+  border-collapse: separate;
+  border-spacing: 0 14px;                 /* space between “cards” */
+  --bs-table-bg: transparent;
+  --bs-table-striped-bg: transparent;
+  --bs-table-hover-bg: transparent;
+  --bs-table-border-color: transparent;
+  color:#fff !important;
+  background: transparent !important;
 }
 
-/* Table */
-.invoiceTable {
-  width: 100%;
-  border-collapse: collapse;
+.invoiceTable thead tr{
+  background: linear-gradient(180deg, rgba(255,255,255,.03), transparent);
+}
+.invoiceTable thead th{
+  background: transparent !important;
+  color:#fff !important;
+  font-weight: 700;
+  padding: .9rem 1rem;
+  white-space: nowrap;
+  border: 0 !important;
 }
 
-/* Table head */
-.invoiceTableHead {}
-
-/* Table heading cells */
-.invoiceTableHeading {
-  background-color: black !important;
-  color: white !important;
-  border-top: 1px solid #a855f7;
-  padding: 0.75rem;
-  text-align: left;
+/* Each data row becomes a single rounded “card” */
+.invoiceRow td{
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)) !important;
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+  padding: 1rem 1rem !important;
+  vertical-align: middle;
 }
 
-/* Table body */
-.invoiceTableBody {}
-
-/* Table row */
-.invoiceRow {
-  border-bottom: 1px solid rgba(255,255,255,0.15);
+/* Rounded corners for the row card */
+.invoiceRow td:first-child{
+  border-left: 1px solid var(--hairline);
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+}
+.invoiceRow td:last-child{
+  border-right: 1px solid var(--hairline);
+  border-top-right-radius: 14px;
+  border-bottom-right-radius: 14px;
 }
 
-/* Table cell */
-.invoiceCell {
-  background-color: black !important;
-  color: white !important;
-  border-top: 1px solid #a855f7;
-  padding: 0.75rem;
+/* Hover glow like the order/download cards */
+.invoiceRow:hover td{
+  background: rgba(255,255,255,.05) !important;
+  box-shadow: 0 10px 26px rgba(0,0,0,.30) inset, 0 8px 20px rgba(0,0,0,.28);
 }
 
-/* Invoice status badge */
-.invoiceStatus {
-  font-weight: 600;
-  text-transform: capitalize;
+/* Cells (shared) */
+.invoiceCell{
+  background: transparent !important;
+  color:#fff !important;
+  border: 0 !important;
 }
 
-/* Status variations */
-.status_paid {
-  background-color: #1fb454 !important;
-  color: black !important;
+/* Status pill (paid / pending / failed) */
+.invoiceStatus{
+  display:inline-flex; align-items:center;
+  padding:.28rem .6rem;
+  border-radius:999px;
+  font-weight:700; line-height:1;
+  box-shadow:0 6px 16px rgba(0,0,0,.25);
+}
+.status_paid    { background:rgba(34,197,94,.20) !important;  color:#34d399 !important; border:1px solid rgba(34,197,94,.45); }
+.status_pending { background:rgba(250,204,21,.18) !important; color:#fde68a !important; border:1px solid rgba(250,204,21,.45); }
+.status_failed  { background:rgba(220,38,38,.22) !important;  color:#fca5a5 !important; border:1px solid rgba(220,38,38,.50); }
+
+/* Download button — same emerald gradient */
+.invoiceDownloadBtn{
+  color:#fff !important;
+  border:none !important;
+  border-radius:10px;
+  padding:.55rem .95rem;
+  background-image:linear-gradient(135deg, var(--brand2), #15803d);
+  box-shadow:0 10px 24px rgba(21,128,61,.28);
+  transition:transform .18s ease, filter .18s ease, box-shadow .18s ease;
+}
+.invoiceDownloadBtn:hover{
+  transform:translateY(-2px);
+  filter:brightness(1.05);
+  box-shadow:0 16px 30px rgba(21,128,61,.33);
 }
 
-.status_pending {
-  background-color: #facc15 !important;
-  color: black !important;
+/* Small screens */
+@media (max-width: 768px){
+  .invoiceBody{ padding-left: .75rem; padding-right: .75rem; }
+  .invoiceTable{ border-spacing: 0 10px; }
 }
 
-.status_failed {
-  background-color: #dc2626 !important;
-  color: white !important;
+
+@media (max-width: 768px){
+  .backBtn{
+    position: static;    /* no absolute positioning */
+    transform: none;
+    margin: 0 0 12px;    /* space under the button */
+  }
 }
 
-/* Download button */
-.invoiceDownloadBtn {
-  color: white !important;
-  background-image: linear-gradient(135deg, #1fb454 0, #15803d 100%);
-  border: none !important;
+@media (max-width: 480px){
+  .backBtn{
+    position: fixed ;
+    top: 72px;
+    left: 16px;
+    transform: none;
+  }
 }
+
+
