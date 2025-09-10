@@ -6,7 +6,6 @@ const KEY_SESSION = "qt_session"; // active session
 
 const AuthCtx = createContext(null);
 
-
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
 
