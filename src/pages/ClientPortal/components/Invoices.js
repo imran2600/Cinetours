@@ -1,6 +1,8 @@
+// Invoices
 import React from 'react';
 import { Card, Table, Button, Badge } from 'react-bootstrap';
 import styles from './Invoices.module.css';
+import portalApi from '../../../services/portalApi';
 
 /**
  * Displays invoice history with download options
@@ -20,11 +22,19 @@ const Invoices = ({ invoices }) => {
   const handleDownload = async (invoiceId) => {
     try {
       // TODO: Implement API call
-      // const response = await axios.get(`/api/invoices/${invoiceId}`, {
-      //   responseType: 'blob'
-      // });
-      // Trigger file download
+
       alert(`Invoice #${invoiceId} download started`);
+      const data = await portalApi.getInvoice(invoiceId);
+      // Save the JSON details as a file (backend can later return a PDF)
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `invoice-${invoiceId}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Download failed:', error);
     }

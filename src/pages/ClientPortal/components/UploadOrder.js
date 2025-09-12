@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Form, Button, Card, Spinner } from "react-bootstrap";
 import styles from "./UploadOrder.module.css";
 import { useOrders } from "../../hooks/useOrders";
+import { useAuth } from "../../../auth/AuthContext";
+import portalApi from "../../../services/portalApi";
 
 /** --- Pricing tables (required to compute add-ons total) --- */
 const ADDON_PRICES = {
@@ -41,16 +43,22 @@ const UploadOrder = ({
   packages,
   isLoading: propLoading,
   preselectedPackageId,
-  initialAddons = null, // read-only add-ons coming from previous screen
+  initialAddons = null,
   onSubmit,
 }) => {
   const { addOrder } = useOrders();
+  const { user } = useAuth();
+  const PACKAGE_LIMITS = {
+    Starter:       { min: 5,  max: 10 },
+    Professional:  { min: 11, max: 20 },
+    Premium:       { min: 21, max: 30 },
+  };
+
 
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [selectedPackage, setSelectedPackage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Lock package chosen earlier (Gate step)
   useEffect(() => {
     if (preselectedPackageId != null) setSelectedPackage(String(preselectedPackageId));
   }, [preselectedPackageId]);
@@ -58,7 +66,6 @@ const UploadOrder = ({
   const selectedPkg = packages.find((p) => String(p.id) === String(selectedPackage));
   const pkgPrice = selectedPkg?.price ?? 0;
 
-  // Use add-ons from Add-on screen (read-only here)
   const addons =
     initialAddons ?? {
       voiceoverAI: false,
@@ -74,7 +81,6 @@ const UploadOrder = ({
   const addonsTotal = computeAddonsTotal(addons);
   const grandTotal = pkgPrice + addonsTotal;
 
-  // small, readable add-on list
   const addonChips = [];
   if (addons.bundle) addonChips.push(addons.bundle);
   if (addons.voiceoverAI) addonChips.push("Voiceover AI");
@@ -90,26 +96,38 @@ const UploadOrder = ({
     if (selectedFiles.length === 0) return alert("Please upload at least one photo.");
     if (!selectedPackage) return alert("Please select a package.");
 
+    const filesCount = selectedFiles.length;
+    const limits = PACKAGE_LIMITS[selectedPkg?.name];
+    if (limits && (filesCount < limits.min || filesCount > limits.max)) {
+      alert(`${selectedPkg.name} allows ${limits.min}-${limits.max} photos. You selected ${filesCount}.`);
+      setIsSubmitting(false);
+      return;
+    }
+
+
+    const userId = user?.id ?? user?.user?.id; // supports both shapes
+    if (!userId) return alert("Please sign in again.");
+
     setIsSubmitting(true);
     try {
-      if (!selectedPkg) throw new Error("Please select a package");
+      // ✅ Normal flow: create order + invoice
+      await portalApi.createOrder(userId, selectedPkg.name, addons, selectedFiles);
 
+      // keep existing local state behavior / UI flow
       const newOrder = {
         package: selectedPkg.name,
         photos: selectedFiles.length,
         addons,
         addonsTotal,
       };
-
       addOrder(newOrder);
       onSubmit?.(newOrder);
 
-      // reset (optional)
       setSelectedFiles([]);
       setSelectedPackage("");
     } catch (err) {
       console.error("Order submission error:", err);
-      alert(err.message);
+      alert(err.message || "Order submission failed.");
     } finally {
       setIsSubmitting(false);
     }
@@ -123,7 +141,6 @@ const UploadOrder = ({
 
       <Card.Body className={styles.portalCardBody}>
         <Form onSubmit={handleSubmit} className={styles.orderForm}>
-          {/* File Upload */}
           <Form.Group className={`mb-4 ${styles.fileUploadGroup}`}>
             <Form.Label className={styles.fileUploadLabel}>Upload Property Photos</Form.Label>
             <Form.Control
@@ -144,7 +161,6 @@ const UploadOrder = ({
             )}
           </Form.Group>
 
-          {/* Selected Package (read-only if preselected) */}
           {preselectedPackageId ? (
             <div className={`mb-4 ${styles.packageGroup}`}>
               <div className={styles.packageLabel}>Selected Package</div>
@@ -173,7 +189,6 @@ const UploadOrder = ({
             </Form.Group>
           )}
 
-          {/* Order Summary (read-only) */}
           <div className={`mb-4 ${styles.summaryCard}`}>
             <div className={styles.summaryRow}>
               <span>Package</span>
@@ -197,7 +212,6 @@ const UploadOrder = ({
             </div>
           </div>
 
-          {/* Submit */}
           <Button
             variant="primary"
             type="submit"

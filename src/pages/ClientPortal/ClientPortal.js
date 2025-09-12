@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+// src/pages/ClientPortal/ClientPortal.js
+import React, { useEffect, useState } from "react";
 import { Container } from "react-bootstrap";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
+import portalApi from "../../services/portalApi";
 
 import OrderStatus from "./components/OrderStatus";
 import DownloadCenter from "./components/DownloadCenter";
@@ -29,8 +31,7 @@ export default function ClientPortal() {
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Decide first screen: Hub if the user has an order, otherwise Gate.
-  // ?new=1 always opens Gate for a fresh order.
+  // Decide first screen
   const startNew = searchParams.get("new") === "1";
   const portalState = getPortalState(user?.email); // { hasOrder: boolean }
 
@@ -45,13 +46,67 @@ export default function ClientPortal() {
   const { orders } = useOrders();
   const [isLoading] = useState(false);
 
-  const clearNewFlag = () => setSearchParams({}); // clear ?new so future landings go to Hub
+  // Backend data for download center & invoices
+  const [dlVideos, setDlVideos] = useState([]);
+  const [invoiceList, setInvoiceList] = useState([]);
 
+  const clearNewFlag = () => setSearchParams({});
   const toGate = () => {
     setPreselectedPkgId(null);
     setPreselectedAddons(null);
     setStage("gate");
   };
+
+  /* ------------------- Effects (top-level; not conditional) ------------------- */
+
+  // Fetch Download Center items when the "downloads" tab is opened
+  useEffect(() => {
+    if (stage !== "portal" || activeTab !== "downloads") return;
+    const userId = user?.id ?? user?.user?.id;
+    if (!userId) return;
+
+    (async () => {
+      try {
+        const data = await portalApi.getDownloads(userId);
+        const mapped = (data?.downloads || []).flatMap((ord) =>
+          (ord.videos || []).map((v, idx) => ({
+            id: `${ord.order_id}-${idx}`,
+            orderId: ord.order_id,
+            name: v.filename?.replace(/\.(mp4|mov)$/i, "") || `Video ${idx + 1}`,
+            downloadUrl: v.url,
+            created: ord.date,
+          }))
+        );
+        setDlVideos(mapped);
+      } catch (e) {
+        console.error("Download center fetch failed:", e);
+        setDlVideos([]);
+      }
+    })();
+  }, [stage, activeTab, user]);
+
+  // Fetch invoices when the "invoices" tab is opened
+  useEffect(() => {
+    if (stage !== "portal" || activeTab !== "invoices") return;
+    const userId = user?.id ?? user?.user?.id;
+    if (!userId) return;
+
+    (async () => {
+      try {
+        const data = await portalApi.getUserInvoices(userId);
+        const mapped = (data?.invoices || []).map((inv) => ({
+          ...inv,
+          status: inv.status === "paid" ? "paid" : "pending",
+        }));
+        setInvoiceList(mapped);
+      } catch (e) {
+        console.error("Invoices fetch failed:", e);
+        setInvoiceList([]);
+      }
+    })();
+  }, [stage, activeTab, user]);
+
+  /* ------------------------------- Rendering ------------------------------- */
 
   // STEP 1: Choose Package
   if (stage === "gate") {
@@ -87,7 +142,6 @@ export default function ClientPortal() {
         preselectedPackageId={preselectedPkgId}
         preselectedAddons={preselectedAddons}
         onSubmitted={() => {
-          // Persist "hasOrder" so future visits go to Hub
           if (user?.email) setPortalState(user.email, { hasOrder: true });
           clearNewFlag();
           setStage("hub");
@@ -106,10 +160,7 @@ export default function ClientPortal() {
           setStage("portal");
         }}
         onStartOrder={() => {
-          // Start a new order from the Hub
           toGate();
-          // Optional: set ?new=1 while the user is in the new-order flow
-          // (we'll clear it on submit or when going back to the hub)
           setSearchParams({ new: "1" });
         }}
       />
@@ -136,18 +187,7 @@ export default function ClientPortal() {
       return (
         <div className={styles.screenWrap}>
           <button onClick={goBack} className={styles.backBtn}>← Back</button>
-          <DownloadCenter
-            videos={orders
-              .filter(o => o.status === "completed")
-              .map(o => ({
-                id: o.id,
-                orderId: o.id,
-                name: `${o.package} Package Video`,
-                downloadUrl: "#",
-                created: o.date
-              }))}
-            onDownload={(id) => alert(`Downloading video ${id} (hook up backend)`)}
-          />
+          <DownloadCenter videos={dlVideos} />
         </div>
       );
     }
@@ -158,7 +198,10 @@ export default function ClientPortal() {
           <button onClick={goBack} className={styles.backBtn}>← Back</button>
           <BrandAssets
             assets={{ logo: "/assets/logo-placeholder.png", colorScheme: "#21ABB5", font: "Montserrat" }}
-            onUpdate={(assets) => { alert("Brand assets updated (hook up backend)"); console.log(assets); }}
+            onUpdate={(assets) => {
+              alert("Brand assets updated (hook up backend)");
+              console.log(assets);
+            }}
           />
         </div>
       );
@@ -168,7 +211,7 @@ export default function ClientPortal() {
       return (
         <div className={styles.screenWrap}>
           <button onClick={goBack} className={styles.backBtn}>← Back</button>
-          <Reorder pastOrders={orders.filter(o => o.status === "completed")} />
+          <Reorder pastOrders={orders.filter((o) => o.status === "completed")} />
         </div>
       );
     }
@@ -177,14 +220,7 @@ export default function ClientPortal() {
       return (
         <div className={styles.screenWrap}>
           <button onClick={goBack} className={styles.backBtn}>← Back</button>
-          <Invoices
-            invoices={orders.map(o => ({
-              id: o.id,
-              date: o.date,
-              amount: PACKAGE_OPTIONS.find(p => p.name === o.package)?.price || 0,
-              status: "paid",
-            }))}
-          />
+          <Invoices invoices={invoiceList} />
         </div>
       );
     }

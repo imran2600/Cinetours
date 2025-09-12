@@ -1,6 +1,8 @@
+//  Reorder
 import React from 'react';
 import { Card, Table, Button, Badge } from 'react-bootstrap';
 import styles from './Reorder.module.css';
+import portalApi from '../../../services/portalApi';
 
 
 
@@ -21,6 +23,7 @@ import styles from './Reorder.module.css';
 const Reorder = ({ pastOrders }) => {
   const handleReorder = async (orderId) => {
     try {
+      await portalApi.reorder(orderId);
       alert(`Order #${orderId} has been recreated!`);
     } catch (error) {
       console.error('Reorder failed:', error);
