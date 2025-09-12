@@ -1,40 +1,59 @@
-                                      /* logs and status*/
+/* logs and status*/
+
+:root{
+  --brand1:#a855f7;
+  --brand2:#22c55e;
+  --hairline:rgba(148,163,184,.16);
+  --ink:rgba(255,255,255,.88);
+  --ink-strong:rgba(255,255,255,.96);
+}
 
 /* Card wrapper */
 .jobTrackerCard {
-  background-color: black !important;
+  background: transparent !important;
   color: white !important;
-  border: 1px solid ;
-  border-image: linear-gradient(135deg, #a855f7 0%, #1fb454 100%);
-border-image-slice: 1; /* ensures gradient covers border */
-
+  border: none !important;
 }
 
 /* Card header */
 .jobTrackerHeader {
-  background-color: black !important;
+  background: transparent !important;
   color: white !important;
-  border-bottom: 1px solid ;
-  border-image: linear-gradient(135deg, #a855f7 0%, #1fb454 100%);
-border-image-slice: 1; /* ensures gradient covers border */
+  border-bottom: 1px solid var(--hairline) !important;
+  padding: 1rem 1.25rem !important;
 }
-.jobTrackerTitle {}
+
+.jobTrackerTitle {
+  margin: 0;
+}
 
 /* Card body */
-.jobTrackerBody {}
+.jobTrackerBody {
+  background: transparent;
+  color: white !important;
+  padding: 0 1rem 1.25rem;
+}
 
 /* List wrapper */
-.jobTrackerList {background-color: black !important;
+.jobTrackerList {
+  background: transparent !important;
   color: white !important;
-  border: 3px solid ;
-  border-image: linear-gradient(135deg, #a855f7 0%, #1fb454 100%);
-border-image-slice: 1; /* ensures gradient covers border */}
+  border: none;
+  border-radius: 0;
+}
 
 /* Each log item */
 .jobTrackerListItem {
-  background-color: black !important;
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)) !important;
   color: white !important;
-  border: none;
+  border: 1px solid var(--hairline) !important;
+  border-radius: 14px !important;
+  margin-bottom: 14px;
+  padding: 1rem 1rem !important;
+}
+
+.jobTrackerListItem:last-child {
+  margin-bottom: 0;
 }
 
 /* Log item container */
@@ -48,18 +67,69 @@ border-image-slice: 1; /* ensures gradient covers border */}
 .logMessageWrapper {
   display: flex;
   align-items: center;
+  gap: 0.75rem;
 }
 
 /* Status badge */
-.logBadge {}
+.logBadge {
+  display:inline-flex; 
+  align-items:center;
+  padding:.28rem .6rem;
+  border-radius:999px;
+  font-weight:700; 
+  line-height:1;
+  box-shadow:0 6px 16px rgba(0,0,0,.25);
+}
 
 /* Status variants */
-.processing {}
-.success {}
-.error {}
+.processing { 
+  background:rgba(250,204,21,.18) !important; 
+  color:#fde68a !important; 
+  border:1px solid rgba(250,204,21,.45); 
+}
+.success { 
+  background:rgba(34,197,94,.20) !important;  
+  color:#34d399 !important; 
+  border:1px solid rgba(34,197,94,.45); 
+}
+.error { 
+  background:rgba(220,38,38,.22) !important;  
+  color:#fca5a5 !important; 
+  border:1px solid rgba(220,38,38,.50); 
+}
 
 /* Log message */
-.logMessage {}
+.logMessage {
+  color: var(--ink);
+}
 
 /* Timestamp */
-.logTimestamp {}
+.logTimestamp {
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+/* Hover effect */
+.jobTrackerListItem:hover {
+  background: rgba(255,255,255,.05) !important;
+  box-shadow: 0 10px 26px rgba(0,0,0,.30) inset, 0 8px 20px rgba(0,0,0,.28);
+}
+
+/* Small screens */
+@media (max-width: 768px){
+  .jobTrackerBody { 
+    padding-left: .75rem; 
+    padding-right: .75rem; 
+  }
+  
+  .logItemWrapper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .logTimestamp {
+    align-self: flex-end;
+    font-size: 0.85rem;
+  }
+}

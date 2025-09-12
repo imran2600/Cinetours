@@ -1,58 +1,161 @@
-                                       /* Propmet management */
+/* ============================= */
+/* PromptViewer Component Styles */
+/* ============================= */
 
-
-
-/* .adminCard {} */
-
-/* Header & Tabs */
-.cardHeader {  background-color: black !important;
-  color: white !important;
-    
+:root{
+  --brand1:#a855f7;
+  --brand2:#22c55e;
+  --hairline:rgba(148,163,184,.16);
+  --ink:rgba(255,255,255,.88);
+  --ink-strong:rgba(255,255,255,.96);
 }
-/* .tabsWrapper {} */
+
+/* Card shell (page section) */
+.adminCard{
+  background: transparent;
+  color:#fff;
+  border: none;
+}
+
+/* Header */
+.cardHeader{
+  background: transparent !important;
+  color:#fff !important;
+  border-bottom: 1px solid var(--hairline) !important;
+  padding: 1rem 1.25rem !important;
+}
+
+/* Tabs */
+.tabsWrapper {
+  border: none;
+}
+
 .tabItem{
-  background-image: linear-gradient(135deg, #1fb454 0, #15803d 100%);
-  color: white !important;
-  margin: 10px;
-  border: none;
-  border-radius: 7px;
-
-}
-.tabItem:hover {
-  background-image: linear-gradient(135deg, #1fb454 0, #15803d 100%);
-  color: white !important;
-  border: none;
+  background: transparent !important;
+  color: var(--ink) !important;
+  border: none !important;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  margin-right: 0.5rem;
+  border-radius: 8px;
 }
 
+.tabItem:hover,
+.tabItem:focus {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: var(--ink-strong) !important;
+}
 
+.nav-tabs .nav-item.show .nav-link, 
+.nav-tabs .nav-link.active {
+  background: linear-gradient(135deg, var(--brand2), #15803d) !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: 0 10px 24px rgba(21,128,61,.28);
+}
 
 /* Body */
-.cardBody {background-color: black !important;
-  color: white !important;
-  
-  }
+.cardBody {
+  background: transparent;
+  color:#fff !important;
+  padding: 1.25rem;
+}
 
 /* Prompt section */
-/* .promptSection {} */
-/* .promptTitle {} */
-/* .promptText {} */
+.promptSection {
+  margin-bottom: 1.5rem;
+}
+
+.promptTitle {
+  color: var(--ink);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.promptText {
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  padding: 1rem;
+  color: var(--ink-strong);
+  margin-bottom: 0;
+}
 
 /* Feedback form */
-/* .feedbackForm {} */
-/* .formGroup {} */
-/* .formLabel {} */
+.feedbackForm {
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  padding: 1.25rem;
+}
+
+.formGroup {
+  margin-bottom: 1rem;
+}
+
+.formLabel {
+  color: var(--ink);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
 .formControl {
-  background-color: black !important;
-  color: white !important;
+  background: rgba(0, 0, 0, 0.2) !important;
+  color: var(--ink-strong) !important;
+  border: 1px solid var(--hairline) !important;
+  border-radius: 10px;
+  padding: 0.75rem;
+}
+
+.formControl:focus {
+  background: rgba(0, 0, 0, 0.3) !important;
+  color: var(--ink-strong) !important;
+  border-color: var(--brand2) !important;
+  box-shadow: 0 0 0 0.2rem rgba(34, 197, 94, 0.25);
 }
 
 /* Submit button */
 .submitButton {
-  color: white;
-  background-image: linear-gradient(135deg, #1fb454 0, #15803d 100%);
- border: none;
-  margin-top: 20px;}
+  color: #fff !important;
+  border: none !important;
+  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+  background-image: linear-gradient(135deg, var(--brand2), #15803d);
+  box-shadow: 0 10px 24px rgba(21,128,61,.28);
+  transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+  font-weight: 600;
+}
+
+.submitButton:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow: 0 16px 30px rgba(21,128,61,.33);
+}
 
 /* History section */
-/* .historySection {} */
+.historySection {
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  padding: 1.5rem;
+  color: var(--ink);
+  text-align: center;
+}
 
+/* Small screens */
+@media (max-width: 768px){
+  .cardBody { 
+    padding: 1rem; 
+  }
+  
+  .feedbackForm,
+  .promptText,
+  .historySection {
+    padding: 1rem;
+  }
+  
+  .tabItem {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+  }
+}

@@ -1,68 +1,126 @@
-/* Wrapper Card */
-.adminCard {
-  background-color: #000; /* Black background */
-  color: #fff; /* White text */
-  border: 2px solid transparent;
-  border-radius: 12px;
-  background-clip: padding-box, border-box;
-  background-origin: border-box;
-  border-image: linear-gradient(135deg, #a855f7 0%, #1fb454 100%);
-border-image-slice: 1; /* ensures gradient covers border */
+/* ============================= */
+/* Notification Component Styles */
+/* ============================= */
 
+:root{
+  --brand1:#a855f7;
+  --brand2:#22c55e;
+  --hairline:rgba(148,163,184,.16);
+  --ink:rgba(255,255,255,.88);
+  --ink-strong:rgba(255,255,255,.96);
+}
+
+/* Card shell (page section) */
+.notificationCard{
+  background: transparent;
+  color:#fff;
+  border: none;
 }
 
 /* Header */
-.cardHeader {
-  border-bottom: 1px solid rgba(255,255,255,0.2);
-  padding: 12px 16px;
+.notificationHeader{
+  background: transparent !important;
+  color:#fff !important;
+  border-bottom: 1px solid var(--hairline) !important;
+  padding: 1rem 1.25rem !important;
 }
-.cardTitle {
+
+.notificationTitle {
   margin: 0;
-  font-size: 1.1rem;
-  color: #fff;
+  font-size: 1.5rem;
+  color: white;
 }
 
 /* Body */
-.cardBody {
-  padding: 16px;
+.notificationBody{
+  background: transparent;
+  color:#fff !important;
+  padding: 0 1rem 1.25rem;
 }
 
 /* List Group */
-.listGroup {
+.notificationListGroup {
   background: transparent;
+  border-spacing: 0 14px;
+  display: grid;
+  gap: 14px;
 }
-.listItem {
-  background: #000;
-  color: #fff;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  padding: 12px 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-image: linear-gradient(135deg, #a855f7 0%, #1fb454 100%);
-border-image-slice: 1; /* ensures gradient covers border */
 
+/* Each list item becomes a single rounded "card" */
+.notificationListItem {
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)) !important;
+  border: 1px solid var(--hairline) !important;
+  border-radius: 14px !important;
+  padding: 1rem 1rem !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  color: var(--ink) !important;
+  margin-bottom: 0 !important;
 }
-.itemLabel {
+
+/* Hover effect matching the reference */
+.notificationListItem:hover {
+  background: rgba(255,255,255,.05) !important;
+  box-shadow: 0 10px 26px rgba(0,0,0,.30) inset, 0 8px 20px rgba(0,0,0,.28);
+}
+
+.notificationLabel {
   font-size: 0.95rem;
+  color: var(--ink);
 }
-.switchInput {
+
+.notificationSwitch {
   cursor: pointer;
 }
 
-/* Save Button */
-.saveButton {
-  margin-top: 15px;
-  background-color: #00c853 !important; /* Green */
-  border: none !important;
-  color: #fff !important;
-  font-weight: bold;
-  padding: 10px 20px;
-  border-radius: 8px;
-  transition: 0.3s;
+/* Save Button — same emerald gradient as reference */
+.notificationSaveButton {
+  color:#fff !important;
+  border:none !important;
+  border-radius:10px;
+  padding:.75rem 1.5rem;
+  background-image:linear-gradient(135deg, var(--brand2), #15803d);
+  box-shadow:0 10px 24px rgba(21,128,61,.28);
+  transition:transform .18s ease, filter .18s ease, box-shadow .18s ease;
+  font-weight: 600;
+  margin-top: 1.5rem;
 }
-.saveButton:hover {
-  background-color: #00e676 !important;
+
+.notificationSaveButton:hover {
+  transform:translateY(-2px);
+  filter:brightness(1.05);
+  box-shadow:0 16px 30px rgba(21,128,61,.33);
+  background-image:linear-gradient(135deg, var(--brand2), #15803d) !important;
+  color:#fff !important;
 }
+
+.notificationButtonWrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Small screens */
+@media (max-width: 768px){
+  .notificationBody{ 
+    padding-left: .75rem; 
+    padding-right: .75rem; 
+  }
+  
+  .notificationListItem {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 12px;
+  }
+  
+  .notificationButtonWrapper {
+    justify-content: center;
+  }
+  
+  .notificationSaveButton {
+    width: 100%;
+  }
+}
+
+
+

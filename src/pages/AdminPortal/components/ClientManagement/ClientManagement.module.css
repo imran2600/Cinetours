@@ -1,43 +1,167 @@
-                                     /* client management */
+/* ============================= */
+/* Client Management Styles      */
+/* ============================= */
 
+:root{
+  --brand1:#a855f7;
+  --brand2:#22c55e;
+  --hairline:rgba(148,163,184,.16);
+  --ink:rgba(255,255,255,.88);
+  --ink-strong:rgba(255,255,255,.96);
+}
 
 /* Card wrapper */
 .adminCard {
-  background-color: black ;
-  color: white ;
+  background: transparent;
+  color:#fff;
+  border: none;
 }
 
 /* Header */
-.cardHeader {}
-.headerContainer {}
-.headerTitle {
-  font-size: 30px;
+.cardHeader{
+  background: transparent !important;
+  color:#fff !important;
+  border-bottom: 1px solid var(--hairline) !important;
+  padding: 1rem 1.25rem !important;
 }
-.exportButton {}
+
+.headerContainer{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.headerTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--ink-strong);
+}
+
+.exportButton {
+  color:#fff !important;
+  border:none !important;
+  border-radius:10px;
+  padding:.55rem .95rem;
+  background-image:linear-gradient(135deg, var(--brand2), #15803d);
+  box-shadow:0 10px 24px rgba(21,128,61,.28);
+  transition:transform .18s ease, filter .18s ease, box-shadow .18s ease;
+}
+
+.exportButton:hover{
+  transform:translateY(-2px);
+  filter:brightness(1.05);
+  box-shadow:0 16px 30px rgba(21,128,61,.33);
+}
 
 /* Card body */
-.cardBody {}
+.cardBody{
+  background: transparent;
+  color:#fff !important;
+  padding: 0 1rem 1.25rem;
+}
+
+/* Table wrapper */
+.tableWrapper{ 
+  width:100%; 
+  overflow-x:auto; 
+}
 
 /* Table */
-.clientTable {}
-.tableHead {}
-.tableRowHead {}
-.tableHeading {   
-    background-color: black !important ;
-    color: white !important;
-    border-top: 1px solid ;
-    border-image: linear-gradient(135deg, #a855f7 0%, #1fb454 100%);
-    border-image-slice: 1; /* ensures gradient covers border */
+.clientTable{
+  width:100%;
+  border-collapse: separate;
+  border-spacing: 0 14px;                 /* space between "cards" */
+  --bs-table-bg: transparent;
+  --bs-table-striped-bg: transparent;
+  --bs-table-hover-bg: transparent;
+  --bs-table-border-color: transparent;
+  color:#fff !important;
+  background: transparent !important;
 }
-.tableBody {}
-.tableRow {}
-.tableCell {
-  background-color: black !important ;
-    color: white !important;
-    border-top: 1px solid ;
-    border-image: linear-gradient(135deg, #a855f7 0%, #1fb454 100%);
-    border-image-slice: 1; /* ensures gradient covers border */
+
+.tableHead tr{
+  background: linear-gradient(180deg, rgba(255,255,255,.03), transparent);
+}
+
+.tableRowHead th{
+  background: transparent !important;
+  color:#fff !important;
+  font-weight: 700;
+  padding: .9rem 1rem;
+  white-space: nowrap;
+  border: 0 !important;
+}
+
+/* Each data row becomes a single rounded "card" */
+.tableRow td{
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)) !important;
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+  padding: 1rem 1rem !important;
+  vertical-align: middle;
+}
+
+/* Rounded corners for the row card */
+.tableRow td:first-child{
+  border-left: 1px solid var(--hairline);
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+}
+
+.tableRow td:last-child{
+  border-right: 1px solid var(--hairline);
+  border-top-right-radius: 14px;
+  border-bottom-right-radius: 14px;
+}
+
+/* Hover glow like the order/download cards */
+.tableRow:hover td{
+  background: rgba(255,255,255,.05) !important;
+  box-shadow: 0 10px 26px rgba(0,0,0,.30) inset, 0 8px 20px rgba(0,0,0,.28);
+}
+
+/* Cells (shared) */
+.tableCell{
+  background: transparent !important;
+  color:#fff !important;
+  border: 0 !important;
 }
 
 /* Action buttons */
-.viewButton {}
+.viewButton {
+  color:#fff !important;
+  border:none !important;
+  border-radius:10px;
+  padding:.55rem .95rem;
+  background-image:linear-gradient(135deg, var(--brand2), #15803d);
+  box-shadow:0 10px 24px rgba(126, 34, 206, .28);
+  transition:transform .18s ease, filter .18s ease, box-shadow .18s ease;
+}
+
+.viewButton:hover{
+  transform:translateY(-2px);
+  filter:brightness(1.05);
+  box-shadow:0 16px 30px #22c55e;
+}
+
+/* Small screens */
+@media (max-width: 768px){
+  .cardBody{ 
+    padding-left: .75rem; 
+    padding-right: .75rem; 
+  }
+  .clientTable{ 
+    border-spacing: 0 10px; 
+  }
+  
+  .headerContainer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .headerTitle {
+    font-size: 1.25rem;
+  }
+}

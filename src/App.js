@@ -11,7 +11,7 @@ import CostComparison from "./Components/CostComparison/CostComparison.js";
 import Testimonials from "./Components/Testimonials/Testimonials.js";
 import Footer from "./Components/Footer/Footer.js";
 import ClientPortal from "./pages/ClientPortal/ClientPortal.js";
-import AdminPanel from "./pages/AdminPortal/AdminPortal";
+import AdminPortal from "./pages/AdminPortal/AdminPortal";
 import PricingPage from "../src/pages/Pricing_page/Pricing.js"; // Add this import
 
 import { useEffect } from 'react';
@@ -89,31 +89,27 @@ function App() {
           {/* Pricing Page Route */}
           <Route path="/Pricing" element={<PricingPage />} />
 
-          {/* Admin Panel Route */}
-          <Route path="/admin" element={<AdminPanel />} />
+          {/* Admin Panel Route with nested routes */}
+          <Route path="/admin/*" element={<AdminPortal />} />
 
           {/* Auth pages */}
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
 
-          {/* Protected portal */}
-          <Route
-            path="/portal"
-            element={
-              <ProtectedRoute>
-                <ClientPortal />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Optional alias + fallback */}
-          <Route path="/client-portal" element={<Navigate to="/portal" replace />} />
+          {/* Protected Routes */}
+          <Route path="/portal" element={
+            <ProtectedRoute>
+              <ClientPortal />
+            </ProtectedRoute>
+          } />
+          
+          {/* Fallback route */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
 
         <Footer />
       </div>
-    </Router>
+      </Router>
     </AuthProvider>
   );
 }

@@ -26,42 +26,42 @@ const AlertsPanel = () => {
   };
 
   return (
-    <Card className={styles.adminCard}>
-      <Card.Header className={styles.cardHeader}>
-        <h5 className={styles.cardTitle}>Notification Settings</h5>
+    <Card className={styles.notificationCard}>
+      <Card.Header className={styles.notificationHeader}>
+        <h4 className={styles.notificationTitle}>Notification Settings</h4>
       </Card.Header>
-      <Card.Body className={styles.cardBody}>
-        <ListGroup className={styles.listGroup}>
-          <ListGroup.Item className={styles.listItem}>
-            <span className={styles.itemLabel}>Order Completed</span>
+      <Card.Body className={styles.notificationBody}>
+        <ListGroup className={styles.notificationListGroup}>
+          <ListGroup.Item className={styles.notificationListItem}>
+            <span className={styles.notificationLabel}>Order Completed</span>
             <Form.Check
               type="switch"
               checked={settings.orderCompleted}
               onChange={() => handleToggle('orderCompleted')}
-              className={styles.switchInput}
+              className={styles.notificationSwitch}
             />
           </ListGroup.Item>
-          <ListGroup.Item className={styles.listItem}>
-            <span className={styles.itemLabel}>Order Failed</span>
+          <ListGroup.Item className={styles.notificationListItem}>
+            <span className={styles.notificationLabel}>Order Failed</span>
             <Form.Check
               type="switch"
               checked={settings.orderFailed}
               onChange={() => handleToggle('orderFailed')}
-              className={styles.switchInput}
+              className={styles.notificationSwitch}
             />
           </ListGroup.Item>
-          <ListGroup.Item className={styles.listItem}>
-            <span className={styles.itemLabel}>System Alerts</span>
+          <ListGroup.Item className={styles.notificationListItem}>
+            <span className={styles.notificationLabel}>System Alerts</span>
             <Form.Check
               type="switch"
               checked={settings.systemAlerts}
               onChange={() => handleToggle('systemAlerts')}
-              className={styles.switchInput}
+              className={styles.notificationSwitch}
             />
           </ListGroup.Item>
         </ListGroup>
-        <div className={styles.buttonWrapper}>
-          <Button onClick={handleSave} className={styles.saveButton}>
+        <div className={styles.notificationButtonWrapper}>
+          <Button onClick={handleSave} className={styles.notificationSaveButton}>
             Save Settings
           </Button>
         </div>

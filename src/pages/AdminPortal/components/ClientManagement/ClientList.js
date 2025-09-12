@@ -31,32 +31,34 @@ const ClientList = () => {
 
       {/* Body */}
       <Card.Body className={styles.cardBody}>
-        <Table hover responsive className={styles.clientTable}>
-          <thead className={styles.tableHead}>
-            <tr className={styles.tableRowHead}>
-              <th className={styles.tableHeading}>Client</th>
-              <th className={styles.tableHeading}>Email</th>
-              <th className={styles.tableHeading}>Joined</th>
-              <th className={styles.tableHeading}>Orders</th>
-              <th className={styles.tableHeading}>Actions</th>
-            </tr>
-          </thead>
-          <tbody className={styles.tableBody}>
-            {clients.map((client) => (
-              <tr key={client.id} className={styles.tableRow}>
-                <td className={styles.tableCell}>{client.name}</td>
-                <td className={styles.tableCell}>{client.email}</td>
-                <td className={styles.tableCell}>{client.joined}</td>
-                <td className={styles.tableCell}>{client.orders}</td>
-                <td className={styles.tableCell}>
-                  <Button size="sm" className={styles.viewButton}>
-                    View
-                  </Button>
-                </td>
+        <div className={styles.tableWrapper}>
+          <Table hover responsive className={styles.clientTable}>
+            <thead className={styles.tableHead}>
+              <tr className={styles.tableRowHead}>
+                <th className={styles.tableHeading}>Client</th>
+                <th className={styles.tableHeading}>Email</th>
+                <th className={styles.tableHeading}>Joined</th>
+                <th className={styles.tableHeading}>Orders</th>
+                <th className={styles.tableHeading}>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
+            </thead>
+            <tbody className={styles.tableBody}>
+              {clients.map((client) => (
+                <tr key={client.id} className={styles.tableRow}>
+                  <td data-label="Client" className={styles.tableCell}>{client.name}</td>
+                  <td data-label="Email" className={styles.tableCell}>{client.email}</td>
+                  <td data-label="Joined" className={styles.tableCell}>{client.joined}</td>
+                  <td data-label="Orders" className={styles.tableCell}>{client.orders}</td>
+                  <td data-label="Actions" className={styles.tableCell}>
+                    <Button size="sm" className={styles.viewButton}>
+                      View
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </div>
       </Card.Body>
     </Card>
   );

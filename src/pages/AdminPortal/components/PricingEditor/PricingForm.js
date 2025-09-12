@@ -38,79 +38,81 @@ const PricingForm = () => {
       transition={{ duration: 0.5 }}
     >
       {/* Pricing Editor */}
-      <Card className={`${styles.adminCard} ${styles.editorCard}`}>
-        <Card.Header className={styles.cardHeader}>
-          <h5 className={styles.editorTitle}>Package Pricing Editor</h5>
+      <Card className={styles.adminCard}>
+        <Card.Header as="h4" className={styles.cardHeader}>
+          Package Pricing Editor
         </Card.Header>
         <Card.Body className={styles.cardBody}>
-          <Table responsive className={styles.pricingTable}>
-            <thead className={styles.tableHead}>
-              <tr className={styles.tableRowHead}>
-                <th className={styles.tableHeading}>Package</th>
-                <th className={styles.tableHeading}>Photos</th>
-                <th className={styles.tableHeading}>Turnaround</th>
-                <th className={styles.tableHeading}>Price ($)</th>
-                <th className={styles.tableHeading}>Actions</th>
-              </tr>
-            </thead>
-            <tbody className={styles.tableBody}>
-              {pricing.map((pkg) => (
-                <tr key={pkg.id} className={styles.tableRow}>
-                  <td className={styles.tableCell}>{pkg.name}</td>
-                  <td className={styles.tableCell}>{pkg.photos}</td>
-                  <td className={styles.tableCell}>{pkg.turnaround}</td>
-                  <td className={styles.tableCell}>
-                    {editingId === pkg.id ? (
-                      <Form.Control
-                        type="number"
-                        value={tempPrice}
-                        onChange={(e) => setTempPrice(e.target.value)}
-                        size="sm"
-                        className={styles.priceInput}
-                      />
-                    ) : (
-                      <span className={styles.priceText}>${pkg.price}</span>
-                    )}
-                  </td>
-                  <td className={styles.tableCell}>
-                    {editingId === pkg.id ? (
-                      <div className={styles.actionButtons}>
-                        <Button
-                          size="sm"
-                          className={styles.saveButton}
-                          onClick={() => handleSave(pkg.id)}
-                        >
-                          Save
-                        </Button>
-                        <Button
-                          size="sm"
-                          className={styles.cancelButton}
-                          onClick={() => setEditingId(null)}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    ) : (
-                      <Button
-                        size="sm"
-                        className={styles.editButton}
-                        onClick={() => handleEditClick(pkg.id, pkg.price)}
-                      >
-                        Edit
-                      </Button>
-                    )}
-                  </td>
+          <div className={styles.tableWrapper}>
+            <Table responsive className={styles.pricingTable}>
+              <thead>
+                <tr>
+                  <th className={styles.tableHeading}>Package</th>
+                  <th className={styles.tableHeading}>Photos</th>
+                  <th className={styles.tableHeading}>Turnaround</th>
+                  <th className={styles.tableHeading}>Price ($)</th>
+                  <th className={styles.tableHeading}>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </Table>
+              </thead>
+              <tbody>
+                {pricing.map((pkg) => (
+                  <tr key={pkg.id} className={styles.tableRow}>
+                    <td data-label="Package" className={styles.tableCell}>{pkg.name}</td>
+                    <td data-label="Photos" className={styles.tableCell}>{pkg.photos}</td>
+                    <td data-label="Turnaround" className={styles.tableCell}>{pkg.turnaround}</td>
+                    <td data-label="Price ($)" className={styles.tableCell}>
+                      {editingId === pkg.id ? (
+                        <Form.Control
+                          type="number"
+                          value={tempPrice}
+                          onChange={(e) => setTempPrice(e.target.value)}
+                          size="sm"
+                          className={styles.priceInput}
+                        />
+                      ) : (
+                        <span className={styles.priceText}>${pkg.price}</span>
+                      )}
+                    </td>
+                    <td data-label="Actions" className={styles.tableCell}>
+                      {editingId === pkg.id ? (
+                        <div className={styles.actionButtons}>
+                          <Button
+                            size="sm"
+                            className={styles.saveButton}
+                            onClick={() => handleSave(pkg.id)}
+                          >
+                            Save
+                          </Button>
+                          <Button
+                            size="sm"
+                            className={styles.cancelButton}
+                            onClick={() => setEditingId(null)}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button
+                          size="sm"
+                          className={styles.editButton}
+                          onClick={() => handleEditClick(pkg.id, pkg.price)}
+                        >
+                          Edit
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
         </Card.Body>
       </Card>
 
       {/* Pricing Preview */}
-      <Card className={`${styles.adminCard} ${styles.previewCard}`}>
-        <Card.Header className={styles.cardHeader}>
-          <h5 className={styles.previewTitle}>Pricing Preview</h5>
+      <Card className={styles.adminCard}>
+        <Card.Header as="h4" className={styles.cardHeader}>
+          Pricing Preview
         </Card.Header>
         <Card.Body className={styles.cardBody}>
           <div className={styles.pricingPreview}>

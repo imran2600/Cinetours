@@ -77,99 +77,106 @@ const OrderList = () => {
   return (
     <>
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-        <Card className={styles.adminCard}>
-          <Card.Header className={styles.adminCardHeader}>
-            <div className={`d-flex justify-content-between align-items-center ${styles.headerContent}`}>
-              <h5 className={styles.headerTitle}>Order Management</h5>
-              <small className={styles.headerSubtitle}>
-                Showing {orders.length} orders
-              </small>
-            </div>
+        <Card className={styles.invoiceCard}>
+          <Card.Header as="h4" className={styles.invoiceHeader}>
+            Order Management
           </Card.Header>
-          <Card.Body className={styles.adminCardBody}>
+          <Card.Body className={`p-0 ${styles.invoiceBody}`}>
             {loading ? (
               <div className={`text-center py-4 ${styles.loadingContainer}`}>
                 <Spinner animation="border" className={styles.loadingSpinner} />
               </div>
             ) : (
-              <Table responsive className={`mb-0 ${styles.orderTable}`}>
-                <thead className={styles.tableHead}>
-                  <tr>
-                    <th className={styles.tableHeaderCell}>Order ID</th>
-                    <th className={styles.tableHeaderCell}>Client</th>
-                    <th className={styles.tableHeaderCell}>Package</th>
-                    <th className={styles.tableHeaderCell}>Photos</th>
-                    <th className={styles.tableHeaderCell}>Status</th>
-                    <th className={styles.tableHeaderCell}>Video</th>
-                    <th className={styles.tableHeaderCell}>Date</th>
-                    <th className={styles.tableHeaderCell}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody className={styles.tableBody}>
-                  {orders.map((order) => {
-                    const currentStatus = statusOptions.find(s => s.value === order.status);
-                    return (
-                      <tr key={order.id} className={styles.tableRow}>
-                        <td className={styles.tableCell}>{order.id}</td>
-                        <td className={styles.tableCell}>{order.client}</td>
-                        <td className={styles.tableCell}>{order.package}</td>
-                        <td className={styles.tableCell}>{order.photos}</td>
-                        <td className={styles.tableCell}>
-                          <Badge className={`${styles.statusBadge} ${styles[`status_${order.status}`]}`}>
-                            {currentStatus?.label || order.status}
-                          </Badge>
-                        </td>
-                        <td className={styles.tableCell}>
-                          {order.videoUrl ? (
-                            <Badge className={`${styles.videoBadge} ${styles.videoUploaded}`}>Uploaded</Badge>
-                          ) : (
-                            <Badge className={`${styles.videoBadge} ${styles.videoPending}`}>Pending</Badge>
-                          )}
-                        </td>
-                        <td className={styles.tableCell}>{order.date}</td>
-                        <td className={`d-flex gap-2 ${styles.actionCell}`}>
-                          <Dropdown className={styles.statusDropdown}>
-                            <Dropdown.Toggle
-                              size="sm"
-                              disabled={processingId === order.id}
-                              className={styles.statusDropdownToggle}
-                            >
-                              {processingId === order.id ? (
-                                <Spinner animation="border" size="sm" className={styles.statusSpinner} />
-                              ) : 'Status'}
-                            </Dropdown.Toggle>
-                            <Dropdown.Menu className={styles.statusDropdownMenu}>
-                              {statusOptions.map((status) => (
-                                <Dropdown.Item
-                                  key={status.value}
-                                  onClick={() => handleStatusUpdate(order.id, status.value)}
-                                  disabled={order.status === status.value}
-                                  className={styles.statusDropdownItem}
-                                >
-                                  <span className={`${styles.statusOption} ${styles[`status_${status.value}`]}`}>
-                                    {status.label}
-                                  </span>
-                                </Dropdown.Item>
-                              ))}
-                            </Dropdown.Menu>
-                          </Dropdown>
+              <div className={styles.invoiceTableWrapper}>
+                <Table className={`mb-0 ${styles.invoiceTable}`}>
+                  <thead className={styles.invoiceTableHead}>
+                    <tr>
+                      <th className={styles.invoiceTableHeading}>Order ID</th>
+                      <th className={styles.invoiceTableHeading}>Client</th>
+                      <th className={styles.invoiceTableHeading}>Package</th>
+                      <th className={styles.invoiceTableHeading}>Photos</th>
+                      <th className={styles.invoiceTableHeading}>Status</th>
+                      <th className={styles.invoiceTableHeading}>Video</th>
+                      <th className={styles.invoiceTableHeading}>Date</th>
+                      <th className={styles.invoiceTableHeading}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className={styles.invoiceTableBody}>
+                    {orders.map((order) => {
+                      const currentStatus = statusOptions.find(s => s.value === order.status);
+                      return (
+                        <tr key={order.id} className={styles.invoiceRow}>
+                          <td data-label="Order ID" className={styles.invoiceCell}>
+                            {order.id}
+                          </td>
+                          <td data-label="Client" className={styles.invoiceCell}>
+                            {order.client}
+                          </td>
+                          <td data-label="Package" className={styles.invoiceCell}>
+                            {order.package}
+                          </td>
+                          <td data-label="Photos" className={styles.invoiceCell}>
+                            {order.photos}
+                          </td>
+                          <td data-label="Status" className={styles.invoiceCell}>
+                            <Badge className={`${styles.invoiceStatus} ${styles[`status_${order.status}`]}`}>
+                              {currentStatus?.label || order.status}
+                            </Badge>
+                          </td>
+                          <td data-label="Video" className={styles.invoiceCell}>
+                            {order.videoUrl ? (
+                              <Badge className={`${styles.invoiceStatus} ${styles.status_paid}`}>Uploaded</Badge>
+                            ) : (
+                              <Badge className={`${styles.invoiceStatus} ${styles.status_pending}`}>Pending</Badge>
+                            )}
+                          </td>
+                          <td data-label="Date" className={styles.invoiceCell}>
+                            {order.date}
+                          </td>
+                          <td data-label="Actions" className={`d-flex gap-2 ${styles.invoiceCell}`}>
+                            <Dropdown className={styles.statusDropdown}>
+                              <Dropdown.Toggle
+                                size="sm"
+                                disabled={processingId === order.id}
+                                className={styles.invoiceDownloadBtn}
+                              >
+                                {processingId === order.id ? (
+                                  <Spinner animation="border" size="sm" className={styles.statusSpinner} />
+                                ) : 'Status'}
+                              </Dropdown.Toggle>
+                              <Dropdown.Menu className={styles.statusDropdownMenu}>
+                                {statusOptions.map((status) => (
+                                  <Dropdown.Item
+                                    key={status.value}
+                                    onClick={() => handleStatusUpdate(order.id, status.value)}
+                                    disabled={order.status === status.value}
+                                    className={styles.statusDropdownItem}
+                                  >
+                                    <span className={`${styles.invoiceStatus} ${styles[`status_${status.value}`]}`}>
+                                      {status.label}
+                                    </span>
+                                  </Dropdown.Item>
+                                ))}
+                              </Dropdown.Menu>
+                            </Dropdown>
 
-                          {order.status === 'completed' && (
-                            <Button
-                              size="sm"
-                              onClick={() => handleUploadClick(order)}
-                              disabled={processingId === order.id}
-                              className={`${styles.uploadButton} ${order.videoUrl ? styles.uploadReplace : styles.uploadNew}`}
-                            >
-                              {order.videoUrl ? 'Replace Video' : 'Upload Video'}
-                            </Button>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </Table>
+                            {order.status === 'completed' && (
+                              <Button
+                                size="sm"
+                                onClick={() => handleUploadClick(order)}
+                                disabled={processingId === order.id}
+                                className={styles.invoiceDownloadBtn}
+                              >
+                                {order.videoUrl ? 'Replace Video' : 'Upload Video'}
+                              </Button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </Table>
+              </div>
             )}
           </Card.Body>
         </Card>
@@ -223,7 +230,7 @@ const OrderList = () => {
           <Button
             onClick={handleVideoUpload}
             disabled={!videoFile || loading}
-            className={styles.confirmButton}
+            className={styles.invoiceDownloadBtn}
           >
             {loading ? (
               <>

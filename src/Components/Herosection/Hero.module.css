@@ -154,7 +154,6 @@ background:linear-gradient(135deg,#a855f7,#1fb454);
 .primaryButton:hover,
 .secondaryButton:hover,
 .tertiaryButton:hover {
-  background: transparent;
   border: 1px solid white
 }
 
