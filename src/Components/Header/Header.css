@@ -115,15 +115,72 @@
 }
 
 
-@media (max-width:767.98px){
-  .site-header .navbar-collapse{
-    position:absolute; top:100%; left:0; right:0; z-index:1000;
-    background:#0d0d0d; border-top:1px solid rgba(168,85,247,.25);
-    box-shadow:0 4px 6px rgba(0,0,0,.25); padding:.5rem 1rem;
+@media (max-width: 767.98px){
+  .site-header .navbar{
+    position: relative;        /* anchor the dropdown */
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;         /* ⬅️ keep everything on one row */
+    gap: .5rem;
   }
-  .site-header .navbar-nav{ flex-direction:column !important; }
+
+  /* order across the top row */
+  .site-header .navbar-toggler{ order: 0; margin-right: .25rem; flex: 0 0 auto; }
+  .site-header .navbar-brand{  order: 1; margin: 0 .25rem 0 0;   flex: 0 0 auto; }
+  .site-header .header-actions{
+    order: 2;
+    margin-left: auto;         /* ⬅️ push to far right */
+    display: inline-flex;
+    gap: .5rem;
+    flex: 0 0 auto;
+  }
+
+  /* wrapper that contains collapse + actions */
+  .site-header .navbar > .d-flex.flex-grow-1{
+    order: 2;                   /* same row as brand */
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    min-width: 0;               /* avoid pushing layout */
+  }
+
+  /* collapsed menu: full-width drawer under the bar */
+  .site-header .navbar-collapse{
+    order: 3;
+    position: absolute;
+    top: 100%; left: 0; right: 0;
+    width: 100%;
+    z-index: 1000;
+    background:#0d0d0d;
+    border-top:1px solid rgba(168,85,247,.25);
+    box-shadow:0 4px 6px rgba(0,0,0,.25);
+    padding:.5rem 1rem;
+  }
+  .site-header .navbar-nav{ flex-direction: column !important; }
   .site-header .nav-link{
     padding:.75rem 1rem !important;
     border-bottom:1px solid rgba(255,255,255,.08);
   }
+}
+
+/* ==== Tablet & up (≥768px): show full menu, hide burger ==== */
+@media (min-width: 768px){
+  .site-header .navbar-expand-md .navbar-collapse{ display: flex !important; }
+  .site-header .navbar-toggler{ display: none !important; }
+  .site-header .header-actions{ margin-left: auto; }
+}
+
+
+@media (max-width: 390px){
+  .site-header .header-actions .btn{ padding:.32rem .5rem; }
+}
+
+@media (max-width: 360px){
+  .site-header .header-actions .btn{ padding:.32rem .5rem;font-size: 10px; }
+}
+
+
+@media (max-width: 320px){
+  .site-header .header-actions .btn{ padding:.30rem .4rem;font-size: 7px;}
+  .site-header .header-actions .gradient-button{margin-right: 2px;}
 }
