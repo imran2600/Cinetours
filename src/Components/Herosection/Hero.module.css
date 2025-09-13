@@ -156,7 +156,6 @@ background:linear-gradient(135deg,#a855f7,#1fb454);
 .tertiaryButton:hover {
   border: 1px solid white
 }
-
 /* Link styles */
 .buttonGroup a {
   color: inherit;
