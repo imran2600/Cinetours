@@ -10,6 +10,8 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
+// ... imports remain same
+
 const Pricing = () => {
   const { getPublicPricing } = useAdminData();
   const pricingPlans = getPublicPricing();
@@ -17,6 +19,15 @@ const Pricing = () => {
   const cardRefs = useRef([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const sliderTrackRef = useRef(null);
+
+  // Mock feature data (extra info based on tier)
+  const tierFeatures = {
+    Express: { video: "30–45 seconds", photos: "6–9 photos" },
+    Quick: { video: "~60 seconds", photos: "12 photos" },
+    Standard: { video: "60–90 seconds", photos: "12–18 photos" },
+    Pro: { video: "90–120 seconds", photos: "18–24 photos" },
+    Ultra: { video: "120–150 seconds", photos: "24–30 photos" },
+  };
 
   // Slider navigation functions
   const nextSlide = () => {
@@ -36,7 +47,7 @@ const Pricing = () => {
   }, [currentSlide]);
 
   useEffect(() => {
-    // Animation for section title
+    // animations remain same ...
     gsap.fromTo(`.${styles.sectionTitle}`, 
       { y: 50, opacity: 0 },
       { 
@@ -51,7 +62,6 @@ const Pricing = () => {
       }
     );
 
-    // Animation for background image
     gsap.fromTo(`.${styles.backgroundImage}`, 
       { opacity: 0 },
       { 
@@ -65,7 +75,6 @@ const Pricing = () => {
       }
     );
 
-    // Animation for cards
     cardRefs.current.forEach((card, index) => {
       if (card) {
         gsap.fromTo(card, 
@@ -83,7 +92,6 @@ const Pricing = () => {
           }
         );
 
-        // Hover animation
         card.addEventListener('mouseenter', () => {
           gsap.to(card, { y: -10, duration: 0.3 });
         });
@@ -95,11 +103,27 @@ const Pricing = () => {
     });
   }, []);
 
-  // Add cards to refs array
   const addToRefs = (el) => {
     if (el && !cardRefs.current.includes(el)) {
       cardRefs.current.push(el);
     }
+  };
+
+  // Helper to render features per plan
+  const renderFeatures = (plan) => {
+    const extra = tierFeatures[plan.package] || {};
+    return (
+      <>
+        <div className={styles.featureItem}>
+          <span className={styles.checkIcon}>✓</span>
+          Video Length: {extra.video || "N/A"}
+        </div>
+        <div className={styles.featureItem}>
+          <span className={styles.checkIcon}>✓</span>
+          {extra.photos ? `Includes ${extra.photos}` : "Custom photo package"}
+        </div>
+      </>
+    );
   };
 
   return (
@@ -121,7 +145,7 @@ const Pricing = () => {
           </Col>
         </Row>
 
-        {/* Desktop View - Original Grid Layout */}
+        {/* Desktop View */}
         <Row className={styles.pricingCards}>
           {pricingPlans.map((plan, index) => (
             <Col 
@@ -146,38 +170,7 @@ const Pricing = () => {
                 </div>
                 
                 <div className={styles.featuresList}>
-                  <div className={styles.featureItem}>
-                    <span className={styles.checkIcon}>✓</span>
-                    Up to {plan.photocount} contacts
-                  </div>
-                  <div className={styles.featureItem}>
-                    <span className={styles.checkIcon}>✓</span>
-                    Unlimited team members
-                  </div>
-                  <div className={styles.featureItem}>
-                    <span className={styles.checkIcon}>✓</span>
-                    Payments
-                  </div>
-                  <div className={styles.featureItem}>
-                    <span className={styles.checkIcon}>✓</span>
-                    Authentication
-                  </div>
-                  <div className={styles.featureItem}>
-                    <span className={styles.checkIcon}>✓</span>
-                    CRM
-                  </div>
-                  <div className={styles.featureItem}>
-                    <span className={styles.checkIcon}>✓</span>
-                    Email marketing
-                  </div>
-                  <div className={styles.featureItem}>
-                    <span className={styles.checkIcon}>✓</span>
-                    Help desk
-                  </div>
-                  <div className={styles.featureItem}>
-                    <span className={styles.checkIcon}>✓</span>
-                    Reporting
-                  </div>
+                  {renderFeatures(plan)}
                 </div>
                 
                 <button className={styles.ctaButton}>
@@ -188,10 +181,9 @@ const Pricing = () => {
           ))}
         </Row>
 
-        {/* Mobile View - Slider (Hidden on desktop) */}
+        {/* Mobile View */}
         <div className={styles.pricingSlider}>
           <div className={styles.sliderContainer}>
-            {/* Slider Arrows */}
             <button className={styles.sliderArrow} onClick={prevSlide}>
               &#8249;
             </button>
@@ -199,7 +191,6 @@ const Pricing = () => {
               &#8250;
             </button>
             
-            {/* Slider Track */}
             <div className={styles.sliderTrack} ref={sliderTrackRef}>
               {pricingPlans.map((plan, index) => (
                 <div key={index} className={styles.slide}>
@@ -217,38 +208,7 @@ const Pricing = () => {
                     </div>
                     
                     <div className={styles.featuresList}>
-                      <div className={styles.featureItem}>
-                        <span className={styles.checkIcon}>✓</span>
-                        Up to {plan.photocount} contacts
-                      </div>
-                      <div className={styles.featureItem}>
-                        <span className={styles.checkIcon}>✓</span>
-                        Unlimited team members
-                      </div>
-                      <div className={styles.featureItem}>
-                        <span className={styles.checkIcon}>✓</span>
-                        Payments
-                      </div>
-                      <div className={styles.featureItem}>
-                        <span className={styles.checkIcon}>✓</span>
-                        Authentication
-                      </div>
-                      <div className={styles.featureItem}>
-                        <span className={styles.checkIcon}>✓</span>
-                        CRM
-                      </div>
-                      <div className={styles.featureItem}>
-                        <span className={styles.checkIcon}>✓</span>
-                        Email marketing
-                      </div>
-                      <div className={styles.featureItem}>
-                        <span className={styles.checkIcon}>✓</span>
-                        Help desk
-                      </div>
-                      <div className={styles.featureItem}>
-                        <span className={styles.checkIcon}>✓</span>
-                        Reporting
-                      </div>
+                      {renderFeatures(plan)}
                     </div>
                     
                     <button className={styles.ctaButton}>
@@ -260,10 +220,8 @@ const Pricing = () => {
             </div>
           </div>
           
-          {/* "Slide for more packages" text */}
           <p className={styles.slideHint}>Slide for more packages</p>
           
-          {/* Dots Navigation */}
           <div className={styles.sliderNav}>
             {pricingPlans.map((_, index) => (
               <div

@@ -27,7 +27,7 @@ const OrderList = () => {
   const handleStatusUpdate = async (orderId, newStatus) => {
     setProcessingId(orderId);
     try {
-      updateOrderStatus(orderId, newStatus);
+      await updateOrderStatus(orderId, newStatus);
     } catch (error) {
       console.error('Status update failed:', error);
       alert('Failed to update status');
@@ -58,7 +58,7 @@ const OrderList = () => {
       }, 200);
 
       await new Promise(resolve => setTimeout(resolve, 2000));
-      uploadOrderVideo(selectedOrder.id, URL.createObjectURL(videoFile));
+      await uploadOrderVideo(selectedOrder.id, videoFile);
 
       setUploadProgress(100);
       setTimeout(() => {
@@ -125,7 +125,9 @@ const OrderList = () => {
                           </td>
                           <td data-label="Video" className={styles.invoiceCell}>
                             {order.videoUrl ? (
-                              <Badge className={`${styles.invoiceStatus} ${styles.status_paid}`}>Uploaded</Badge>
+                              <a href={order.videoUrl} target="_blank" rel="noopener noreferrer">
+                                <Badge className={`${styles.invoiceStatus} ${styles.status_paid}`}>View Video</Badge>
+                              </a>
                             ) : (
                               <Badge className={`${styles.invoiceStatus} ${styles.status_pending}`}>Pending</Badge>
                             )}
