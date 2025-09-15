@@ -98,7 +98,7 @@ const UploadOrder = ({
 
     const filesCount = selectedFiles.length;
     const limits = PACKAGE_LIMITS[selectedPkg?.name];
-    if (limits && (filesCount < limits.min || filesCount > limits.max)) {
+    if (limits && (filesCount > limits.max)) {  // filesCount < limits.min ||
       alert(`${selectedPkg.name} allows ${limits.min}-${limits.max} photos. You selected ${filesCount}.`);
       setIsSubmitting(false);
       return;

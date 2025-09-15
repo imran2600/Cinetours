@@ -136,7 +136,7 @@
 }
 
 /* DARK SELECT (no white popout) */
-.fontSelect,
+
 .cardBody :global(select.form-select){
   background: linear-gradient(180deg, var(--surface-2), var(--surface-1)) !important;
   color: var(--ink-strong) !important;
