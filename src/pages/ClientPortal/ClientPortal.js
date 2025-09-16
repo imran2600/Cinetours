@@ -197,7 +197,13 @@ export default function ClientPortal() {
         <div className={styles.screenWrap}>
           <button onClick={goBack} className={styles.backBtn}>← Back</button>
           <BrandAssets
-            assets={{ logo: "/assets/logo-placeholder.png", colorScheme: "#21ABB5", font: "Montserrat" }}
+            assets={{ 
+              logo: "/assets/logo-placeholder.png", 
+              logos: [],
+              headshots: [],
+              colorScheme: "#21ABB5", 
+              font: "Montserrat" 
+            }}
             onUpdate={(assets) => {
               alert("Brand assets updated (hook up backend)");
               console.log(assets);

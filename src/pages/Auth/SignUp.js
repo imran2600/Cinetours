@@ -77,7 +77,7 @@ export default function SignUp() {
             <input
               className={styles.input}
               type="email"
-              placeholder="you@domain.com"
+              placeholder="you@gmail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />

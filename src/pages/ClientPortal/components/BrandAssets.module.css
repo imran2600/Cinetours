@@ -244,6 +244,64 @@
   animation: wander var(--d, 20s) cubic-bezier(.22,.61,.36,1) var(--delay, 0s) infinite;
 }
 
+/* --- Thumbnails grid for multi uploads --- */
+.thumbGrid{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap:12px;
+  margin: 8px 0 4px;
+}
+
+.thumb{
+  position:relative;
+  aspect-ratio:1/1;
+  border:1px solid var(--line-soft);
+  border-radius:12px;
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  overflow:hidden;
+  display:grid; place-items:center;
+}
+
+.thumb img{
+  width:100%; height:100%; object-fit:cover;
+  filter: saturate(105%);
+}
+
+.removeThumb{
+  position:absolute;
+  right:6px; top:6px;
+  width:28px; height:28px;
+  border:none; border-radius:999px;
+  background: rgba(0,0,0,.45);
+  color:#fff; font-weight:800;
+  line-height:1; display:grid; place-items:center;
+  cursor:pointer;
+}
+.removeThumb:hover{ background: rgba(0,0,0,.65); }
+
+.addThumb{
+  border:1px dashed var(--line-soft);
+  color: var(--ink-weak);
+  cursor:pointer;
+}
+.addThumb input{ display:none; }
+.addThumb span{
+  font-size:26px; font-weight:700;
+}
+.addThumb:hover{
+  border-color: rgba(168,85,247,.38);
+  box-shadow: 0 6px 22px rgba(168,85,247,.08);
+}
+
+.help{
+  display:block;
+  margin-top:6px;
+  color: var(--ink-weak);
+  font-size:.9rem;
+}
+
+
+
 @keyframes wander {
   0%   { transform: translate(var(--x0), var(--y0)) scale(var(--s)); }
   25%  { transform: translate(var(--x1), var(--y1)) scale(calc(var(--s)*1.03)); }
