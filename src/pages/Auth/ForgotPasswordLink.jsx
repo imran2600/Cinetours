@@ -152,7 +152,7 @@ export default function ForgotPasswordLink({ initialEmail = "" }) {
                     className={styles.input}
                     type="email"
                     required
-                    placeholder="you@domain.com"
+                    placeholder="you@gmail.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     data-stagger

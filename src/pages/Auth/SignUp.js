@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useAuth } from "../../auth/AuthContext";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import styles from "./AuthMake.module.css";
-import ForgotPasswordLink from "./ForgotPasswordLink"; 
 
 
 const Eye = (props) => (
@@ -78,7 +77,7 @@ export default function SignUp() {
             <input
               className={styles.input}
               type="email"
-              placeholder="you@domain.com"
+              placeholder="you@gmail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -110,8 +109,6 @@ export default function SignUp() {
               value={pw2}
               onChange={(e) => setPw2(e.target.value)}
             />
-
-            <ForgotPasswordLink initialEmail={email} />
 
 
             <button className={styles.submit} disabled={loading}>
