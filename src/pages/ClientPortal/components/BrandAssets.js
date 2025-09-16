@@ -2,6 +2,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, Form, Button, Image } from 'react-bootstrap';
 import styles from './BrandAssets.module.css';
+import ColorPickerPopover from './ColorPickerPopover';
+import FontSelect from './FontSelect';
 
 const BrandAssets = ({ assets, onUpdate }) => {
   const [formData, setFormData] = useState(assets);
@@ -57,7 +59,7 @@ const BrandAssets = ({ assets, onUpdate }) => {
   }, []);
 
   return (
-    <div className={styles.bgHost} style={{ '--accent': formData.colorScheme || '#22c55e' }}>
+    <div className={styles.bgHost} style={{ '--accent': formData.colorScheme || '#22c55e',fontFamily: `'${formData.font}', system-ui, -apple-system, Segoe UI, Roboto, sans-serif` }}>
 
                   <ul className={styles.bubbles} aria-hidden="true">
         {bubbles.map(b => (
@@ -107,29 +109,26 @@ const BrandAssets = ({ assets, onUpdate }) => {
             {/* Primary Color */}
             <fieldset className={styles.groupCard}>
               <legend className={styles.groupTitle}>Primary Color</legend>
-              <Form.Control
-                type="color"
+              <ColorPickerPopover
                 value={formData.colorScheme}
-                onChange={(e) => setFormData({ ...formData, colorScheme: e.target.value })}
-                className={styles.colorPicker}
+                onChange={(c) => setFormData({ ...formData, colorScheme: c })}
               />
             </fieldset>
 
             {/* Font Family */}
             <fieldset className={styles.groupCard}>
               <legend className={styles.groupTitle}>Font Family</legend>
-              <Form.Select
+              <FontSelect
                 value={formData.font}
-                onChange={(e) => setFormData({ ...formData, font: e.target.value })}
-                className={styles.fontSelect}
-              >
-                <option>Montserrat</option>
+                onChange={(f) => setFormData({ ...formData, font: f })}
+              />
+                {/* <option>Montserrat</option>
                 <option>Roboto</option>
                 <option>Open Sans</option>
                 <option>Playfair Display</option>
                 <option>Inter</option>
-                <option>Poppins</option>
-              </Form.Select>
+                <option>Poppins</option> */}
+              {/* </Form.Select> */}
             </fieldset>
 
             <Button type="submit" className={styles.submitButton}>Save Changes</Button>

@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
 import styles from "./AuthMake.module.css";
+import ForgotPasswordLink from "./ForgotPasswordLink";
 
 export default function SignIn() {
   const { signIn, signInAsGuest } = useAuth();
@@ -40,7 +41,6 @@ export default function SignIn() {
   };
 
   const signInWithGoogle = () => {
-    // hook up later; for now keep button UI
     console.log("TODO: Google sign-in");
   };
 
@@ -99,6 +99,8 @@ export default function SignIn() {
                 </svg>
               </button>
             </div>
+
+            <ForgotPasswordLink initialEmail={email} />
 
             <button className={styles.submit} disabled={loading}>
               {loading ? "Signing in…" : "Sign in"}

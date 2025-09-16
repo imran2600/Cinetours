@@ -33,3 +33,9 @@ export function apiGuest() {
   // no body required
   return post("/guest", undefined);
 }
+
+// request a password reset email
+export function apiForgotPassword(email) {
+  return post("/password/forgot", { email });
+}
+

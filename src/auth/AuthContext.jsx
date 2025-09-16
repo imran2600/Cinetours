@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo, useState, useEffect } from "react";
-import { apiSignup, apiSignin, apiGuest } from "../services/authApi";
+import { apiSignup, apiSignin, apiGuest, apiForgotPassword } from "../services/authApi";
 
 const KEY_USER = "qt_user";      
 const KEY_USERS = "qt_users";     
@@ -126,6 +126,11 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  const requestPasswordReset = async (email) => {
+    // backend should respond 200 even if email isn't found (to avoid enumeration)
+    const data = await apiForgotPassword(email);
+    return data; // allow caller to show a success message
+  };
   const value = useMemo(
     () => ({
       user,
@@ -135,6 +140,7 @@ export function AuthProvider({ children }) {
       signOut,
       signInWithGoogle,
       signInAsGuest,
+      requestPasswordReset,
     }),
     [user]
   );

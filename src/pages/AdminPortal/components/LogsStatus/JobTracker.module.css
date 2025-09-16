@@ -1,11 +1,9 @@
-/* logs and status*/
-
-:root{
-  --brand1:#a855f7;
-  --brand2:#22c55e;
-  --hairline:rgba(148,163,184,.16);
-  --ink:rgba(255,255,255,.88);
-  --ink-strong:rgba(255,255,255,.96);
+:root {
+  --brand1: #a855f7;
+  --brand2: #22c55e;
+  --hairline: rgba(148, 163, 184, 0.16);
+  --ink: rgba(255, 255, 255, 0.88);
+  --ink-strong: rgba(255, 255, 255, 0.96);
 }
 
 /* Card wrapper */
@@ -15,7 +13,7 @@
   border: none !important;
 }
 
-/* Card header */
+/* Header */
 .jobTrackerHeader {
   background: transparent !important;
   color: white !important;
@@ -27,109 +25,120 @@
   margin: 0;
 }
 
-/* Card body */
+/* Body */
 .jobTrackerBody {
   background: transparent;
   color: white !important;
-  padding: 0 1rem 1.25rem;
+  padding: 1rem;
 }
 
-/* List wrapper */
-.jobTrackerList {
+/* Status summary badges */
+.statusSummary {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.statusBadge {
+  font-size: 0.9rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.queued {
+  background: rgba(96, 165, 250, 0.18) !important;
+  color: #60a5fa !important;
+  border: 1px solid rgba(96, 165, 250, 0.45);
+}
+
+.processing {
+  background: rgba(250, 204, 21, 0.18) !important;
+  color: #fde68a !important;
+  border: 1px solid rgba(250, 204, 21, 0.45);
+}
+
+.success {
+  background: rgba(34, 197, 94, 0.2) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(34, 197, 94, 0.45);
+}
+
+.error {
+  background: rgba(220, 38, 38, 0.22) !important;
+  color: #fca5a5 !important;
+  border: 1px solid rgba(220, 38, 38, 0.5);
+}
+
+/* Table */
+.logsTable {
   background: transparent !important;
   color: white !important;
-  border: none;
-  border-radius: 0;
+  font-size: 0.9rem;
 }
 
-/* Each log item */
-.jobTrackerListItem {
-  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)) !important;
-  color: white !important;
-  border: 1px solid var(--hairline) !important;
-  border-radius: 14px !important;
-  margin-bottom: 14px;
-  padding: 1rem 1rem !important;
+.logsTable th {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ink-strong);
+  font-weight: 600;
+  text-align: center;
 }
 
-.jobTrackerListItem:last-child {
-  margin-bottom: 0;
-}
-
-/* Log item container */
-.logItemWrapper {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-/* Left side wrapper */
-.logMessageWrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-/* Status badge */
-.logBadge {
-  display:inline-flex; 
-  align-items:center;
-  padding:.28rem .6rem;
-  border-radius:999px;
-  font-weight:700; 
-  line-height:1;
-  box-shadow:0 6px 16px rgba(0,0,0,.25);
-}
-
-/* Status variants */
-.processing { 
-  background:rgba(250,204,21,.18) !important; 
-  color:#fde68a !important; 
-  border:1px solid rgba(250,204,21,.45); 
-}
-.success { 
-  background:rgba(34,197,94,.20) !important;  
-  color:#34d399 !important; 
-  border:1px solid rgba(34,197,94,.45); 
-}
-.error { 
-  background:rgba(220,38,38,.22) !important;  
-  color:#fca5a5 !important; 
-  border:1px solid rgba(220,38,38,.50); 
-}
-
-/* Log message */
-.logMessage {
+.logsTable td {
+  vertical-align: middle;
   color: var(--ink);
 }
 
-/* Timestamp */
-.logTimestamp {
-  color: var(--ink);
+/* Prompt cell with ellipsis */
+.promptCell {
+  max-width: 250px;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Hover effect */
-.jobTrackerListItem:hover {
-  background: rgba(255,255,255,.05) !important;
-  box-shadow: 0 10px 26px rgba(0,0,0,.30) inset, 0 8px 20px rgba(0,0,0,.28);
+/* Log badge inside table */
+.logBadge {
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.85rem;
 }
 
-/* Small screens */
-@media (max-width: 768px){
-  .jobTrackerBody { 
-    padding-left: .75rem; 
-    padding-right: .75rem; 
-  }
-  
-  .logItemWrapper {
+/* Pagination */
+.paginationWrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+/* Loading state */
+.loadingWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  color: white;
+}
+
+.loadingText {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .statusSummary {
     flex-direction: column;
-    align-items: flex-start;
     gap: 0.5rem;
   }
-  
-  .logTimestamp {
-    align-self: flex-end;
-    font-size: 0.85rem;
+
+  .logsTable {
+    font-size: 0.8rem;
+  }
+
+  .promptCell {
+    max-width: 150px;
   }
 }
