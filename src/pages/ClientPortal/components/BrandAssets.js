@@ -1,79 +1,74 @@
+// BrandAssets.jsx
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card, Form, Button, Image } from 'react-bootstrap';
+import { Card, Form, Button } from 'react-bootstrap';
 import styles from './BrandAssets.module.css';
 import ColorPickerPopover from './ColorPickerPopover';
 import FontSelect from './FontSelect';
 
-const toItems = (arr = [], prefix) =>
-  (arr || []).map((url, i) => ({ id: `${prefix}-${i}`, url, file: null }));
+/* ---------- helpers ---------- */
+const safeRevoke = (url) => {
+  if (typeof url === 'string' && url.startsWith('blob:')) {
+    try { URL.revokeObjectURL(url); } catch {}
+  }
+};
 
+// Build a display item from string URL or File/Blob
+const toItem = (item, prefix, i) => {
+  if (!item) return null; // skip empties entirely
+  if (typeof item === 'string') {
+    const ok = /^(https?:|data:|blob:)/i.test(item);
+    return ok ? { id: `${prefix}-${i}`, url: item, file: null } : null;
+  }
+  try {
+    const url = URL.createObjectURL(item);
+    return { id: `${prefix}-${i}`, url, file: item };
+  } catch {
+    return null;
+  }
+};
+
+const toItems = (arr = [], prefix) =>
+  (arr || []).map((it, i) => toItem(it, prefix, i)).filter(Boolean);
+
+/* -------------------- component -------------------- */
 export default function BrandAssets({ assets = {}, onUpdate }) {
   const [formData, setFormData] = useState(assets);
-  const [logoPreview, setLogoPreview] = useState(assets.logo || '');
-  const [hasError, setHasError] = useState(false);
 
-  // multiple extra logos
-  const [logos, setLogos] = useState(() => toItems(assets.logos || [], 'logo'));
+  // IMPORTANT: start empty so the UI shows ONLY the "Logo" slot first.
+  // (If you later want to prefill from assets, toggle PREFILL_FROM_ASSETS = true.)
+  const PREFILL_FROM_ASSETS = false;
 
-  // 🔁 CHANGE: single profile instead of headshots[]
-  const [profile, setProfile] = useState(() =>
-    assets.profile ? { id: 'profile-0', url: assets.profile, file: null } : null
+  const [logos, setLogos] = useState(() =>
+    PREFILL_FROM_ASSETS
+      ? toItems(assets.logos?.length ? assets.logos : (assets.logo ? [assets.logo] : []), 'logo')
+      : []
   );
 
-  // revoke blob URLs on unmount
-  useEffect(() => {
-    return () => {
-      const revoke = (list) =>
-        list.forEach((it) => it.url?.startsWith('blob:') && URL.revokeObjectURL(it.url));
-      revoke(logos);
-      if (profile?.url?.startsWith('blob:')) URL.revokeObjectURL(profile.url);
-      if (logoPreview?.startsWith('blob:')) URL.revokeObjectURL(logoPreview);
-    };
-  }, [logos, profile, logoPreview]);
+  // cleanup blob URLs
+  useEffect(() => () => logos.forEach((it) => safeRevoke(it?.url)), [logos]);
 
-  const addFiles = (fileList, kind) => {
+  // Add one or many files to logos
+  const handleLogoFiles = (fileList) => {
     const files = Array.from(fileList || []);
+    if (!files.length) return;
+
     const mapped = files.map((f) => ({
-      id: `${kind}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      id: `logo-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       url: URL.createObjectURL(f),
       file: f,
     }));
-    if (kind === 'logos') setLogos((prev) => [...prev, ...mapped]);
+
+    setLogos((prev) => [...prev, ...mapped]); // append
   };
 
-  // handlers for the single profile image
-  const setProfileFromFiles = (fileList) => {
-    const f = fileList?.[0];
-    if (!f) return;
-    if (profile?.url?.startsWith('blob:')) URL.revokeObjectURL(profile.url);
-    setProfile({ id: 'profile-0', url: URL.createObjectURL(f), file: f });
-  };
-  const clearProfile = () => {
-    if (profile?.url?.startsWith('blob:')) URL.revokeObjectURL(profile.url);
-    setProfile(null);
-  };
-
-  const removeItem = (kind, id) => {
-    if (kind === 'logos') {
-      setLogos((list) =>
-        list.filter((it) => {
-          if (it.id === id && it.url?.startsWith('blob:')) URL.revokeObjectURL(it.url);
-          return it.id !== id;
-        })
-      );
-    }
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    setHasError(false);
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setLogoPreview(url);
-      setFormData((prev) => ({ ...prev, logo: file }));
-    } else {
-      setHasError(true);
-    }
+  // Remove one logo (used by the “×” and by img onError)
+  const removeLogo = (id) => {
+    setLogos((list) =>
+      list.filter((it) => {
+        if (it.id === id) safeRevoke(it?.url);
+        return it.id !== id;
+      })
+    );
   };
 
   const handleSubmit = async (e) => {
@@ -81,18 +76,17 @@ export default function BrandAssets({ assets = {}, onUpdate }) {
     try {
       const payload = {
         ...formData,
-        logos: logos.map((it) => it.file ?? it.url),
-        // 🔁 CHANGE: single profile field
-        profile: profile ? (profile.file ?? profile.url) : null,
+        logos: logos.map((it) => it.file ?? it.url), // array of Files or URLs
       };
       await onUpdate?.(payload);
       alert('Brand assets updated successfully!');
     } catch (err) {
       console.error('Update failed:', err);
-      setHasError(true);
+      // optional: surface a toast/inline error
     }
   };
 
+  // background bubbles (unchanged)
   const bubbles = useMemo(() => {
     const N = 18;
     const rnd = (min, max) => Math.random() * (max - min) + min;
@@ -145,87 +139,68 @@ export default function BrandAssets({ assets = {}, onUpdate }) {
         <Card.Body className={styles.cardBody}>
           <Form onSubmit={handleSubmit} className={styles.brandForm}>
 
-            {/* Primary logo (single) */}
+            {/* Primary Logos */}
             <fieldset className={styles.groupCard}>
-              <legend className={styles.groupTitle}>Primary Logo</legend>
-              <div className={`${styles.logoUploadWrapper} ${hasError ? styles.isError : ''}`}>
-                <Image
-                  src={logoPreview}
-                  alt="Logo preview"
-                  className={`${styles.logoPreview} ${logoPreview ? styles.show : ''}`}
-                />
-                <Form.Control
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className={styles.fileInput}
-                />
-              </div>
-            </fieldset>
+              <legend className={styles.groupTitle}>Primary Logos</legend>
 
-            {/* Additional Logos (multiple) */}
-            <fieldset className={styles.groupCard}>
-              <legend className={styles.groupTitle}>Additional Logos</legend>
               <div className={styles.thumbGrid}>
-                {logos.map((it) => (
-                  <figure key={it.id} className={styles.thumb}>
-                    <img src={it.url} alt="Logo" />
-                    <button
-                      type="button"
-                      className={styles.removeThumb}
-                      onClick={() => removeItem('logos', it.id)}
-                      aria-label="Remove logo"
-                      title="Remove"
-                    >
-                      ×
-                    </button>
-                  </figure>
-                ))}
-                <label className={`${styles.thumb} ${styles.addThumb}`}>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={(e) => addFiles(e.target.files, 'logos')}
-                  />
-                  <span>＋</span>
-                </label>
-              </div>
-              <small className={styles.help}>PNG/SVG/JPG, up to ~5MB each.</small>
-            </fieldset>
-
-            {/* 🔁 Profile Photo (single) */}
-            <fieldset className={styles.groupCard}>
-              <legend className={styles.groupTitle}>Profile Photo</legend>
-              <div className={styles.thumbGrid}>
-                {profile ? (
-                  <figure className={styles.thumb}>
-                    <img src={profile.url} alt="Profile" />
-                    <button
-                      type="button"
-                      className={styles.removeThumb}
-                      onClick={clearProfile}
-                      aria-label="Remove profile photo"
-                      title="Remove"
-                    >
-                      ×
-                    </button>
-                  </figure>
-                ) : (
-                  <label className={`${styles.thumb} ${styles.addThumb}`}>
+                {/* If no logos yet: show ONLY the "Logo" slot (click to upload) */}
+                {logos.length === 0 ? (
+                  <label
+                    className={styles.thumb}
+                    title="Upload logo"
+                    style={{ position: 'relative', cursor: 'pointer', display: 'grid', placeItems: 'center' }}
+                  >
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={(e) => setProfileFromFiles(e.target.files)}
+                      multiple
+                      onChange={(e) => { handleLogoFiles(e.target.files); e.target.value = ''; }}
+                      style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer' }}
+                      aria-label="Upload logo"
                     />
-                    <span>＋</span>
+                    <span style={{ fontSize: 28, opacity: 0.9 }}>Logo+</span>
                   </label>
+                ) : (
+                  <>
+                    {/* Existing thumbnails */}
+                    {logos.map((it) => (
+                      <figure key={it.id} className={styles.thumb}>
+                        <img
+                          src={it.url}
+                          alt=""
+                          onError={() => removeLogo(it.id)} // auto-remove broken images
+                        />
+                        <button
+                          type="button"
+                          className={styles.removeThumb}
+                          onClick={() => removeLogo(it.id)}
+                          aria-label="Remove logo"
+                          title="Remove"
+                        >
+                          ×
+                        </button>
+                      </figure>
+                    ))}
+
+                    {/* Exactly one “＋” tile to add more */}
+                    <label className={`${styles.thumb} ${styles.addThumb}`} title="Add logos">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={(e) => { handleLogoFiles(e.target.files); e.target.value = ''; }}
+                      />
+                      <span aria-hidden>＋</span>
+                    </label>
+                  </>
                 )}
               </div>
-              <small className={styles.help}>Square photos work best (e.g., 800×800).</small>
+
+              <small className={styles.help}>Upload one or many logos (PNG/SVG/JPG).</small>
             </fieldset>
 
-            {/* Color + Font */}
+            {/* Primary Color */}
             <fieldset className={styles.groupCard}>
               <legend className={styles.groupTitle}>Primary Color</legend>
               <ColorPickerPopover
@@ -234,6 +209,7 @@ export default function BrandAssets({ assets = {}, onUpdate }) {
               />
             </fieldset>
 
+            {/* Font Family */}
             <fieldset className={styles.groupCard}>
               <legend className={styles.groupTitle}>Font Family</legend>
               <FontSelect

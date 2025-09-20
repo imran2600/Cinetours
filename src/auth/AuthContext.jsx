@@ -1,12 +1,21 @@
 import React, { createContext, useContext, useMemo, useState, useEffect } from "react";
 import { apiSignup, apiSignin, apiGuest, apiForgotPassword } from "../services/authApi";
 
-const KEY_USER = "qt_user";      
-const KEY_USERS = "qt_users";     
-const KEY_SESSION = "qt_session"; 
-const KEY_TOKEN = "access_token"; 
+const KEY_USER = "qt_user";
+const KEY_USERS = "qt_users";
+const KEY_SESSION = "qt_session";
+const KEY_TOKEN = "access_token";
 
 const AuthCtx = createContext(null);
+
+// Helper: read File -> data URL for local persistence of avatar
+const readAsDataURL = (file) =>
+  new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -31,6 +40,8 @@ export function AuthProvider({ children }) {
       localStorage.setItem(KEY_TOKEN, payload.access_token);
     }
     const u = payload?.user || {};
+    const existing = JSON.parse(localStorage.getItem(KEY_SESSION) || "null");
+
     const session = {
       id: u.id,
       email: u.email ?? null,
@@ -39,6 +50,8 @@ export function AuthProvider({ children }) {
         nameOverride ||
         u.name ||
         (u.email ? u.email.split("@")[0] : "User"),
+      // keep previously chosen avatar if it exists
+      profileUrl: existing?.profileUrl || null,
     };
     localStorage.setItem(KEY_SESSION, JSON.stringify(session));
     setUser(session);
@@ -46,7 +59,6 @@ export function AuthProvider({ children }) {
   };
 
   const signUp = async ({ name, email, password }) => {
-   
     try {
       const data = await apiSignup(email, password);
       setSessionFromApi(data, name);
@@ -126,11 +138,32 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
-  const requestPasswordReset = async (email) => {
-    // backend should respond 200 even if email isn't found (to avoid enumeration)
-    const data = await apiForgotPassword(email);
-    return data; // allow caller to show a success message
+  // --- Profile photo API (local persistence) -------------------------------
+  const updateProfilePhoto = async (fileOrUrl) => {
+    if (!fileOrUrl) return null;
+
+    let dataUrl;
+    if (typeof fileOrUrl === "string") dataUrl = fileOrUrl;
+    else dataUrl = await readAsDataURL(fileOrUrl);
+
+    const next = { ...(user || {}), profileUrl: dataUrl };
+    localStorage.setItem(KEY_SESSION, JSON.stringify(next));
+    setUser(next);
+    return dataUrl;
   };
+
+  const removeProfilePhoto = () => {
+    const next = { ...(user || {}), profileUrl: null };
+    localStorage.setItem(KEY_SESSION, JSON.stringify(next));
+    setUser(next);
+  };
+  // ------------------------------------------------------------------------
+
+  const requestPasswordReset = async (email) => {
+    const data = await apiForgotPassword(email);
+    return data;
+  };
+
   const value = useMemo(
     () => ({
       user,
@@ -141,8 +174,10 @@ export function AuthProvider({ children }) {
       signInWithGoogle,
       signInAsGuest,
       requestPasswordReset,
+      updateProfilePhoto,
+      removeProfilePhoto,
     }),
-    [user]
+    [user, signUp, signIn, signOut, signInWithGoogle, signInAsGuest, requestPasswordReset, updateProfilePhoto, removeProfilePhoto]
   );
 
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;

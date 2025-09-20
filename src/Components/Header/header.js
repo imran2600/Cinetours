@@ -3,6 +3,7 @@ import React from "react";
 import "./Header.css";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import Collapse from "bootstrap/js/dist/collapse";
+import UserAvatar from "../../pages/ClientPortal/components/UserAvatar.js";
 
 // ✅ from your AuthContext (enhanced earlier)
 import { useAuth } from "../../auth/AuthContext.jsx";
@@ -11,7 +12,7 @@ const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { user, signedIn, signOut, signInAsGuest } = useAuth();
+  const { user, signedIn, signOut} = useAuth();
   const authed = !!(signedIn || user);
 
   // ⛔️ Hide the whole header on auth pages (Make.com style)
@@ -144,13 +145,7 @@ const Header = () => {
             ) : (
               <>
                 {/* Replace “Portal” with avatar initial */}
-                <button
-                  className="avatar-chip"
-                  title={user?.name || user?.email || "Account"}
-                  onClick={handleAvatarClick}
-                >
-                  {initial}
-                </button>
+                <UserAvatar size={32} withMenu />
                 <button className="btn btn-outline-secondary btn-sm" onClick={handleSignOut}>
                   Sign out
                 </button>
