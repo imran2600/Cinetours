@@ -1,5 +1,10 @@
 // src/services/portalApi.js
+<<<<<<< HEAD
 const BASE_URL = "https://qunatum-tour.onrender.com";
+=======
+const BASE_URL =
+  process.env.REACT_APP_API_BASE_URL || "https://qunatum-tour.onrender.com";
+>>>>>>> 7bc70b4d676814e335f0409d34ff68caa18bf203
 
 function authHeaders(extra = {}) {
   const token = localStorage.getItem("access_token");
