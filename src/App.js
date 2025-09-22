@@ -1,4 +1,4 @@
-// File: src/App.js
+// FileName: /src/App.js
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Header from "./Components/Header/header.js";
@@ -21,6 +21,11 @@ import { AuthProvider } from "./auth/AuthContext.jsx";
 import ProtectedRoute from "./auth/ProtectedRouts.jsx"; // keep your filename
 import SignIn from "./pages/Auth/SignIn.js";
 import SignUp from "./pages/Auth/SignUp.js";
+
+// ✅ Admin Auth
+import { AdminAuthProvider } from "./auth/adminAuth/adminAuthContext.js";
+import AdminLogin from "./auth/adminAuth/AdminLogin.js";
+import AdminPrivateRoute from "./auth/adminAuth/adminPrivateRoute.js";
 
 // Register GSAP plugins ONLY HERE
 import { gsap } from "gsap";
@@ -75,41 +80,53 @@ function App() {
 
   return (
     <AuthProvider>
-      <Router>
-      <div className="App">
-        <Header />
+      <AdminAuthProvider> {/* Wrap with AdminAuthProvider */}
+        <Router>
+          <div className="App">
+            <Header />
 
-        <Routes>
-          {/* Homepage Route */}
-          <Route path="/" element={<HomePage />} />
+            <Routes>
+              {/* Homepage Route */}
+              <Route path="/" element={<HomePage />} />
 
-          {/* Client Portal Route */}
-          {/* <Route path="/portal" element={<ClientPortal />} /> */}
+              {/* Pricing Page Route */}
+              <Route path="/Pricing" element={<PricingPage />} />
 
-          {/* Pricing Page Route */}
-          <Route path="/Pricing" element={<PricingPage />} />
+              {/* Admin Login Route */}
+              <Route path="/admin-login" element={<AdminLogin />} />
 
-          {/* Admin Panel Route with nested routes */}
-          <Route path="/admin/*" element={<AdminPortal />} />
+              {/* Admin Panel Route with nested routes - PROTECTED */}
+              <Route
+                path="/admin/*"
+                element={
+                  <AdminPrivateRoute>
+                    <AdminPortal />
+                  </AdminPrivateRoute>
+                }
+              />
 
-          {/* Auth pages */}
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
+              {/* Auth pages (Client) */}
+              <Route path="/signin" element={<SignIn />} />
+              <Route path="/signup" element={<SignUp />} />
 
-          {/* Protected Routes */}
-          <Route path="/portal" element={
-            <ProtectedRoute>
-              <ClientPortal />
-            </ProtectedRoute>
-          } />
-          
-          {/* Fallback route */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+              {/* Protected Routes (Client) */}
+              <Route
+                path="/portal"
+                element={
+                  <ProtectedRoute>
+                    <ClientPortal />
+                  </ProtectedRoute>
+                }
+              />
 
-        <Footer />
-      </div>
-      </Router>
+              {/* Fallback route */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+
+            <Footer />
+          </div>
+        </Router>
+      </AdminAuthProvider>
     </AuthProvider>
   );
 }

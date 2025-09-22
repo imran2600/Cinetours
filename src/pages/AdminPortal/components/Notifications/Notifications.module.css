@@ -1,26 +1,24 @@
-/* ============================= */
-/* Notification Component Styles */
-/* ============================= */
+:root {
+  --brand1: #a855f7;
+  --brand2: #22c55e;
+  --hairline: rgba(148,163,184,.16);
+  --ink: rgba(255,255,255,.88);
+  --ink-strong: rgba(255,255,255,.96);
 
-:root{
-  --brand1:#a855f7;
-  --brand2:#22c55e;
-  --hairline:rgba(148,163,184,.16);
-  --ink:rgba(255,255,255,.88);
-  --ink-strong:rgba(255,255,255,.96);
+  --success: #16a34a;
+  --error: #dc2626;
+  --info: #2563eb;
 }
 
-/* Card shell (page section) */
-.notificationCard{
+.notificationCard {
   background: transparent;
-  color:#fff;
+  color: #fff;
   border: none;
 }
 
-/* Header */
-.notificationHeader{
+.notificationHeader {
   background: transparent !important;
-  color:#fff !important;
+  color: #fff !important;
   border-bottom: 1px solid var(--hairline) !important;
   padding: 1rem 1.25rem !important;
 }
@@ -31,96 +29,94 @@
   color: white;
 }
 
-/* Body */
-.notificationBody{
+.notificationBody {
   background: transparent;
-  color:#fff !important;
+  color: #fff !important;
   padding: 0 1rem 1.25rem;
 }
 
-/* List Group */
 .notificationListGroup {
   background: transparent;
-  border-spacing: 0 14px;
   display: grid;
   gap: 14px;
 }
 
-/* Each list item becomes a single rounded "card" */
 .notificationListItem {
-  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)) !important;
-  border: 1px solid var(--hairline) !important;
-  border-radius: 14px !important;
-  padding: 1rem 1rem !important;
+  border-radius: 12px !important;
+  padding: 1rem !important;
   display: flex !important;
   justify-content: space-between !important;
-  align-items: center !important;
+  align-items: flex-start !important;
   color: var(--ink) !important;
-  margin-bottom: 0 !important;
+  flex-direction: column;
 }
 
-/* Hover effect matching the reference */
-.notificationListItem:hover {
-  background: rgba(255,255,255,.05) !important;
-  box-shadow: 0 10px 26px rgba(0,0,0,.30) inset, 0 8px 20px rgba(0,0,0,.28);
+.notificationMessage {
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
 }
 
-.notificationLabel {
-  font-size: 0.95rem;
+.extraDetails {
+  font-size: 0.85rem;
+  color: #cbd5e1;
+}
+
+.notificationType {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.3rem 0.7rem;
+  border-radius: 8px;
+  margin-top: 0.6rem;
+  align-self: flex-start;
+}
+
+/* Type-specific styling */
+.success {
+  border-left: 5px solid var(--success);
+  background: rgba(22, 163, 74, 0.1);
+}
+
+.error {
+  border-left: 5px solid var(--error);
+  background: rgba(220, 38, 38, 0.1);
+}
+
+.info {
+  border-left: 5px solid var(--info);
+  background: rgba(37, 99, 235, 0.1);
+}
+
+.notificationType.success {
+  background: var(--success);
+  color: #fff;
+}
+.notificationType.error {
+  background: var(--error);
+  color: #fff;
+}
+.notificationType.info {
+  background: var(--info);
+  color: #fff;
+}
+
+/* Loading & empty states */
+.loadingWrapper {
+  text-align: center;
   color: var(--ink);
 }
-
-.notificationSwitch {
-  cursor: pointer;
+.noNotifications {
+  text-align: center;
+  color: #cbd5e1;
+  font-style: italic;
 }
 
-/* Save Button — same emerald gradient as reference */
-.notificationSaveButton {
-  color:#fff !important;
-  border:none !important;
-  border-radius:10px;
-  padding:.75rem 1.5rem;
-  background-image:linear-gradient(135deg, var(--brand2), #15803d);
-  box-shadow:0 10px 24px rgba(21,128,61,.28);
-  transition:transform .18s ease, filter .18s ease, box-shadow .18s ease;
-  font-weight: 600;
-  margin-top: 1.5rem;
-}
-
-.notificationSaveButton:hover {
-  transform:translateY(-2px);
-  filter:brightness(1.05);
-  box-shadow:0 16px 30px rgba(21,128,61,.33);
-  background-image:linear-gradient(135deg, var(--brand2), #15803d) !important;
-  color:#fff !important;
-}
-
-.notificationButtonWrapper {
-  display: flex;
-  justify-content: flex-end;
-}
-
-/* Small screens */
-@media (max-width: 768px){
-  .notificationBody{ 
-    padding-left: .75rem; 
-    padding-right: .75rem; 
-  }
-  
+/* Mobile responsiveness */
+@media (max-width: 768px) {
   .notificationListItem {
-    flex-direction: column;
-    align-items: flex-start !important;
-    gap: 12px;
+    padding: 0.8rem !important;
   }
-  
-  .notificationButtonWrapper {
-    justify-content: center;
-  }
-  
-  .notificationSaveButton {
-    width: 100%;
+  .notificationMessage {
+    font-size: 0.9rem;
   }
 }
-
-
-
