@@ -36,9 +36,5 @@ export function apiGuest() {
 export function apiForgotPassword(email) {
   return request("/auth/password/forgot", { method: "POST", body: { email } });
 }
-// Used on app load/refresh to get the current user from backend
-export function apiMe() {
-  return request("/auth/me"); // make sure your backend exposes this
-}
 
 
