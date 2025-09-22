@@ -1,5 +1,5 @@
 // src/services/authApi.js
-const BASE_URL = "http://localhost:8000";
+const BASE_URL = "https://qunatum-tour.onrender.com";
 
 async function post(path, body, asJson = true) {
   const init = { method: "POST", headers: {} };
