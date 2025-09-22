@@ -22,20 +22,18 @@ async function post(path, body, asJson = true) {
 }
 
 export function apiSignup(email, password) {
-  return post("/signup", { email, password });
+  return post("/auth/signup", { email, password });
 }
 
 export function apiSignin(email, password) {
-  return post("/signin", { email, password });
+  return post("/auth/signin", { email, password });
 }
 
 export function apiGuest() {
-  // no body required
-  return post("/guest", undefined);
+  return post("/auth/guest", undefined);
 }
 
-// request a password reset email
 export function apiForgotPassword(email) {
-  return post("/password/forgot", { email });
+  return post("/auth/password/forgot", { email });
 }
 
