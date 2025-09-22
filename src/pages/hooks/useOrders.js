@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const BASE_URL = 'http://localhost:8000'; // adjust if backend is hosted elsewhere
+const BASE_URL = 'https://qunatum-tour.onrender.com'; // adjust if backend is hosted elsewhere
 
 export function useOrders() {
   const [orders, setOrders] = useState([]);

@@ -53,7 +53,7 @@ const OrderList = () => {
                 <td>
                   {order.videoUrl ? (
                     <video width="200" controls>
-                      <source src={`http://localhost:8000${order.videoUrl}`} type="video/mp4" />
+                      <source src={`https://qunatum-tour.onrender.com${order.videoUrl}`} type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
                   ) : (
@@ -63,7 +63,7 @@ const OrderList = () => {
                 <td>
                   {order.finalVideoUrl ? (
                     <video width="200" controls>
-                      <source src={`http://localhost:8000${order.finalVideoUrl}`} type="video/mp4" />
+                      <source src={`https://qunatum-tour.onrender.com${order.finalVideoUrl}`} type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
                   ) : (
