@@ -1,5 +1,7 @@
 // src/services/portalApi.js
 const BASE_URL = "https://qunatum-tour.onrender.com";
+const CLIENT_PREFIX = "/api/client"; 
+const STRIPE_PREFIX = "/stripe";
 
 function authHeaders(extra = {}) {
   const token = localStorage.getItem("access_token");
@@ -54,30 +56,38 @@ const portalApi = {
     fd.append("package", pkgName);
     if (addOns) fd.append("add_ons", JSON.stringify(addOns));
     files.forEach(f => fd.append("files", f));
-    return post("/orders/new", fd, /*asJson*/ false);
+    return post(`${CLIENT_PREFIX}/orders/new`, fd, false);
   },
 
   // Download center
   getDownloads(userId) {
-    return get(`/download-center?user_id=${encodeURIComponent(userId)}`);
+    return get(`${CLIENT_PREFIX}/download-center?user_id=${encodeURIComponent(userId)}`);
   },
 
   // Reorder
   reorder(orderId) {
-    return post(`/orders/${orderId}/reorder`);
+    return post(`${CLIENT_PREFIX}/orders/${orderId}/reorder`);
   },
 
   // Invoices
   getUserInvoices(userId) {
-    return get(`/${encodeURIComponent(userId)}/invoices`);
+    return get(`${CLIENT_PREFIX}/${encodeURIComponent(userId)}/invoices`);
   },
 
   getInvoice(invoiceId) {
-    return get(`/invoice/${encodeURIComponent(invoiceId)}`);
+    return get(`${CLIENT_PREFIX}/invoice/${encodeURIComponent(invoiceId)}`);
   },
 
   payInvoice(orderId) {
-    return post(`/invoice/${encodeURIComponent(orderId)}/pay`);
+    return post(`${CLIENT_PREFIX}/invoice/${encodeURIComponent(orderId)}/pay`);
+  },
+
+  createCheckoutSession(payload) {
+    return post(`${STRIPE_PREFIX}/create-checkout-session`, payload);
+  },
+
+  getPaymentStatus(sessionId) {
+    return get(`${STRIPE_PREFIX}/payment-status/${encodeURIComponent(sessionId)}`);
   },
 };
 

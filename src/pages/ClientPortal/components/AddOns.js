@@ -1,10 +1,9 @@
 // Add-Ons
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import styles from "./AddOns.module.css";
-import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-
+import portalApi from "../../../services/portalApi"; 
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -71,15 +70,15 @@ function total(a) {
 }
 
 
-export default function AddonScreen({ onBack, onContinue }) {
+export default function AddonScreen({ onBack, onContinue, userId, selectedPackage }) {
   const [a, setA] = useState(DEFAULT);
   const rootRef = useRef(null);
-  
+
+  // --- animations
   useEffect(() => {
     const wrapEl = rootRef.current;
     if (!wrapEl) return;
 
-    // delay to ensure DOM is painted (helps StrictMode double-invoke)
     const id = requestAnimationFrame(() => {
       const ctx = gsap.context(() => {
         // cards reveal
@@ -114,34 +113,81 @@ export default function AddonScreen({ onBack, onContinue }) {
           },
         });
 
-        // parallax blobs – use the ELEMENT as the trigger
+        // parallax blobs
         gsap.to(`.${styles.blob}`, {
           y: 120,
           ease: "sine.inOut",
           scrollTrigger: {
-            trigger: wrapEl,   // <— fix: use node instead of `.${styles.wrap}`
+            trigger: wrapEl,
             scrub: true,
           },
         });
       }, wrapEl);
 
-      // cleanup timelines & ScrollTriggers
       return () => ctx.revert();
     });
 
     return () => cancelAnimationFrame(id);
   }, []);
 
-
+  // --- selection helpers
   const covered = new Set(a.bundle ? BUNDLES[a.bundle].includes : []);
   const pick = (k) => setA({ ...a, [k]: !a[k] });
   const qty = (k, d) => setA({ ...a, [k]: Math.max(0, (a[k] || 0) + d) });
   const setBundle = (k) => setA({ ...a, bundle: a.bundle === k ? null : k });
-
-  // free options
   const pickFree = (k) => setA({ ...a, [k]: !a[k] });
   const setFreeFormat = (v) => setA({ ...a, freeFormat: v });
 
+  // --- totals
+  const pkgPrice = selectedPackage?.price ?? 0;
+  const addonsTotal = total(a);
+  const grandTotal = pkgPrice + addonsTotal; // USD (we'll send cents to backend)
+
+  // --- Stripe handler
+  async function handleCheckout() {
+    try {
+      // $0 case: skip Stripe
+      if (grandTotal <= 0) {
+        onContinue?.(a);
+        return;
+      }
+      if (!userId) {
+        alert("Please sign in again.");
+        return;
+      }
+
+      const origin = window.location.origin;
+      const pathname = window.location.pathname;
+      const success_url = `${origin}${pathname}?paid=1&session_id={CHECKOUT_SESSION_ID}`;
+      const cancel_url = `${origin}${pathname}?paid=0`;
+
+      const payload = {
+        user_id: userId,
+        // order_id: optional — send if you pre-create an order before payment
+        amount: Math.round(grandTotal * 100), // cents (per your API docs)
+        currency: "usd",
+        success_url,
+        cancel_url,
+        addon_type: a.bundle || "custom",
+        metadata: {
+          package_name: selectedPackage?.name || "",
+          package_price: String(pkgPrice),
+          addons: JSON.stringify(a),
+          addons_total: String(addonsTotal),
+          grand_total: String(grandTotal),
+        },
+      };
+
+      const { url } = await portalApi.createCheckoutSession(payload); // hits /stripe/create-checkout-session
+      if (!url) throw new Error("No checkout URL returned");
+      window.location.href = url; // → Stripe Checkout
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Unable to start checkout");
+    }
+  }
+
+  // --- background bubbles (unchanged)
   const bubbles = useMemo(() => {
     const N = 18;
     const rnd = (min, max) => Math.random() * (max - min) + min;
@@ -163,10 +209,8 @@ export default function AddonScreen({ onBack, onContinue }) {
     }));
   }, []);
 
-
   return (
     <div ref={rootRef} className={styles.wrap}>
-
       <ul className={styles.bubbles} aria-hidden="true">
         {bubbles.map(b => (
           <li
@@ -186,6 +230,7 @@ export default function AddonScreen({ onBack, onContinue }) {
           />
         ))}
       </ul>
+
       <div className={styles.inner}>
         {/* background blobs */}
         <div className={styles.fx} aria-hidden="true">
@@ -204,7 +249,7 @@ export default function AddonScreen({ onBack, onContinue }) {
 
         {/* Narration & Presentation */}
         <section className={styles.card}>
-          <h3> <span>🎤</span> Narration & Presentation</h3>
+          <h3><span>🎤</span> Narration & Presentation</h3>
 
           <label className={styles.row}>
             <input
@@ -287,7 +332,7 @@ export default function AddonScreen({ onBack, onContinue }) {
             </div>
           </label>
 
-          {/* Revisions row (placeholder tick keeps perfect alignment) */}
+          {/* Revisions row */}
           <div className={styles.row}>
             <span className={`${styles.tick} ${styles.placeholder}`} aria-hidden="true" />
             <div className={styles.text}>
@@ -359,7 +404,6 @@ export default function AddonScreen({ onBack, onContinue }) {
             </div>
           </label>
 
-          {/* Choice of format (placeholder tick; radios in control column) */}
           <div className={styles.row}>
             <span className={`${styles.tick} ${styles.placeholder}`} aria-hidden="true" />
             <div className={styles.text}>
@@ -368,8 +412,8 @@ export default function AddonScreen({ onBack, onContinue }) {
             </div>
             <div className={styles.controlGroup} role="radiogroup" aria-label="Output format">
               <label><input type="radio" name="freeFormat" checked={a.freeFormat === "horizontal"} onChange={() => setFreeFormat("horizontal")} /> Horizontal</label>
-              <label><input type="radio" name="freeFormat" checked={a.freeFormat === "vertical"}   onChange={() => setFreeFormat("vertical")} /> Vertical</label>
-              <label><input type="radio" name="freeFormat" checked={a.freeFormat === "square"}     onChange={() => setFreeFormat("square")} /> Square</label>
+              <label><input type="radio" name="freeFormat" checked={a.freeFormat === "vertical"} onChange={() => setFreeFormat("vertical")} /> Vertical</label>
+              <label><input type="radio" name="freeFormat" checked={a.freeFormat === "square"} onChange={() => setFreeFormat("square")} /> Square</label>
             </div>
           </div>
 
@@ -403,10 +447,13 @@ export default function AddonScreen({ onBack, onContinue }) {
         {/* Footer */}
         <footer className={styles.footer}>
           <div className={styles.total} aria-live="polite">
-            Total Add-Ons: <strong>${total(a)}</strong>
+            Total: <strong>${grandTotal}</strong>
+            <small style={{ marginLeft: 8, opacity: 0.8 }}>
+              (Package ${pkgPrice} + Add-Ons ${addonsTotal})
+            </small>
           </div>
-          <button className={styles.next} onClick={() => onContinue?.(a)}>
-            Continue
+          <button className={styles.next} onClick={handleCheckout}>
+            Continue to Payment
           </button>
         </footer>
       </div>

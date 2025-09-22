@@ -46,6 +46,12 @@ export default function ClientPortal() {
   const { orders } = useOrders();
   const [isLoading] = useState(false);
 
+  // --- NEW: current user id + the package chosen on Gate (needed for Stripe on Add-Ons)
+  const userId = user?.id ?? user?.user?.id;
+  const selectedPackage = PACKAGE_OPTIONS.find(
+    (p) => String(p.id) === String(preselectedPkgId)
+  );
+
   // Backend data for download center & invoices
   const [dlVideos, setDlVideos] = useState([]);
   const [invoiceList, setInvoiceList] = useState([]);
@@ -59,15 +65,36 @@ export default function ClientPortal() {
 
   /* ------------------- Effects (top-level; not conditional) ------------------- */
 
-  // Fetch Download Center items when the "downloads" tab is opened
+  // --- NEW: when Stripe redirects back with session_id, verify and advance to Upload
   useEffect(() => {
-    if (stage !== "portal" || activeTab !== "downloads") return;
-    const userId = user?.id ?? user?.user?.id;
-    if (!userId) return;
+    const sid = searchParams.get("session_id");
+    const paid = searchParams.get("paid");
+    if (!sid || paid !== "1") return;
 
     (async () => {
       try {
-        const data = await portalApi.getDownloads(userId);
+        const { status } = await portalApi.getPaymentStatus(sid); // /stripe/payment-status/:id
+        if (status === "succeeded") {
+          setStage("upload");
+        } else {
+          alert(`Payment status: ${status}`);
+        }
+      } catch (e) {
+        console.error(e);
+        alert("Unable to verify payment status.");
+      }
+    })();
+  }, [searchParams]);
+
+  // Fetch Download Center items when the "downloads" tab is opened
+  useEffect(() => {
+    if (stage !== "portal" || activeTab !== "downloads") return;
+    const uId = user?.id ?? user?.user?.id;
+    if (!uId) return;
+
+    (async () => {
+      try {
+        const data = await portalApi.getDownloads(uId);
         const mapped = (data?.downloads || []).flatMap((ord) =>
           (ord.videos || []).map((v, idx) => ({
             id: `${ord.order_id}-${idx}`,
@@ -88,12 +115,12 @@ export default function ClientPortal() {
   // Fetch invoices when the "invoices" tab is opened
   useEffect(() => {
     if (stage !== "portal" || activeTab !== "invoices") return;
-    const userId = user?.id ?? user?.user?.id;
-    if (!userId) return;
+    const uId = user?.id ?? user?.user?.id;
+    if (!uId) return;
 
     (async () => {
       try {
-        const data = await portalApi.getUserInvoices(userId);
+        const data = await portalApi.getUserInvoices(uId);
         const mapped = (data?.invoices || []).map((inv) => ({
           ...inv,
           status: inv.status === "paid" ? "paid" : "pending",
@@ -127,9 +154,13 @@ export default function ClientPortal() {
       <AddonScreen
         onBack={() => setStage("gate")}
         onContinue={(addons) => {
+          // keep this path for $0/test flows; real payments will redirect back and trigger the useEffect above
           setPreselectedAddons(addons);
           setStage("upload");
         }}
+        // --- NEW props used by Add-Ons when creating the Stripe Checkout session
+        userId={userId}
+        selectedPackage={selectedPackage}
       />
     );
   }
@@ -197,9 +228,9 @@ export default function ClientPortal() {
         <div className={styles.screenWrap}>
           <button onClick={goBack} className={styles.backBtn}>← Back</button>
           <BrandAssets
-            assets={{ 
-              logo:[ "/assets/logo-placeholder.png"], 
-              colorScheme: "#21ABB5", 
+            assets={{
+              logo:[ "/assets/logo-placeholder.png"],
+              colorScheme: "#21ABB5",
               font: "Montserrat" }}
             onUpdate={(assets) => {
               alert("Brand assets updated (hook up backend)");
