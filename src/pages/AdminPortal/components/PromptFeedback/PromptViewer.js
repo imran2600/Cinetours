@@ -25,7 +25,7 @@ const PromptViewer = () => {
     setRegenerationResponse(null);
 
     try {
-      const response = await fetch(`${BASE_URL}/admin/orders/${MOCK_IMAGE_ID}/regenerate`, {
+      const response = await fetch(`${BASE_URL}/api/admin/orders/${MOCK_IMAGE_ID}/regenerate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: feedback })

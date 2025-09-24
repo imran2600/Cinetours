@@ -8,12 +8,16 @@ const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // Add loading state
   const { login } = useAdminAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = login(email, password);
+    setError("");
+    setLoading(true); // Set loading to true on submission
+    const result = await login(email, password);
+    setLoading(false); // Set loading to false after response
     if (result.success) {
       navigate("/admin");
     } else {
@@ -37,6 +41,7 @@ const AdminLogin = () => {
             onChange={(e) => setEmail(e.target.value)}
             required
             placeholder="Enter your admin email"
+            disabled={loading} // Disable input during loading
           />
 
           <label htmlFor="password" className="auth-label">
@@ -50,14 +55,21 @@ const AdminLogin = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
             placeholder="Enter your password"
+            disabled={loading} // Disable input during loading
           />
 
           {error && <p className="auth-error">{error}</p>}
 
-          <button type="submit" className="auth-button">
-            Sign In
+          <button type="submit" className="auth-button" disabled={loading}>
+            {loading ? "Signing In..." : "Sign In"}
           </button>
         </form>
+        <p className="auth-footer-text">
+          Don't have an admin account?{" "}
+          <Link to="/admin-register" className="auth-link">
+            Register
+          </Link>
+        </p>
         <p className="auth-footer-text">
           Not an admin?{" "}
           <Link to="/" className="auth-link">

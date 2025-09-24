@@ -11,7 +11,7 @@ export function useOrders() {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${BASE_URL}/admin/orders`);
+      const res = await fetch(`${BASE_URL}/api/admin/orders`);
       if (!res.ok) {
         throw new Error(`Failed to fetch orders: ${res.status}`);
       }
@@ -27,7 +27,7 @@ export function useOrders() {
   // Update order status
   const updateOrderStatus = async (imageId, newStatus) => {
     try {
-      const res = await fetch(`${BASE_URL}/admin/orders/${imageId}/status`, {
+      const res = await fetch(`${BASE_URL}/api/admin/orders/${imageId}/status`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
@@ -62,7 +62,7 @@ export function useOrders() {
       const form = new FormData();
       form.append('file', file);
 
-      const res = await fetch(`${BASE_URL}/admin/orders/${imageId}/final-video`, {
+      const res = await fetch(`${BASE_URL}/api/admin/orders/${imageId}/final-video`, {
         method: 'POST',
         body: form,
       });

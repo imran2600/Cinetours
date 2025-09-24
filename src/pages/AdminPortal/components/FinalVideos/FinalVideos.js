@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, Table, Button, Spinner, Badge } from 'react-bootstrap';
 import styles from './FinalVideos.module.css';
 
-const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:8000'; // Ensure this matches your backend URL
+const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://qunatum-tour.onrender.com'; // Ensure this matches your backend URL
 
 const FinalVideos = () => {
   const [videos, setVideos] = useState([]);
@@ -14,7 +14,7 @@ const FinalVideos = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch(`${BASE_URL}/admin/videos`); // Your specified endpoint
+        const response = await fetch(`${BASE_URL}/api/admin/videos`); // Your specified endpoint
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

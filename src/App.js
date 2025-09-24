@@ -12,7 +12,7 @@ import Testimonials from "./Components/Testimonials/Testimonials.js";
 import Footer from "./Components/Footer/Footer.js";
 import ClientPortal from "./pages/ClientPortal/ClientPortal.js";
 import AdminPortal from "./pages/AdminPortal/AdminPortal";
-import PricingPage from "../src/pages/Pricing_page/Pricing.js"; // Add this import
+import PricingPage from "./pages/Pricing_page/Pricing.js"; // Fixed path (relative from src/)
 
 import { useEffect } from 'react';
 
@@ -25,6 +25,7 @@ import SignUp from "./pages/Auth/SignUp.js";
 // ✅ Admin Auth
 import { AdminAuthProvider } from "./auth/adminAuth/adminAuthContext.js";
 import AdminLogin from "./auth/adminAuth/AdminLogin.js";
+import AdminRegister from "./auth/adminAuth/AdminRegister.js"; // Ensure this path matches your folder
 import AdminPrivateRoute from "./auth/adminAuth/adminPrivateRoute.js";
 
 // Register GSAP plugins ONLY HERE
@@ -44,7 +45,6 @@ const HomePage = () => (
           the Price
         </>
       }
-      
     />
     <ClientLogos />
     <VideoComparison
@@ -70,7 +70,6 @@ const HomePage = () => (
 );
 
 function App() {
-
   useEffect(() => {
     // Wait for fonts to load before any text animations
     document.fonts.ready.then(() => {
@@ -94,6 +93,9 @@ function App() {
 
               {/* Admin Login Route */}
               <Route path="/admin-login" element={<AdminLogin />} />
+              
+              {/* Admin Register Route */}
+              <Route path="/admin-register" element={<AdminRegister />} />
 
               {/* Admin Panel Route with nested routes - PROTECTED */}
               <Route

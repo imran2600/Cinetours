@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, Table, Badge, Spinner, Pagination } from 'react-bootstrap';
 import styles from './JobTracker.module.css';
 
-const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:8000';
+const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://qunatum-tour.onrender.com';
 
 const JobTracker = () => {
   const [data, setData] = useState(null);
@@ -14,7 +14,7 @@ const JobTracker = () => {
 
   const fetchLogsStatus = async () => {
     try {
-      const res = await fetch(`${BASE_URL}/admin/logs-status`);
+      const res = await fetch(`${BASE_URL}/api/admin/logs-status`);
       const json = await res.json();
       setData(json);
       setLoading(false);
