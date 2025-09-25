@@ -144,48 +144,48 @@ export default function AddonScreen({ onBack, onContinue, userId, selectedPackag
   const grandTotal = pkgPrice + addonsTotal; // USD (we'll send cents to backend)
 
   // --- Stripe handler
-  async function handleCheckout() {
-    try {
-      // $0 case: skip Stripe
-      if (grandTotal <= 0) {
-        onContinue?.(a);
-        return;
-      }
-      if (!userId) {
-        alert("Please sign in again.");
-        return;
-      }
+  // async function handleCheckout() {
+  //   try {
+  //     // $0 case: skip Stripe
+  //     if (grandTotal <= 0) {
+  //       onContinue?.(a);
+  //       return;
+  //     }
+  //     if (!userId) {
+  //       alert("Please sign in again.");
+  //       return;
+  //     }
 
-      const origin = window.location.origin;
-      const pathname = window.location.pathname;
-      const success_url = `${origin}${pathname}?paid=1&session_id={CHECKOUT_SESSION_ID}`;
-      const cancel_url = `${origin}${pathname}?paid=0`;
+  //     const origin = window.location.origin;
+  //     const pathname = window.location.pathname;
+  //     const success_url = `${origin}${pathname}?paid=1&session_id={CHECKOUT_SESSION_ID}`;
+  //     const cancel_url = `${origin}${pathname}?paid=0`;
 
-      const payload = {
-        user_id: userId,
-        // order_id: optional — send if you pre-create an order before payment
-        amount: Math.round(grandTotal * 100), // cents (per your API docs)
-        currency: "usd",
-        success_url,
-        cancel_url,
-        addon_type: a.bundle || "custom",
-        metadata: {
-          package_name: selectedPackage?.name || "",
-          package_price: String(pkgPrice),
-          addons: JSON.stringify(a),
-          addons_total: String(addonsTotal),
-          grand_total: String(grandTotal),
-        },
-      };
+  //     const payload = {
+  //       user_id: userId,
+  //       // order_id: optional — send if you pre-create an order before payment
+  //       amount: Math.round(grandTotal * 100), // cents (per your API docs)
+  //       currency: "usd",
+  //       success_url,
+  //       cancel_url,
+  //       addon_type: a.bundle || "custom",
+  //       metadata: {
+  //         package_name: selectedPackage?.name || "",
+  //         package_price: String(pkgPrice),
+  //         addons: JSON.stringify(a),
+  //         addons_total: String(addonsTotal),
+  //         grand_total: String(grandTotal),
+  //       },
+  //     };
 
-      const { url } = await portalApi.createCheckoutSession(payload); // hits /stripe/create-checkout-session
-      if (!url) throw new Error("No checkout URL returned");
-      window.location.href = url; // → Stripe Checkout
-    } catch (err) {
-      console.error(err);
-      alert(err.message || "Unable to start checkout");
-    }
-  }
+  //     const { url } = await portalApi.createCheckoutSession(payload); // hits /stripe/create-checkout-session
+  //     if (!url) throw new Error("No checkout URL returned");
+  //     window.location.href = url; // → Stripe Checkout
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert(err.message || "Unable to start checkout");
+  //   }
+  // }
 
   // --- background bubbles (unchanged)
   const bubbles = useMemo(() => {
@@ -452,7 +452,7 @@ export default function AddonScreen({ onBack, onContinue, userId, selectedPackag
               (Package ${pkgPrice} + Add-Ons ${addonsTotal})
             </small>
           </div>
-          <button className={styles.next} onClick={handleCheckout}>
+          <button className={styles.next}  /* onClick={handleCheckout} */ >
             Continue to Payment
           </button>
         </footer>
