@@ -111,7 +111,7 @@ const UploadOrder = ({
     setIsSubmitting(true);
     try {
       // ✅ Normal flow: create order + invoice
-      await portalApi.createOrder(userId, selectedPkg.name, addons, selectedFiles);
+      await portalApi.uploadPhotos(selectedPkg.name, addons, selectedFiles);
 
       // keep existing local state behavior / UI flow
       const newOrder = {
