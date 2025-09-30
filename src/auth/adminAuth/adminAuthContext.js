@@ -14,10 +14,10 @@ export const AdminAuthProvider = ({ children }) => {
     return savedAdmin ? JSON.parse(savedAdmin) : null;
   });
 
-  // Function to handle admin login - calls POST /api/admin/login
+  // Function to handle admin login - calls POST /api/admin/auth/admin/login
   const login = async (email, password) => {
     try {
-      const response = await fetch(`${BASE_URL}/api/admin/login`, {
+      const response = await fetch(`${BASE_URL}/api/admin/auth/admin/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -28,8 +28,8 @@ export const AdminAuthProvider = ({ children }) => {
       const data = await response.json();
 
       if (response.ok) {
-        // Assuming backend returns { token: "jwt-token", ... }
-        const adminData = { email, token: data.token };
+        // Assuming backend returns { token: "jwt-token", refresh_token: "refresh-token", ... }
+        const adminData = { email, token: data.token, refreshToken: data.refresh_token }; // Store refresh token if provided
         setAdmin(adminData);
         localStorage.setItem('admin', JSON.stringify(adminData));
         return { success: true };
@@ -42,68 +42,105 @@ export const AdminAuthProvider = ({ children }) => {
     }
   };
 
-  // Function to handle admin registration - calls POST /api/admin/register (THIS IS WHERE THE ENDPOINT IS CALLED)
+  // Function to handle admin registration - calls POST /api/admin/auth/admin/register
   const register = async (email, password) => {
     try {
-      // Prepare the request to your backend endpoint
-      const response = await fetch(`${BASE_URL}/api/admin/register`, {
-        method: 'POST',  // HTTP method for creating new resources
+      const response = await fetch(`${BASE_URL}/api/admin/auth/admin/register`, {
+        method: 'POST',
         headers: {
-          'Content-Type': 'application/json',  // Tell backend the body is JSON
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),  // Send user data as JSON payload
+        body: JSON.stringify({ email, password }),
       });
 
-      // Parse the backend's JSON response
       const data = await response.json();
 
-      if (response.ok) {  // Success (HTTP 200/201)
-        // Assuming backend returns { token: "jwt-token", message: "Success" }
-        // Store admin data locally for auto-login
-        const adminData = { email, token: data.token };
+      if (response.ok) {
+        // Assuming backend returns { token: "jwt-token", refresh_token: "refresh-token", message: "Success" }
+        const adminData = { email, token: data.token, refreshToken: data.refresh_token }; // Store refresh token if provided
         setAdmin(adminData);
         localStorage.setItem('admin', JSON.stringify(adminData));
         return { success: true, message: data.message || 'Registration successful' };
-      } else {  // Failure (HTTP 400/500, etc.)
+      } else {
         return { success: false, message: data.message || 'Registration failed' };
       }
     } catch (error) {
-      // Handle network errors (e.g., server down, no internet)
       console.error('Admin registration failed:', error);
       return { success: false, message: 'Network error or server is unreachable. Please check your connection.' };
     }
   };
 
-  // Function to handle admin logout - calls POST /api/admin/logout
+  // Function to refresh the access token - calls POST /api/admin/auth/admin/refresh
+  const refresh = async () => {
+    try {
+      const adminData = JSON.parse(localStorage.getItem('admin'));
+      const refreshToken = adminData?.refreshToken; // Assuming refresh token is stored here
+
+      if (!refreshToken) {
+        console.warn('No refresh token found for admin.');
+        setAdmin(null); // Clear admin state if no refresh token
+        localStorage.removeItem('admin');
+        return false;
+      }
+
+      const response = await fetch(`${BASE_URL}/api/admin/auth/admin/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // Often, refresh tokens are sent in the body or as an HTTP-only cookie.
+          // If your backend expects it in the Authorization header, adjust here.
+          'Authorization': `Bearer ${refreshToken}`,
+        },
+        body: JSON.stringify({ refreshToken }), // Some backends expect it in the body
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Assuming backend returns { token: "new-jwt-token", refresh_token: "new-refresh-token", ... }
+        const newAdminData = { ...adminData, token: data.token, refreshToken: data.refresh_token || refreshToken };
+        setAdmin(newAdminData);
+        localStorage.setItem('admin', JSON.stringify(newAdminData));
+        return true;
+      } else {
+        console.error('Admin token refresh failed:', data.message || 'Unknown error');
+        setAdmin(null); // Clear admin state on refresh failure (e.g., refresh token expired)
+        localStorage.removeItem('admin');
+        return false;
+      }
+    } catch (error) {
+      console.error('Admin token refresh network error:', error);
+      setAdmin(null); // Clear admin state on network error
+      localStorage.removeItem('admin');
+      return false;
+    }
+  };
+
+  // Function to handle admin logout - calls POST /api/admin/auth/admin/logout
   const logout = async () => {
     try {
-      // Get stored token for backend validation
       const adminData = JSON.parse(localStorage.getItem('admin'));
       const token = adminData?.token;
 
       if (token) {
-        // Send request to invalidate session on backend
-        await fetch(`${BASE_URL}/api/admin/logout`, {
+        await fetch(`${BASE_URL}/api/admin/auth/admin/logout`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,  // Send token in header for backend to verify/invalidate
+            'Authorization': `Bearer ${token}`,
           },
         });
       }
-      // Clear local state even if API fails (for better UX)
     } catch (error) {
       console.error('Admin logout failed on backend:', error);
     } finally {
-      // Always clear frontend state
       setAdmin(null);
       localStorage.removeItem('admin');
     }
   };
 
-  // Provide the context value to child components
   return (
-    <AdminAuthContext.Provider value={{ admin, login, register, logout }}>
+    <AdminAuthContext.Provider value={{ admin, login, register, logout, refresh }}>
       {children}
     </AdminAuthContext.Provider>
   );
