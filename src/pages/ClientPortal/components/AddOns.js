@@ -4,6 +4,7 @@ import styles from "./AddOns.module.css";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import portalApi from "../../../services/portalApi"; 
+import { getStripe } from "../../../lib/stripe";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -143,49 +144,64 @@ export default function AddonScreen({ onBack, onContinue, userId, selectedPackag
   const addonsTotal = total(a);
   const grandTotal = pkgPrice + addonsTotal; // USD (we'll send cents to backend)
 
-  // --- Stripe handler
-  async function handleCheckout() {
-    try {
-      // $0 case: skip Stripe
-      if (grandTotal <= 0) {
-        onContinue?.(a);
-        return;
-      }
-      if (!userId) {
-        alert("Please sign in again.");
-        return;
-      }
-
-      const origin = window.location.origin;
-      const pathname = window.location.pathname;
-      const success_url = `${origin}${pathname}?paid=1&session_id={CHECKOUT_SESSION_ID}`;
-      const cancel_url = `${origin}${pathname}?paid=0`;
-
-      const payload = {
-        user_id: userId,
-        // order_id: optional — send if you pre-create an order before payment
-        amount: Math.round(grandTotal * 100), // cents (per your API docs)
-        currency: "usd",
-        success_url,
-        cancel_url,
-        addon_type: a.bundle || "custom",
-        metadata: {
-          package_name: selectedPackage?.name || "",
-          package_price: String(pkgPrice),
-          addons: JSON.stringify(a),
-          addons_total: String(addonsTotal),
-          grand_total: String(grandTotal),
-        },
-      };
-
-      const { url } = await portalApi.createCheckoutSession(payload); // hits /stripe/create-checkout-session
-      if (!url) throw new Error("No checkout URL returned");
-      window.location.href = url; // → Stripe Checkout
-    } catch (err) {
-      console.error(err);
-      alert(err.message || "Unable to start checkout");
+// --- Stripe handler (uses publishable key + falls back to URL)
+async function handleCheckout() {
+  try {
+    // $0 case: skip Stripe
+    if (grandTotal <= 0) {
+      onContinue?.(a);
+      return;
     }
+    if (!userId) {
+      alert("Please sign in again.");
+      return;
+    }
+
+    // Always come back to /portal so the post-payment effect runs
+    const origin = window.location.origin;
+    const success_url = `${origin}/portal?start=upload&paid=1&session_id={CHECKOUT_SESSION_ID}`;
+    const cancel_url  = `${origin}/portal?paid=0`;
+
+    localStorage.setItem("qt_pkgId", String(selectedPackage?.id ?? ""));
+    localStorage.setItem("qt_addons", JSON.stringify(a));
+
+    const payload = {
+      user_id: userId,
+      amount: Math.round(grandTotal * 100), // cents
+      currency: "usd",
+      success_url,
+      cancel_url,
+      addon_type: a.bundle || "custom",
+      metadata: {
+        package_name: selectedPackage?.name || "",
+        package_price: String(pkgPrice),
+        addons: JSON.stringify(a),
+        addons_total: String(addonsTotal),
+        grand_total: String(grandTotal),
+      },
+    };
+
+    // Create checkout session (backend unchanged)
+    const resp = await portalApi.createCheckoutSession(payload);
+
+    // Prefer Stripe.js redirect with sessionId; else fallback to URL
+    const sessionId =
+      resp?.id || (resp?.url?.match(/\/(cs_[^/?#]+)/)?.[1]) || null;
+
+    if (sessionId) {
+      const stripe = await getStripe();
+      const { error } = await stripe.redirectToCheckout({ sessionId });
+      if (error) throw error;
+    } else if (resp?.url) {
+      window.location.href = resp.url;
+    } else {
+      throw new Error("Checkout session missing id/url");
+    }
+  } catch (err) {
+    console.error(err);
+    alert(err.message || "Unable to start checkout");
   }
+}
 
   // --- background bubbles (unchanged)
   const bubbles = useMemo(() => {
@@ -452,7 +468,7 @@ export default function AddonScreen({ onBack, onContinue, userId, selectedPackag
               (Package ${pkgPrice} + Add-Ons ${addonsTotal})
             </small>
           </div>
-          <button className={styles.next}  onClick={handleCheckout} >
+          <button className={styles.next}   onClick={handleCheckout} >
             Continue to Payment
           </button>
         </footer>

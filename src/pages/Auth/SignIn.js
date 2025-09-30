@@ -20,8 +20,10 @@ export default function SignIn() {
   const { signIn, signInAsGuest } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || "/";
-
+  const fromLocation = location.state?.from;
+ const nextUrl = fromLocation
+   ? `${fromLocation.pathname}${fromLocation.search || ""}`
+   : "/portal";
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [show, setShow] = useState(false);
@@ -34,7 +36,7 @@ export default function SignIn() {
     try {
       setLoading(true);
       await signIn({ email, password: pw }); // backend-only
-      navigate(from, { replace: true });
+      navigate(nextUrl, { replace: true });
     } catch (e2) {
       setErr(e2.message || "Could not sign you in.");
     } finally {
@@ -46,7 +48,10 @@ export default function SignIn() {
     setErr("");
     try {
       await signInAsGuest(); // backend /auth/guest only
-      navigate("/portal?new=1", { replace: true });
+      const guestNext = fromLocation
+       ? `${fromLocation.pathname}${fromLocation.search || ""}`
+       : "/portal?new=1";
+     navigate(guestNext, { replace: true });
     } catch (e2) {
       setErr(e2.message || "Guest sign-in failed.");
     }

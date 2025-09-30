@@ -1,4 +1,4 @@
-// src/services/portalApi.js
+// // src/services/portalApi.js
 const BASE_URL = "https://qunatum-tour.onrender.com";
 const CLIENT_PREFIX = "/api/client"; 
 const STRIPE_PREFIX = "/stripe";

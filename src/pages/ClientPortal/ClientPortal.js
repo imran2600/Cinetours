@@ -21,6 +21,22 @@ import AddonScreen from "./components/AddOns";
 
 import { getPortalState, setPortalState } from "./state";
 
+// --- Preselection helpers (persisted by AddOns before Stripe redirect)
+function readPreselection() {
+  const rawPkg = localStorage.getItem("qt_pkgId");
+  const rawAdd = localStorage.getItem("qt_addons");
+  return {
+    pkgId: rawPkg ? Number(rawPkg) : null,
+    addons: rawAdd ? JSON.parse(rawAdd) : null,
+  };
+}
+
+function clearPreselection() {
+  localStorage.removeItem("qt_pkgId");
+  localStorage.removeItem("qt_addons");
+}
+
+
 const PACKAGE_OPTIONS = [
   { id: 1, name: "Starter",      photos: "5-10",  price: 49  },
   { id: 2, name: "Professional", photos: "11-20", price: 99  },
@@ -66,25 +82,50 @@ export default function ClientPortal() {
   /* ------------------- Effects (top-level; not conditional) ------------------- */
 
   // --- NEW: when Stripe redirects back with session_id, verify and advance to Upload
-  useEffect(() => {
+// If Stripe sent us back with start=upload, jump immediately and prefill
+useEffect(() => {
     const sid = searchParams.get("session_id");
     const paid = searchParams.get("paid");
+    const startUpload = searchParams.get("start") === "upload";
     if (!sid || paid !== "1") return;
 
-    (async () => {
+    let cancelled = false;
+    const poll = async (attempt = 0) => {
       try {
-        const { status } = await portalApi.getPaymentStatus(sid); // /stripe/payment-status/:id
+        const { status } = await portalApi.getPaymentStatus(sid);
+        if (cancelled) return;
         if (status === "succeeded") {
           setStage("upload");
-        } else {
-          alert(`Payment status: ${status}`);
+          return;
         }
+        if (status === "failed" || status === "canceled") {
+          alert(`Payment ${status}.`);
+          return;
+        }
+        if (attempt < 30) setTimeout(() => poll(attempt + 1), 2000);
+        else if (!startUpload) alert("Payment still pending. Please refresh in a moment.");
       } catch (e) {
         console.error(e);
-        alert("Unable to verify payment status.");
+        if (attempt < 5) setTimeout(() => poll(attempt + 1), 2000);
+        else if (!startUpload) alert("Unable to verify payment status.");
       }
-    })();
+    };
+    poll();
+    return () => { cancelled = true; };
   }, [searchParams]);
+
+  // Jump straight to Upload if Stripe sent us back with start=upload
+  useEffect(() => {
+    const startUpload = searchParams.get("start") === "upload";
+    if (!startUpload) return;
+
+    const { pkgId, addons } = readPreselection();   // your helpers already defined
+    if (pkgId) setPreselectedPkgId(pkgId);
+    if (addons) setPreselectedAddons(addons);
+
+    setStage("upload");
+  }, [searchParams]);
+
 
   // Fetch Download Center items when the "downloads" tab is opened
   useEffect(() => {
@@ -175,9 +216,10 @@ export default function ClientPortal() {
         onSubmitted={() => {
           if (user?.email) setPortalState(user.email, { hasOrder: true });
           clearNewFlag();
+          clearPreselection();
           setStage("hub");
         }}
-        onBack={() => setStage("addons")}
+        onBack={() => {setStage("addons");clearPreselection();}}
       />
     );
   }
