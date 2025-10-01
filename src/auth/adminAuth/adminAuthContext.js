@@ -16,6 +16,17 @@ export const AdminAuthProvider = ({ children }) => {
 
   // Function to handle admin login - calls POST /api/admin/auth/admin/login
   const login = async (email, password) => {
+    // --- START MOCK LOGIN FOR TESTING ---
+    // TODO: Remove this block when integrating with a real backend.
+    // This is for temporary testing purposes only.
+    if (email === 'admin@example.com' && password === 'password123') {
+      const adminData = { email, token: 'mock-admin-token', refreshToken: 'mock-admin-refresh-token' };
+      setAdmin(adminData);
+      localStorage.setItem('admin', JSON.stringify(adminData));
+      return { success: true };
+    }
+    // --- END MOCK LOGIN FOR TESTING ---
+
     try {
       const response = await fetch(`${BASE_URL}/api/admin/auth/admin/login`, {
         method: 'POST',
