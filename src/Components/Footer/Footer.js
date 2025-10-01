@@ -12,7 +12,7 @@ const Footer = () => {
   const { pathname } = useLocation();
 
   // Hide footer on auth routes (expand this list any time)
-  const HIDE_ON = ["/signin", "/signup", "/register", "/auth", "/forgot-password"];
+  const HIDE_ON = ["/signin", "/signup", "/register", "/auth", "/forgot-password", "/set-password"];
   const shouldHide = HIDE_ON.some((p) => pathname.startsWith(p));
   if (shouldHide) return null;
 

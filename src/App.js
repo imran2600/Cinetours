@@ -13,6 +13,7 @@ import Footer from "./Components/Footer/Footer.js";
 import ClientPortal from "./pages/ClientPortal/ClientPortal.js";
 import AdminPortal from "./pages/AdminPortal/AdminPortal";
 import PricingPage from "./pages/Pricing_page/Pricing.js"; // Fixed path (relative from src/)
+import SetNewPassword from "./pages/Auth/SetNewPassword.jsx";
 
 import { useEffect } from 'react';
 
@@ -110,6 +111,7 @@ function App() {
               {/* Auth pages (Client) */}
               <Route path="/signin" element={<SignIn />} />
               <Route path="/signup" element={<SignUp />} />
+              <Route path="/set-password" element={<SetNewPassword />} />
 
               {/* Protected Routes (Client) */}
               <Route

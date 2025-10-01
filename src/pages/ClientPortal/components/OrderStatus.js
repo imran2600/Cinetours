@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, ProgressBar, Spinner } from 'react-bootstrap';
 import styles from './OrderStatus.module.css';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 
 const STATUS = {
   submitted:  { label: 'Submitted',  variant: 'info',    percent: 30 },
