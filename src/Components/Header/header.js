@@ -12,13 +12,14 @@ const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { user, signedIn, signOut} = useAuth();
+  const { user, signedIn, signOut,} = useAuth();
   const authed = !!(signedIn || user);
 
   // ⛔️ Hide the whole header on auth pages (Make.com style)
   const isAuthRoute =
     location.pathname.startsWith("/signin") ||
-    location.pathname.startsWith("/signup");
+    location.pathname.startsWith("/signup") ||
+    location.pathname.startsWith("/set-password");
   if (isAuthRoute) return null;
 
   const closeMobileMenu = () => {
