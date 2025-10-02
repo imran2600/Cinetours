@@ -1,89 +1,86 @@
 import React, { useEffect, useState } from 'react';
-import { Card, ListGroup, Spinner } from 'react-bootstrap';
+import { Card, Table, Spinner, Badge } from 'react-bootstrap';
 import styles from './Notifications.module.css';
 
-const AlertsPanel = () => {
+const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://qunatum-tour.onrender.com';
+
+const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const fetchNotifications = async () => {
-    try {
-      const res = await fetch(`${process.env.REACT_APP_BASE_URL}/admin/notifications`);
-      const data = await res.json();
-      setNotifications(data.notifications || []);
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [error, setError] = useState(null);
 
   useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetch(`${BASE_URL}/api/admin/notifications`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setNotifications(data.notifications || []);
+      } catch (e) {
+        console.error("Failed to fetch notifications:", e);
+        setError("Failed to load notifications. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchNotifications();
   }, []);
 
-  const renderExtraDetails = (notification) => {
-    switch (notification.category) {
-      case 'user_activity':
-        return (
-          <div className={styles.extraDetails}>
-            {notification.email && <p>Email: {notification.email}</p>}
-            {notification.user_id && <p>User ID: {notification.user_id}</p>}
-            {notification.timestamp && <p>Time: {new Date(notification.timestamp).toLocaleString()}</p>}
-          </div>
-        );
-      case 'video_processing':
-        return (
-          <div className={styles.extraDetails}>
-            {notification.video_id && <p>Video ID: {notification.video_id}</p>}
-            {notification.video_path && <p>Path: {notification.video_path}</p>}
-          </div>
-        );
-      case 'system_stats':
-        return (
-          <div className={styles.extraDetails}>
-            <p>Users: {notification.stats?.users}</p>
-            <p>Orders: {notification.stats?.orders}</p>
-            <p>Videos: {notification.stats?.videos}</p>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
-
   return (
-    <Card className={styles.notificationCard}>
-      <Card.Header className={styles.notificationHeader}>
-        <h4 className={styles.notificationTitle}>Admin Notifications</h4>
+    <Card className={styles.adminCard}>
+      <Card.Header className={styles.cardHeader}>
+        <h5 className={styles.headerTitle}>Notifications</h5>
       </Card.Header>
-      <Card.Body className={styles.notificationBody}>
+      <Card.Body className={styles.cardBody}>
         {loading ? (
           <div className={styles.loadingWrapper}>
             <Spinner animation="border" variant="light" />
-            <p>Loading notifications...</p>
+            <span className={styles.loadingText}>Loading notifications...</span>
           </div>
+        ) : error ? (
+          <p className={styles.errorMessage}>{error}</p>
         ) : notifications.length === 0 ? (
-          <p className={styles.noNotifications}>No notifications available.</p>
+          <p className={styles.noData}>No notifications available.</p>
         ) : (
-          <ListGroup className={styles.notificationListGroup}>
-            {notifications.map((n, index) => (
-              <ListGroup.Item
-                key={index}
-                className={`${styles.notificationListItem} ${styles[n.type]}`}
-              >
-                <div>
-                  <p className={styles.notificationMessage}>{n.message}</p>
-                  {renderExtraDetails(n)}
-                </div>
-                <span className={styles.notificationType}>{n.type.toUpperCase()}</span>
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
+          <div className={styles.tableWrapper}>
+            <Table hover responsive className={styles.notificationsTable}>
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>Title</th>
+                  <th>Message</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {notifications.map((notif) => (
+                  <tr key={notif.id}>
+                    <td>
+                      <Badge
+                        className={`${styles.statusBadge} ${
+                          notif.status ? styles[notif.status.toLowerCase()] : ''
+                        }`}
+                      >
+                        {notif.status || 'Unknown'}
+                      </Badge>
+                    </td>
+                    <td>{notif.title || '-'}</td>
+                    <td>{notif.message || '-'}</td>
+                    <td>{new Date(notif.created_at).toLocaleString() || '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
         )}
       </Card.Body>
     </Card>
   );
 };
 
-export default AlertsPanel;
+export default Notifications;

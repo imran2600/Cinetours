@@ -7,12 +7,16 @@ import UserAvatar from "../../pages/ClientPortal/components/UserAvatar.js";
 
 // ✅ from your AuthContext (enhanced earlier)
 import { useAuth } from "../../auth/AuthContext.jsx";
+// ✅ Admin Auth
+import { useAdminAuth } from "../../auth/adminAuth/adminAuthContext.js";
+
 
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
   const { user, signedIn, signOut,} = useAuth();
+  const { admin, logout: adminLogout } = useAdminAuth(); // Destructure admin and rename logout to adminLogout
   const authed = !!(signedIn || user);
 
   // ⛔️ Hide the whole header on auth pages (Make.com style)
@@ -21,6 +25,10 @@ const Header = () => {
     location.pathname.startsWith("/signup") ||
     location.pathname.startsWith("/set-password");
   if (isAuthRoute) return null;
+
+  // Check if current route is an admin route
+  const isAdminRoute = location.pathname.startsWith("/admin");
+
 
   const closeMobileMenu = () => {
     const el = document.getElementById("navbarContent");
@@ -51,6 +59,14 @@ const Header = () => {
       await signOut?.();
     } finally {
       go("/");
+    }
+  };
+
+  const handleAdminSignOut = async () => {
+    try {
+      await adminLogout();
+    } finally {
+      go("/"); // Redirect to homepage or admin login page after admin logout
     }
   };
 
@@ -133,24 +149,32 @@ const Header = () => {
           </div>
 
           <div className="header-actions d-flex align-items-center gap-2 ms-auto">
-            {!authed ? (
-              <>
-                <button className="btn btn-outline-secondary btn-sm" onClick={handleSignIn}>
-                  Sign in
-                </button>
-                {/* “Get Start” acts as Guest entry */}
-                <button className="btn gradient-button btn-sm" onClick={handleGetStart}>
-                  Get Started
-                </button>
-              </>
+            {isAdminRoute && admin ? (
+              // If on an admin route and admin is logged in, show only admin sign out
+              <button className="btn btn-outline-secondary btn-sm" onClick={handleAdminSignOut}>
+                Admin Sign out
+              </button>
             ) : (
-              <>
-                {/* Replace “Portal” with avatar initial */}
-                <UserAvatar size={32} withMenu />
-                <button className="btn btn-outline-secondary btn-sm" onClick={handleSignOut}>
-                  Sign out
-                </button>
-              </>
+              // Otherwise, show client-specific buttons
+              !authed ? (
+                <>
+                  <button className="btn btn-outline-secondary btn-sm" onClick={handleSignIn}>
+                    Sign in
+                  </button>
+                  {/* “Get Start” acts as Guest entry */}
+                  <button className="btn gradient-button btn-sm" onClick={handleGetStart}>
+                    Get Started
+                  </button>
+                </>
+              ) : (
+                <>
+                  {/* Replace “Portal” with avatar initial */}
+                  <UserAvatar size={32} withMenu />
+                  <button className="btn btn-outline-secondary btn-sm" onClick={handleSignOut}>
+                    Sign out
+                  </button>
+                </>
+              )
             )}
           </div>
         </div>
