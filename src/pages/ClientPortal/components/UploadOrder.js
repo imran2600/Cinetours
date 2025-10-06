@@ -120,8 +120,9 @@ const UploadOrder = ({
         addons,
         addonsTotal,
       };
-      addOrder(newOrder);
-      onSubmit?.(newOrder);
+      onSubmit(newOrder);
+      
+
 
       setSelectedFiles([]);
       setSelectedPackage("");
