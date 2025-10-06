@@ -60,8 +60,14 @@ const portalApi = {
   },
 
   // Download center
-  getDownloads(userId) {
-    return get(`${CLIENT_PREFIX}/download-center?user_id=${encodeURIComponent(userId)}`);
+  async getDownloads(userId) {
+    const res = await fetch(`/api/download-center?user_id=${encodeURIComponent(userId)}`, {
+      headers: authHeaders(),
+    });
+    let data = {};
+    try { data = await res.json(); } catch {}
+    if (!res.ok) throw new Error(data?.detail || data?.message || `GET /api/download-center failed (${res.status})`);
+    return data;
   },
 
   // Reorder
