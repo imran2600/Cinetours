@@ -78,6 +78,11 @@ const portalApi = {
     return get(`${CLIENT_PREFIX}/invoice/${encodeURIComponent(invoiceId)}`);
   },
 
+  // list orders for a user
+  getUserOrders(userId) {
+     return get(`${CLIENT_PREFIX}/orders?user_id=${encodeURIComponent(userId)}`);
+  },
+
   payInvoice(orderId) {
     return post(`${CLIENT_PREFIX}/invoice/${encodeURIComponent(orderId)}/pay`);
   },

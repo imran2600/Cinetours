@@ -1,16 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from "react";
+import portalApi from "../../services/portalApi";
 
 /**
  * Central data management hook for Client Portal
- * @hook
- * @returns {Object} Portal data and methods
- * 
- * Backend Integration Points:
- * - Replace mock API calls with actual endpoints
- * - Add proper error handling
- * - Implement authentication
+ * Fully integrated with backend (no mock data)
+ *
+ * @param {string} userId - Logged-in user's ID
  */
-const usePortalData = () => {
+const usePortalData = (userId) => {
   const [orders, setOrders] = useState([]);
   const [videos, setVideos] = useState([]);
   const [brandAssets, setBrandAssets] = useState(null);
@@ -18,125 +15,149 @@ const usePortalData = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Mock data - Replace with API calls in production
-  const MOCK_ORDERS = [
-    {
-      id: 1,
-      status: 'delivered',
-      package: 'Professional',
-      date: '2023-05-15',
-      photos: 15
-    },
-    {
-      id: 2,
-      status: 'processing',
-      package: 'Premium',
-      date: '2023-06-20',
-      photos: 25
-    }
-  ];
-
-  const MOCK_VIDEOS = [
-    {
-      id: 1,
-      orderId: 1,
-      name: 'Property_1234_video.mp4',
-      downloadUrl: '#',
-      created: '2023-05-17'
-    }
-  ];
-
-  const MOCK_BRANDING = {
-    logo: '/assets/branding/logo.png',
-    introVideo: '/assets/branding/intro.mp4',
-    font: 'Montserrat',
-    colorScheme: '#2563eb'
-  };
-
-  const MOCK_INVOICES = [
-    {
-      id: 1,
-      date: '2023-05-15',
-      amount: 99,
-      status: 'paid',
-      downloadUrl: '#'
-    }
-  ];
-
-  const NEW_ORDER = {
-    id: Date.now(),
-    status: 'submitted',
-    package: '',
-    date: new Date().toISOString().split('T')[0],
-    photos: 0
-  };
-
-  // Fetch initial data
-  useEffect(() => {
-    const fetchPortalData = async () => {
-      setIsLoading(true);
-      try {
-        // TODO: Replace with actual API calls
-        // const res = await axios.get('/api/portal-data');
-        setOrders(MOCK_ORDERS);
-        setVideos(MOCK_VIDEOS);
-        setBrandAssets(MOCK_BRANDING);
-        setInvoices(MOCK_INVOICES);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchPortalData();
-  }, []);
-
-  // Upload new photos
-  const uploadPhotos = async (data) => {
-    setIsLoading(true);
+  // --------------------------------------------------------------------------
+  // Helpers
+  // --------------------------------------------------------------------------
+  const normalizeError = (err, fallback = "Unexpected error") => {
+    if (!err) return fallback;
+    if (typeof err === "string") return err;
+    if (err.message) return err.message;
     try {
-      // TODO: Implement API call
-      // const res = await axios.post('/api/orders', data);
-      const newOrder = {
-        ...NEW_ORDER,
-        ...data,
-        photos: data.files.length
-      };
-      setOrders(prev => [...prev, newOrder]);
-      return newOrder;
-    } catch (err) {
-      setError(err.message);
-      throw err;
+      return JSON.stringify(err);
+    } catch {
+      return fallback;
+    }
+  };
+
+  // --------------------------------------------------------------------------
+  // Fetch all portal data
+  // --------------------------------------------------------------------------
+  const fetchPortalData = useCallback(async () => {
+    if (!userId) return;
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const [downloads, invoicesRes] = await Promise.all([
+        portalApi.getDownloads(userId),
+        portalApi.getUserInvoices(userId),
+      ]);
+
+      // Derive simplified "orders" list from download-center data
+      const derivedOrders = (downloads?.downloads || []).map((d) => ({
+        id: d.order_id || d.id,
+        date: d.date,
+        package: d.package || "Starter",
+        status: (d.videos?.length ?? 0) > 0 ? "completed" : "submitted",
+        photos: d.photos ?? (d.videos?.length ?? 0),
+      }));
+
+      setOrders(derivedOrders);
+      setVideos(downloads?.videos || []);
+      setBrandAssets(downloads?.branding || null);
+      setInvoices(invoicesRes || []);
+    } catch (e) {
+      setError(normalizeError(e));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [userId]); // ✅ dependency
+
+  useEffect(() => {
+    fetchPortalData();
+  }, [fetchPortalData]); // ✅ avoids missing-dependency warning
+
+  // --------------------------------------------------------------------------
+  // Upload photos -> creates order & invoice
+  // --------------------------------------------------------------------------
+  const uploadPhotos = async (pkgName, addOns = [], files = []) => {
+    if (!userId) throw new Error("User ID missing");
+    if (!pkgName) throw new Error("Package name required");
+    if (!files?.length) throw new Error("Please select at least 1 file");
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const order = await portalApi.createOrder(userId, pkgName, addOns, files);
+      await fetchPortalData(); // refresh after upload
+      return order;
+    } catch (e) {
+      const msg = normalizeError(e, "Upload failed");
+      setError(msg);
+      throw new Error(msg);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Download video
-  const downloadVideo = (videoId) => {
-    // TODO: Implement download logic
-    console.log('Downloading video:', videoId);
-    return Promise.resolve();
+  // --------------------------------------------------------------------------
+  // Reorder (backend handles duplication)
+  // --------------------------------------------------------------------------
+  const reorder = async (orderId) => {
+    if (!orderId) return;
+    setIsLoading(true);
+    try {
+      await portalApi.reorder(orderId);
+      await fetchPortalData();
+    } catch (e) {
+      setError(normalizeError(e, "Reorder failed"));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Update brand assets
-  const updateBrandAssets = (assets) => {
-    // TODO: Implement API call
-    setBrandAssets(assets);
-    return Promise.resolve();
+  // --------------------------------------------------------------------------
+  // Download a processed video
+  // --------------------------------------------------------------------------
+  const downloadVideo = async (videoId) => {
+    if (!videoId) return;
+    try {
+      const res = await portalApi.getDownloads(userId);
+      const video = res?.videos?.find((v) => v.id === videoId);
+      if (video?.downloadUrl) window.open(video.downloadUrl, "_blank");
+      else throw new Error("Download link not available yet");
+    } catch (e) {
+      setError(normalizeError(e, "Download failed"));
+    }
   };
 
+  // --------------------------------------------------------------------------
+  // Pay invoice (Stripe integration)
+  // --------------------------------------------------------------------------
+  const payInvoice = async (invoiceId) => {
+    if (!invoiceId) return;
+    setIsLoading(true);
+    try {
+      await portalApi.payInvoice(invoiceId);
+      await fetchPortalData();
+    } catch (e) {
+      setError(normalizeError(e, "Payment failed"));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // --------------------------------------------------------------------------
+  // Expose data & actions
+  // --------------------------------------------------------------------------
   return {
+    // Data
     orders,
     videos,
     brandAssets,
     invoices,
+
+    // States
     isLoading,
     error,
+
+    // Actions
+    fetchPortalData,
     uploadPhotos,
+    reorder,
     downloadVideo,
-    updateBrandAssets
+    payInvoice,
   };
 };
 
