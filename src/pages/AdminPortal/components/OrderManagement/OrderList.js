@@ -224,10 +224,29 @@ const OrderList = () => {
                           </label>
                           <input
                             type="file"
-                            accept="video/mp4,.mp4"
-                            onChange={e =>
-                              e.target.files[0] && handleFinalVideoUpload(order.id, e.target.files[0])
-                            }
+                            accept="video/mp4,.mp4,video/*"
+                            onChange={e => {
+  const file = e.target.files[0];
+  if (file) {
+    // Validate file size (e.g., 50MB limit - more realistic)
+    if (file.size > 50 * 1024 * 1024) {
+      alert('File size too large. Please select a video under 50MB.');
+      e.target.value = ''; // Clear the input
+      return;
+    }
+    
+    // Validate file type more specifically
+    const allowedTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/wmv', 'video/flv'];
+    if (!file.type.startsWith('video/') && !allowedTypes.includes(file.type)) {
+      alert('Please select a valid video file (MP4, AVI, MOV, WMV, FLV).');
+      e.target.value = ''; // Clear the input
+      return;
+    }
+    
+    console.log('Selected file:', file.name, 'Size:', file.size, 'Type:', file.type);
+    handleFinalVideoUpload(order.id, file);
+  }
+}}
                             disabled={uploading[order.id]}
                             style={{ 
                               fontSize: '11px',
@@ -245,6 +264,9 @@ const OrderList = () => {
                               ⏳ Uploading...
                             </p>
                           )}
+                          <p style={{ fontSize: '10px', color: '#6c757d', margin: '5px 0 0 0' }}>
+                            Max 100MB, MP4 format recommended
+                          </p>
                         </div>
                       )}
                     </div>
