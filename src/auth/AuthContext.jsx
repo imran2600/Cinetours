@@ -40,7 +40,7 @@ export function AuthProvider({ children }) {
 
   // Backend-only auth
   const signUp = async ({ name, email, password }) => {
-    const data = await apiSignup(email, password);
+    const data = await apiSignup(name, email, password);
     setSessionFromApi(data, name);
   };
 
@@ -63,20 +63,11 @@ export function AuthProvider({ children }) {
 
   const requestPasswordReset = async (email) => apiForgotPassword(email);
 
-  const value = useMemo(
-    () => ({
-      user,
-      signedIn: !!user,
-      signUp,
-      signIn,
-      signInAsGuest,
-      signOut,
-      requestPasswordReset,
-      authLoading,
-    }),
-    [user]
-    [user, authLoading]
-  );
+const value = useMemo(
+  () => ({ user, signedIn: !!user, signUp, signIn, signInAsGuest, signOut, requestPasswordReset, authLoading }),
+  [user, authLoading]
+);
+
 
   return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
 }
