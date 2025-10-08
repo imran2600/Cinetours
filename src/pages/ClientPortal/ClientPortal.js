@@ -10,8 +10,6 @@ import DownloadCenter from "./components/DownloadCenter";
 import BrandAssets from "./components/BrandAssets";
 import Reorder from "./components/Reorder";
 import Invoices from "./components/Invoices";
-
-import { useOrders } from "../hooks/useOrders";
 import styles from "./styles/Portal.module.css";
 
 import ClientPortalGate from "./components/ClientPortalGate";
@@ -59,8 +57,36 @@ export default function ClientPortal() {
   const [preselectedAddons, setPreselectedAddons] = useState(null);
   const [activeTab, setActiveTab] = useState(null);
 
-  const { orders } = useOrders();
+  const [orders, setOrders] = useState([]);
   const [isLoading] = useState(false);
+
+  useEffect(() => {
+    const open = orders.filter(o => (o.status || '').toLowerCase() !== 'completed');
+    if (!open.length) return;
+
+    let cancelled = false;
+
+    const poll = async () => {
+      try {
+        const updates = await Promise.all(
+          open.map(o => portalApi.getRunwayStatus({ order_id: o.id ?? o.order_id }))
+        );
+        if (cancelled) return;
+
+        setOrders(prev => prev.map(o => {
+          const u = updates.find(x => (x.order_id ?? x.id) === (o.id ?? o.order_id));
+          return u ? { ...o, status: u.status, date: u.updated_at ?? o.date } : o;
+        }));
+      } catch (e) {
+        console.error('runway status poll failed', e);
+      } finally {
+        if (!cancelled) setTimeout(poll, 10000);
+      }
+    };
+
+    poll();
+    return () => { cancelled = true; };
+  }, [orders]);
 
   // --- NEW: current user id + the package chosen on Gate (needed for Stripe on Add-Ons)
   const userId = user?.id ?? user?.user?.id;
@@ -260,7 +286,7 @@ useEffect(() => {
       return (
         <div className={styles.screenWrap}>
           <button onClick={goBack} className={styles.backBtn}>← Back</button>
-          <DownloadCenter videos={dlVideos} />
+          <DownloadCenter videos={dlVideos} userId={user?.id ?? user?.user?.id} />
         </div>
       );
     }

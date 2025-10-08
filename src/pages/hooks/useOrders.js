@@ -194,5 +194,3 @@ export function useOrders() {
 
   return { orders, loading, error, fetchOrders, updateOrderStatus, uploadFinalVideo };
 }
-
-

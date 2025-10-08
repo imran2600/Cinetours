@@ -1,8 +1,9 @@
 //  Download Center
 import React, { useState, useMemo } from "react";
 import styles from "./DownloadCenter.module.css";
+import portalApi from "../../../services/portalApi";
 
-const DownloadCenter = ({ videos = [], onDownload }) => {
+const DownloadCenter = ({ videos = [], onDownload ,userId}) => {
   const [downloadingId, setDownloadingId] = useState(null);
   const [error, setError] = useState(null);
 
@@ -22,17 +23,7 @@ const DownloadCenter = ({ videos = [], onDownload }) => {
     document.body.removeChild(a);
 
     try {
-      const response = await fetch(`/api/videos/${videoId}/download-url`);
-      const { url } = await response.json();
-
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${videoName}.mp4`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-
-      URL.revokeObjectURL(url);
+      
     } catch (err) {
       console.error("Download failed:", err);
       setError("Failed to download video. Please try again.");
