@@ -13,14 +13,14 @@ export function useOrders() {
       setLoading(true);
       setError(null);
       
-      console.log('Fetching orders from:', ${BASE_URL}/api/Admin/order_management);
+      console.log('Fetching orders from:', `${BASE_URL}/api/Admin/order_management`);
       
-      const res = await fetch(${BASE_URL}/api/Admin/order_management);
+      const res = await fetch(`${BASE_URL}/api/Admin/order_management`);
       
       console.log('Response status:', res.status);
       
       if (!res.ok) {
-        throw new Error(Failed to fetch orders: ${res.status} ${res.statusText});
+        throw new Error(`Failed to fetch orders: ${res.status} ${res.statusText}`);
       }
       
       const data = await res.json();
@@ -62,18 +62,18 @@ export function useOrders() {
             ordersArray = arrayValues[0];
             console.log('Extracted array from object with', ordersArray.length, 'items');
           } else {
-            throw new Error(Invalid data format. Expected array but got object with keys: ${Object.keys(data).join(', ')});
+            throw new Error(`Invalid data format. Expected array but got object with keys: ${Object.keys(data).join(', ')}`);
           }
         }
       } else {
-        throw new Error(Unexpected data type: ${typeof data});
+        throw new Error(`Unexpected data type: ${typeof data}`);
       }
       
       console.log('Final orders array to process:', ordersArray);
       
       // Transform the backend data to match frontend expectations
       const transformedOrders = ordersArray.map((order, index) => ({
-        id: order.order_id || order.id || order-${index},
+        id: order.order_id || order.id || `order-${index}`,
         status: order.status || 'unknown',
         package: order.package || 'Unknown',
         photos: order.photos || 0,
@@ -90,7 +90,7 @@ export function useOrders() {
       
     } catch (err) {
       console.error('Fetch error:', err);
-      setError(Data Error: ${err.message}. Check console for details.);
+      setError(`Data Error: ${err.message}. Check console for details.`);
     } finally {
       setLoading(false);
     }
@@ -99,14 +99,14 @@ export function useOrders() {
   // Update order status
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
-      const res = await fetch(${BASE_URL}/api/admin/orders/${orderId}/status, {
+      const res = await fetch(`${BASE_URL}/api/admin/orders/${orderId}/status`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
       });
 
       if (!res.ok) {
-        throw new Error(Failed to update order status: ${res.status});
+        throw new Error(`Failed to update order status: ${res.status}`);
       }
 
       const result = await res.json();
@@ -143,9 +143,9 @@ export function useOrders() {
       formData.append('file', file);  // Also try 'file' as field name
       formData.append('order_id', orderId.toString());
 
-      console.log('Sending request to:', ${BASE_URL}/api/admin/orders/${orderId}/final-video);
+      console.log('Sending request to:', `${BASE_URL}/api/admin/orders/${orderId}/final-video`);
       
-      const res = await fetch(${BASE_URL}/api/admin/orders/${orderId}/final-video, {
+      const res = await fetch(`${BASE_URL}/api/admin/orders/${orderId}/final-video`, {
         method: 'POST',
         body: formData,
         // Don't set Content-Type header - let browser set it with boundary
@@ -155,7 +155,7 @@ export function useOrders() {
       
       if (!res.ok) {
         // Try to get more detailed error message
-        let errorMessage = Failed to upload final video: ${res.status};
+        let errorMessage = `Failed to upload final video: ${res.status}`;
         try {
           const errorData = await res.json();
           errorMessage += ` - ${JSON.stringify(errorData)}`;
@@ -194,3 +194,5 @@ export function useOrders() {
 
   return { orders, loading, error, fetchOrders, updateOrderStatus, uploadFinalVideo };
 }
+
+

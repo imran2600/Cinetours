@@ -1,11 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
-import portalApi from "../../services/portalApi";
+import { useEffect, useState, useCallback } from "react";
+// ⬇️ Adjust the import path if your portalApi lives elsewhere
+import * as portalApi from "../services/portalApi";
 
 /**
- * Central data management hook for Client Portal
- * Fully integrated with backend (no mock data)
- *
- * @param {string} userId - Logged-in user's ID
+ * Central data management hook for Client Portal (no mocks)
+ * @param {string} userId - signed-in user's id
  */
 const usePortalData = (userId) => {
   const [orders, setOrders] = useState([]);
@@ -15,75 +14,120 @@ const usePortalData = (userId) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // --------------------------------------------------------------------------
-  // Helpers
-  // --------------------------------------------------------------------------
-  const normalizeError = (err, fallback = "Unexpected error") => {
-    if (!err) return fallback;
-    if (typeof err === "string") return err;
-    if (err.message) return err.message;
+  // --- Helpers --------------------------------------------------------------
+
+  const normalizeErr = (e, fallback = "Request failed") => {
     try {
-      return JSON.stringify(err);
+      if (!e) return fallback;
+      if (typeof e === "string") return e;
+      if (e.message) return e.message;
+      return JSON.stringify(e);
     } catch {
       return fallback;
     }
   };
 
-  // --------------------------------------------------------------------------
-  // Fetch all portal data
-  // --------------------------------------------------------------------------
-  const fetchPortalData = useCallback(async () => {
+  // --- Fetchers -------------------------------------------------------------
+
+  const refetchOrders = useCallback(async () => {
     if (!userId) return;
-    setIsLoading(true);
-    setError(null);
-
     try {
-      const [downloads, invoicesRes] = await Promise.all([
-        portalApi.getDownloads(userId),
-        portalApi.getUserInvoices(userId),
-      ]);
-
-      // Derive simplified "orders" list from download-center data
-      const derivedOrders = (downloads?.downloads || []).map((d) => ({
-        id: d.order_id || d.id,
-        date: d.date,
-        package: d.package || "Starter",
-        status: (d.videos?.length ?? 0) > 0 ? "completed" : "submitted",
-        photos: d.photos ?? (d.videos?.length ?? 0),
-      }));
-
-      setOrders(derivedOrders);
-      setVideos(downloads?.videos || []);
-      setBrandAssets(downloads?.branding || null);
-      setInvoices(invoicesRes || []);
+      const list = await portalApi.getUserOrders(userId);
+      setOrders(Array.isArray(list) ? list : []);
     } catch (e) {
-      setError(normalizeError(e));
-    } finally {
-      setIsLoading(false);
+      setError(normalizeErr(e, "Failed to load orders"));
     }
-  }, [userId]); // ✅ dependency
+  }, [userId]);
+
+  const refetchInvoices = useCallback(async () => {
+    if (!userId) return;
+    try {
+      const list = await portalApi.getUserInvoices(userId);
+      setInvoices(Array.isArray(list) ? list : []);
+    } catch (e) {
+      setError(normalizeErr(e, "Failed to load invoices"));
+    }
+  }, [userId]);
+
+  const refetchVideos = useCallback(async () => {
+    if (!userId) return;
+    try {
+      const list = await portalApi.getUserVideos(userId);
+      setVideos(Array.isArray(list) ? list : []);
+    } catch (e) {
+      setError(normalizeErr(e, "Failed to load videos"));
+    }
+  }, [userId]);
+
+  const refetchBrand = useCallback(async () => {
+    if (!userId) return;
+    try {
+      const assets = await portalApi.getBrandAssets(userId);
+      setBrandAssets(assets || null);
+    } catch (e) {
+      setError(normalizeErr(e, "Failed to load brand assets"));
+    }
+  }, [userId]);
+
+  // --- Initial load ---------------------------------------------------------
 
   useEffect(() => {
-    fetchPortalData();
-  }, [fetchPortalData]); // ✅ avoids missing-dependency warning
+    let cancelled = false;
+    const run = async () => {
+      if (!userId) return;
+      setIsLoading(true);
+      setError(null);
+      try {
+        const [ordersRes, invoicesRes, videosRes, brandRes] = await Promise.all([
+          portalApi.getUserOrders(userId),
+          portalApi.getUserInvoices(userId),
+          portalApi.getUserVideos(userId),
+          portalApi.getBrandAssets(userId),
+        ]);
+        if (cancelled) return;
+        setOrders(Array.isArray(ordersRes) ? ordersRes : []);
+        setInvoices(Array.isArray(invoicesRes) ? invoicesRes : []);
+        setVideos(Array.isArray(videosRes) ? videosRes : []);
+        setBrandAssets(brandRes || null);
+      } catch (e) {
+        if (!cancelled) setError(normalizeErr(e, "Failed to load portal data"));
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+    run();
+    return () => { cancelled = true; };
+  }, [userId]);
 
-  // --------------------------------------------------------------------------
-  // Upload photos -> creates order & invoice
-  // --------------------------------------------------------------------------
-  const uploadPhotos = async (pkgName, addOns = [], files = []) => {
-    if (!userId) throw new Error("User ID missing");
-    if (!pkgName) throw new Error("Package name required");
-    if (!files?.length) throw new Error("Please select at least 1 file");
+  // --- Mutations ------------------------------------------------------------
+
+  /**
+   * Upload photos for a new or existing order.
+   * Typical server flow (adapt to your API):
+   * 1) create an order -> returns { id, ... }
+   * 2) upload files against that order.id
+   * 3) (optionally) create an invoice for that order
+   */
+  const uploadPhotos = async ({ packageName, addons = [], files }) => {
+    if (!userId) throw new Error("No userId");
+    if (!files || files.length === 0) throw new Error("Please select at least 1 file");
 
     setIsLoading(true);
     setError(null);
-
     try {
-      const order = await portalApi.createOrder(userId, pkgName, addOns, files);
-      await fetchPortalData(); // refresh after upload
+      // 1) create order (server decides status, timestamp, etc.)
+      const order = await portalApi.createOrder(userId, packageName, addons);
+
+      // 2) upload files for that order
+      await portalApi.uploadOrderFiles(order.id, files);
+
+      // 3) refresh lists from server (no local fabrication)
+      await refetchOrders();
+      await refetchInvoices();
+
       return order;
     } catch (e) {
-      const msg = normalizeError(e, "Upload failed");
+      const msg = normalizeErr(e, "Failed to upload photos");
       setError(msg);
       throw new Error(msg);
     } finally {
@@ -91,73 +135,54 @@ const usePortalData = (userId) => {
     }
   };
 
-  // --------------------------------------------------------------------------
-  // Reorder (backend handles duplication)
-  // --------------------------------------------------------------------------
-  const reorder = async (orderId) => {
-    if (!orderId) return;
-    setIsLoading(true);
-    try {
-      await portalApi.reorder(orderId);
-      await fetchPortalData();
-    } catch (e) {
-      setError(normalizeError(e, "Reorder failed"));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // --------------------------------------------------------------------------
-  // Download a processed video
-  // --------------------------------------------------------------------------
+  /**
+   * Download a processed video (server should return a signed URL or stream)
+   */
   const downloadVideo = async (videoId) => {
-    if (!videoId) return;
     try {
-      const res = await portalApi.getDownloads(userId);
-      const video = res?.videos?.find((v) => v.id === videoId);
-      if (video?.downloadUrl) window.open(video.downloadUrl, "_blank");
-      else throw new Error("Download link not available yet");
+      await portalApi.downloadVideo(videoId);
     } catch (e) {
-      setError(normalizeError(e, "Download failed"));
+      setError(normalizeErr(e, "Failed to download video"));
+      throw e;
     }
   };
 
-  // --------------------------------------------------------------------------
-  // Pay invoice (Stripe integration)
-  // --------------------------------------------------------------------------
-  const payInvoice = async (invoiceId) => {
-    if (!invoiceId) return;
+  /**
+   * Update brand assets
+   */
+  const updateBrandAssets = async (assets) => {
+    if (!userId) throw new Error("No userId");
     setIsLoading(true);
     try {
-      await portalApi.payInvoice(invoiceId);
-      await fetchPortalData();
+      const saved = await portalApi.updateBrandAssets(userId, assets);
+      setBrandAssets(saved || assets);
+      return saved;
     } catch (e) {
-      setError(normalizeError(e, "Payment failed"));
+      const msg = normalizeErr(e, "Failed to update brand assets");
+      setError(msg);
+      throw new Error(msg);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // --------------------------------------------------------------------------
-  // Expose data & actions
-  // --------------------------------------------------------------------------
   return {
-    // Data
+    // data
     orders,
     videos,
     brandAssets,
     invoices,
-
-    // States
+    // state
     isLoading,
     error,
-
-    // Actions
-    fetchPortalData,
+    // actions
+    refetchOrders,
+    refetchInvoices,
+    refetchVideos,
+    refetchBrand,
     uploadPhotos,
-    reorder,
     downloadVideo,
-    payInvoice,
+    updateBrandAssets,
   };
 };
 

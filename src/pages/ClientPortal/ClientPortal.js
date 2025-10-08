@@ -18,7 +18,6 @@ import ClientPortalGate from "./components/ClientPortalGate";
 import UploadScreen from "./components/UploadScreen";
 import OrderHub from "./components/OrderHub";
 import AddonScreen from "./components/AddOns";
-import usePortalData from "../hooks/usePortalData";
 
 import { getPortalState, setPortalState } from "./state";
 
@@ -60,16 +59,11 @@ export default function ClientPortal() {
   const [preselectedAddons, setPreselectedAddons] = useState(null);
   const [activeTab, setActiveTab] = useState(null);
 
-  // const { orders } = useOrders();
-  // const [isLoading] = useState(false);
+  const { orders } = useOrders();
+  const [isLoading] = useState(false);
 
   // --- NEW: current user id + the package chosen on Gate (needed for Stripe on Add-Ons)
   const userId = user?.id ?? user?.user?.id;
-  const {
-    orders, invoices, videos, brandAssets,
-    isLoading, error,
-    uploadPhotos, refetchOrders, refetchInvoices
-  } = usePortalData(userId);
   const selectedPackage = PACKAGE_OPTIONS.find(
     (p) => String(p.id) === String(preselectedPkgId)
   );
