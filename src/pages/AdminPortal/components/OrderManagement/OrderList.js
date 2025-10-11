@@ -261,7 +261,7 @@ const OrderList = () => {
                               color: '#007bff',
                               textAlign: 'center'
                             }}>
-                              ⏳ Uploading...
+                              ⏳ Uploading..
                             </p>
                           )}
                           <p style={{ fontSize: '10px', color: '#6c757d', margin: '5px 0 0 0' }}>
