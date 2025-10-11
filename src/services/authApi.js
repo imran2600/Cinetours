@@ -36,5 +36,3 @@ export function apiGuest() {
 export function apiForgotPassword(email) {
   return request("/auth/password/forgot", { method: "POST", body: { email } });
 }
-
-
