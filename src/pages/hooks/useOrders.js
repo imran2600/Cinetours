@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const BASE_URL = 'https://quantum-tour.onrender.com';
+const BASE_URL = 'https://qunatum-tour.onrender.com';
 
 export function useOrders() {
   const [orders, setOrders] = useState([]);
