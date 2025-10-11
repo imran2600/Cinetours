@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const BASE_URL = 'https://qunatum-tour.onrender.com';
+const BASE_URL = 'https://quantum-tour.onrender.com';
 
 export function useOrders() {
   const [orders, setOrders] = useState([]);
@@ -25,42 +25,28 @@ export function useOrders() {
       
       const data = await res.json();
       console.log('Received data:', data);
-      console.log('Data type:', typeof data);
-      console.log('Is array?', Array.isArray(data));
-      console.log('Data keys:', Object.keys(data));
       
       // Handle different response formats
       let ordersArray = [];
       
       if (Array.isArray(data)) {
-        // Case 1: Data is directly an array
         ordersArray = data;
-        console.log('Data is direct array with', ordersArray.length, 'items');
       } else if (data && typeof data === 'object') {
-        // Case 2: Data is an object - check common properties
         if (Array.isArray(data.orders)) {
           ordersArray = data.orders;
-          console.log('Found orders array with', ordersArray.length, 'items');
         } else if (Array.isArray(data.data)) {
           ordersArray = data.data;
-          console.log('Found data array with', ordersArray.length, 'items');
         } else if (Array.isArray(data.items)) {
           ordersArray = data.items;
-          console.log('Found items array with', ordersArray.length, 'items');
         } else if (Array.isArray(data.results)) {
           ordersArray = data.results;
-          console.log('Found results array with', ordersArray.length, 'items');
         } else if (data.order_id) {
-          // Case 3: Single order object
           ordersArray = [data];
-          console.log('Single order object found');
         } else {
-          // Case 4: Try to extract array from object values
           const values = Object.values(data);
           const arrayValues = values.filter(val => Array.isArray(val));
           if (arrayValues.length > 0) {
             ordersArray = arrayValues[0];
-            console.log('Extracted array from object with', ordersArray.length, 'items');
           } else {
             throw new Error(`Invalid data format. Expected array but got object with keys: ${Object.keys(data).join(', ')}`);
           }
@@ -78,12 +64,9 @@ export function useOrders() {
         package: order.package || 'Unknown',
         photos: order.photos || 0,
         date: order.date || new Date().toISOString(),
-        // Use the first video URL as preview video
         videoUrl: order.videos && order.videos.length > 0 ? order.videos[0].url : null,
-        // For final video, you might need to adjust based on your backend
         finalVideoUrl: null,
         videos: order.videos || [],
-        // Add user_id for client association
         user_id: order.user_id || null
       }));
       
@@ -98,17 +81,25 @@ export function useOrders() {
     }
   };
 
-  // Update order status
+  // Update order status - CORRECTED ENDPOINT
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
-      const res = await fetch(`${BASE_URL}/api/admin/orders/${orderId}/status`, {
+      // Convert orderId to integer
+      const numericOrderId = parseInt(orderId);
+      if (isNaN(numericOrderId)) {
+        throw new Error(`Invalid order ID: ${orderId}. Expected a numeric ID.`);
+      }
+
+      // Use query parameter instead of path parameter
+      const res = await fetch(`${BASE_URL}/api/admin/orders/${numericOrderId}/status?order_id=${numericOrderId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
       });
 
       if (!res.ok) {
-        throw new Error(`Failed to update order status: ${res.status}`);
+        const errorData = await res.json();
+        throw new Error(`Failed to update order status: ${res.status} - ${JSON.stringify(errorData)}`);
       }
 
       const result = await res.json();
@@ -124,13 +115,15 @@ export function useOrders() {
             : order
         )
       );
+
+      return result;
     } catch (err) {
       console.error('Failed to update order status:', err);
       throw err;
     }
   };
 
-  // Upload final rendered video - UPDATED to match your backend workflow
+  // Upload final rendered video - CORRECTED ENDPOINT
   const uploadFinalVideo = async (orderId, file) => {
     try {
       console.log('Uploading file for order:', orderId);
@@ -140,7 +133,7 @@ export function useOrders() {
         size: file.size
       });
 
-      // Convert orderId to integer to match backend expectation
+      // Convert orderId to integer for image_id parameter
       const imageId = parseInt(orderId);
       if (isNaN(imageId)) {
         throw new Error(`Invalid order ID: ${orderId}. Expected a numeric ID.`);
@@ -150,8 +143,9 @@ export function useOrders() {
       formData.append('video', file);
       formData.append('file', file);
       formData.append('order_id', orderId.toString());
+      formData.append('image_id', imageId.toString());
 
-      // Use the correct endpoint for final video upload
+      // Use the correct endpoint with numeric image_id
       const uploadUrl = `${BASE_URL}/api/admin/orders/${imageId}/final-video`;
       console.log('Sending request to:', uploadUrl);
       
@@ -176,7 +170,6 @@ export function useOrders() {
       const result = await res.json();
       console.log('Upload successful, response:', result);
 
-      // Update local state with the new video information
       setOrders(prevOrders =>
         prevOrders.map(order =>
           order.id === orderId
@@ -184,7 +177,6 @@ export function useOrders() {
                 ...order,
                 status: result.status || order.status,
                 finalVideoUrl: result.video_url || result.final_video_url || result.local_url || order.finalVideoUrl,
-                // Add the new video to the videos array
                 videos: result.video_url ? [
                   ...(order.videos || []),
                   {
