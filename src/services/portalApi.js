@@ -69,7 +69,6 @@ const portalApi = {
     return post(`${CLIENT_PREFIX}/orders/new`, fd, false);
   },
 
-
   // Download center
   getDownloads(userId) {
     return get(`${CLIENT_PREFIX}/download-center?user_id=${encodeURIComponent(userId)}`);
@@ -97,8 +96,8 @@ const portalApi = {
     return post(`${STRIPE_PREFIX}/create-checkout-session`, payload);
   },
 
-  getRunwayStatus({ order_id }) {
-    return get(`${CLIENT_PREFIX}/runway/status/${order_id}`);
+  getUserOrders(userId) {
+    return get(`/api/client/orders?user_id=${encodeURIComponent(userId)}`);
   },
 
 

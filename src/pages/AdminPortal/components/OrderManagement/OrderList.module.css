@@ -2,269 +2,729 @@
 /* OrderList Component Styles     */
 /* ============================= */
 
-:root{
-  --brand1:#a855f7;
-  --brand2:#22c55e;
-  --hairline:rgba(148,163,184,.16);
-  --ink:rgba(255,255,255,.88);
-  --ink-strong:rgba(255,255,255,.96);
+:root {
+  --brand1: #a855f7;
+  --brand2: #22c55e;
+  --hairline: rgba(148, 163, 184, 0.16);
+  --ink: rgba(255, 255, 255, 0.88);
+  --ink-strong: rgba(255, 255, 255, 0.96);
+  --ink-weak: rgba(255, 255, 255, 0.6);
 }
 
-/* Card shell (page section) */
-.invoiceCard{
+/* Card wrapper - consistent with other admin sections */
+.invoiceCard {
   background: transparent;
-  color:#fff;
+  color: #fff;
   border: none;
 }
 
 /* Header */
-.invoiceHeader{
+.invoiceHeader {
   background: transparent !important;
-  color:#fff !important;
+  color: #fff !important;
   border-bottom: 1px solid var(--hairline) !important;
   padding: 1rem 1.25rem !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.headerTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--ink-strong);
+}
+
+.refreshButton {
+  color: #fff !important;
+  border: none !important;
+  border-radius: 10px;
+  padding: 0.55rem 0.95rem;
+  background-image: linear-gradient(135deg, var(--brand2), #15803d);
+  box-shadow: 0 10px 24px rgba(21, 128, 61, 0.28);
+  transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.refreshButton:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow: 0 16px 30px rgba(21, 128, 61, 0.33);
 }
 
 /* Body */
-.invoiceBody{
+.invoiceBody {
   background: transparent;
-  color:#fff !important;
+  color: #fff !important;
   padding: 0 1rem 1.25rem;
 }
 
-/* ---------- Table to "card rows" ---------- */
-.invoiceTableWrapper{ width:100%; overflow-x:auto; }
+/* Table wrapper */
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+}
 
-/* neutralize Bootstrap table defaults */
-.invoiceTable{
-  width:100%;
+/* Table */
+.invoiceTable {
+  width: 100%;
   border-collapse: separate;
-  border-spacing: 0 14px;                 /* space between "cards" */
+  border-spacing: 0 14px;
   --bs-table-bg: transparent;
   --bs-table-striped-bg: transparent;
   --bs-table-hover-bg: transparent;
   --bs-table-border-color: transparent;
-  color:#fff !important;
+  color: #fff !important;
   background: transparent !important;
 }
 
-.invoiceTable thead tr{
-  background: linear-gradient(180deg, rgba(255,255,255,.03), transparent);
+.tableHead tr {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent);
 }
-.invoiceTable thead th{
+
+.tableRowHead th {
   background: transparent !important;
-  color:#fff !important;
+  color: #fff !important;
   font-weight: 700;
-  padding: .9rem 1rem;
+  padding: 0.9rem 1rem;
   white-space: nowrap;
   border: 0 !important;
+  text-align: center;
 }
 
 /* Each data row becomes a single rounded "card" */
-.invoiceRow td{
-  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)) !important;
+.invoiceRow td {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)) !important;
   border-top: 1px solid var(--hairline);
   border-bottom: 1px solid var(--hairline);
   padding: 1rem 1rem !important;
   vertical-align: middle;
+  text-align: center;
 }
 
 /* Rounded corners for the row card */
-.invoiceRow td:first-child{
+.invoiceRow td:first-child {
   border-left: 1px solid var(--hairline);
   border-top-left-radius: 14px;
   border-bottom-left-radius: 14px;
 }
-.invoiceRow td:last-child{
+
+.invoiceRow td:last-child {
   border-right: 1px solid var(--hairline);
   border-top-right-radius: 14px;
   border-bottom-right-radius: 14px;
 }
 
 /* Hover glow like the order/download cards */
-.invoiceRow:hover td{
-  background: rgba(255,255,255,.05) !important;
-  box-shadow: 0 10px 26px rgba(0,0,0,.30) inset, 0 8px 20px rgba(0,0,0,.28);
+.invoiceRow:hover td {
+  background: rgba(255, 255, 255, 0.05) !important;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3) inset, 0 8px 20px rgba(0, 0, 0, 0.28);
 }
 
 /* Cells (shared) */
-.invoiceCell{
+.invoiceCell {
   background: transparent !important;
-  color:#fff !important;
+  color: #fff !important;
   border: 0 !important;
 }
 
-/* Status pill (pending / processing / completed / failed) */
-.invoiceStatus{
-  display:inline-flex; align-items:center;
-  padding:.28rem .6rem;
-  border-radius:999px;
-  font-weight:700; line-height:1;
-  box-shadow:0 6px 16px rgba(0,0,0,.25);
-}
-.status_pending    { background:rgba(250,204,21,.18) !important; color:#fde68a !important; border:1px solid rgba(250,204,21,.45); }
-.status_processing { background:rgba(56,189,248,.20) !important; color:#7dd3fc !important; border:1px solid rgba(56,189,248,.45); }
-.status_completed  { background:rgba(34,197,94,.20) !important;  color:#34d399 !important; border:1px solid rgba(34,197,94,.45); }
-.status_failed     { background:rgba(220,38,38,.22) !important;  color:#fca5a5 !important; border:1px solid rgba(220,38,38,.50); }
-
-/* Download button — same emerald gradient */
-.invoiceDownloadBtn{
-  color:#fff !important;
-  border:none !important;
-  border-radius:10px;
-  padding:.55rem .95rem;
-  background-image:linear-gradient(135deg, var(--brand2), #15803d);
-  box-shadow:0 10px 24px rgba(21,128,61,.28);
-  transition:transform .18s ease, filter .18s ease, box-shadow .18s ease;
-}
-.invoiceDownloadBtn:hover{
-  transform:translateY(-2px);
-  filter:brightness(1.05);
-  box-shadow:0 16px 30px rgba(21,128,61,.33);
+/* Status Badges */
+.invoiceStatus {
+  font-size: 0.85rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  font-weight: 600;
 }
 
-/* Small screens */
-@media (max-width: 768px){
-  .invoiceBody{ padding-left: .75rem; padding-right: .75rem; }
-  .invoiceTable{ border-spacing: 0 10px; }
+.status_pending {
+  background: rgba(250, 204, 21, 0.18) !important;
+  color: #fde68a !important;
+  border: 1px solid rgba(250, 204, 21, 0.45);
 }
 
-/* Modal styles */
-.uploadModal {
-  color: var(--ink);
+.status_processing {
+  background: rgba(56, 189, 248, 0.2) !important;
+  color: #7dd3fc !important;
+  border: 1px solid rgba(56, 189, 248, 0.45);
 }
 
-.modalHeader {
-  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+.status_completed {
+  background: rgba(34, 197, 94, 0.2) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(34, 197, 94, 0.45);
+}
+
+.status_failed {
+  background: rgba(220, 38, 38, 0.22) !important;
+  color: #fca5a5 !important;
+  border: 1px solid rgba(220, 38, 38, 0.5);
+}
+
+.status_submitted {
+  background: rgba(56, 189, 248, 0.2) !important;
+  color: #7dd3fc !important;
+  border: 1px solid rgba(56, 189, 248, 0.45);
+}
+
+/* Video and Image Previews */
+.videoThumbnail {
+  max-width: 120px;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.videoThumbnail:hover {
+  transform: scale(1.03);
+}
+
+.videoSection, .finalVideoSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.videoCount, .videoList {
+  font-size: 0.8rem;
+  color: white;
+}
+
+.videoItem {
+  font-size: 0.7rem;
+  margin-bottom: 0.1rem;
+  color: white;
+}
+
+.noPreview, .noUpload {
+  color: white;
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+.uploadSuccess {
+  font-size: 0.75rem;
+  color: var(--brand2);
+  margin-top: 0.25rem;
+}
+
+/* Actions Container */
+.actionsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 180px;
+}
+
+/* Status Dropdown */
+.statusDropdown {
+  width: 100%;
+}
+
+.dropdownToggle {
+  width: 100%;
+  background: linear-gradient(135deg, var(--brand2), #15803d) !important;
+  border: none !important;
+  color: white !important;
+  font-size: 0.85rem;
+  padding: 0.5rem 0.8rem;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.dropdownToggle:hover {
+  background: linear-gradient(135deg, var(--brand2), #0f722f) !important;
+  transform: translateY(-1px);
+}
+
+.statusDropdownMenu {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--hairline);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.statusDropdownItem {
+  color: white !important;
+  font-size: 0.85rem;
+  padding: 0.6rem 1rem;
   border-bottom: 1px solid var(--hairline);
+  transition: all 0.2s ease;
 }
 
-.modalTitle {
-  color: var(--ink);
+.statusDropdownItem:last-child {
+  border-bottom: none;
 }
 
-.modalBody {
-  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+.statusDropdownItem:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: white !important;
 }
 
-.modalFooter {
-  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+.statusDropdownItem:disabled {
+  color: var(--ink-weak) !important;
+  background: transparent !important;
+  cursor: not-allowed;
+}
+
+/* Upload Section */
+.uploadSection {
   border-top: 1px solid var(--hairline);
-}
-
-.uploadFormGroup {
-  margin-bottom: 1rem;
+  padding-top: 0.75rem;
+  margin-top: 0.5rem;
 }
 
 .uploadLabel {
-  color: var(--ink);
-  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.4rem;
+  color: white;
+  text-align: left;
 }
 
 .uploadInput {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--hairline);
-  color: var(--ink);
+  color: white;
+  border-radius: 6px;
+  padding: 0.4rem;
+  font-size: 0.75rem;
+  width: 100%;
+  margin-bottom: 0.4rem;
 }
 
-.uploadHint {
-  color: var(--ink-weak);
+.uploadInput:focus {
+  outline: none;
+  border-color: var(--brand2);
 }
 
-.uploadProgressContainer {
-  margin-top: 1rem;
-}
-
-.uploadProgressHeader {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-  color: var(--ink);
-}
-
-.uploadProgressBar {
-  height: 8px;
-  border-radius: 4px;
-}
-
-.cancelButton {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--hairline);
-  color: var(--ink);
-}
-
-.cancelButton:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid var(--hairline);
-  color: var(--ink);
-}
-
-.uploadSpinner {
-  margin-right: 0.5rem;
-}
-
-.statusDropdownMenu {
-  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-  border: 1px solid var(--hairline);
-}
-
-.statusDropdownItem {
-  color: var(--ink);
-}
-
-.statusDropdownItem:hover {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.loadingContainer {
-  min-height: 200px;
+.uploadingIndicator {
+  font-size: 0.75rem;
+  color: var(--brand2);
+  text-align: center;
+  margin: 0.4rem 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.4rem;
 }
 
-.loadingSpinner {
+.uploadSpinner {
+  width: 0.8rem !important;
+  height: 0.8rem !important;
+}
+
+.uploadHint {
+  font-size: 0.7rem;
+  color: white;
+  text-align: center;
+}
+
+/* Loading and Error States */
+.loadingWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  color: white;
+}
+
+.loadingText {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.errorMessage {
+  color: #fca5a5;
+  background: rgba(220, 38, 38, 0.22);
+  border: 1px solid rgba(220, 38, 38, 0.5);
+  padding: 1.5rem;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.errorDetails {
+  font-size: 0.9rem;
+  color: white;
+  margin: 1rem 0;
+}
+
+.errorList {
+  text-align: left;
+  display: inline-block;
+  font-size: 0.85rem;
+  color: white;
+  margin: 1rem 0;
+}
+
+.retryButton {
+  margin-top: 1rem;
+  padding: 0.5rem 1.5rem;
+  background-image: linear-gradient(135deg, var(--brand2), #15803d);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+}
+
+.retryButton:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+
+.noOrdersCell {
+  text-align: center;
+  padding: 2rem !important;
+  color: white;
+  font-style: italic;
+}
+
+.ordersCount {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: white;
+  text-align: center;
+}
+
+/* Modal overlay for large video preview */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.modalContent {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  background: #000;
+  border-radius: 12px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+}
+
+.modalCloseBtn {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 2rem;
+  color: #fff;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  user-select: none;
+  transition: color 0.2s ease;
+  z-index: 10;
+}
+
+.modalCloseBtn:hover,
+.modalCloseBtn:focus {
   color: var(--brand2);
+  outline: none;
 }
 
-@media (max-width: 480px){
-  .invoiceRow td {
-    display: block;
+.modalVideo {
+  width: 100%;
+  height: auto;
+  max-height: 80vh;
+  border-radius: 12px;
+  background: #000;
+  outline: none;
+}
+
+/* ============================= */
+/* Mobile Responsive Design      */
+/* ============================= */
+
+@media (max-width: 768px) {
+  .invoiceHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    padding: 1rem !important;
+  }
+
+  .headerTitle {
+    font-size: 1.25rem;
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .refreshButton {
     width: 100%;
-    box-sizing: border-box;
-    text-align: right;
-    padding: 0.75rem !important;
-    border-radius: 0 !important;
-    border: none !important;
-    border-bottom: 1px solid var(--hairline) !important;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
   }
-  
-  .invoiceRow td:before {
-    content: attr(data-label);
-    float: left;
-    font-weight: bold;
+
+  .invoiceBody {
+    padding: 0 0.5rem 1rem;
   }
-  
-  .invoiceRow td:first-child {
-    border-top-left-radius: 14px !important;
-    border-top-right-radius: 14px !important;
+
+  /* Hide table on mobile and show card layout */
+  .tableWrapper {
+    overflow-x: visible;
   }
-  
-  .invoiceRow td:last-child {
-    border-bottom-left-radius: 14px !important;
-    border-bottom-right-radius: 14px !important;
-    border-bottom: none !important;
-  }
-  
-  .invoiceRow {
-    display: block;
-    margin-bottom: 1rem;
-    border-radius: 14px;
-    background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)) !important;
-    border: 1px solid var(--hairline);
-  }
-  
-  .invoiceTable thead {
+
+  .invoiceTable {
     display: none;
+  }
+
+  /* Mobile Card Layout */
+  .mobileOrdersContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .mobileOrderCard {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    padding: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .mobileOrderCard:hover {
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3) inset, 0 8px 20px rgba(0, 0, 0, 0.28);
+  }
+
+  .mobileCardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .mobileOrderId {
+    font-weight: 700;
+    font-size: 1rem;
+    color: white;
+  }
+
+  .mobileStatus {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    font-weight: 600;
+  }
+
+  .mobileCardContent {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .mobileInfoItem {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .mobileInfoLabel {
+    font-size: 0.7rem;
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.8;
+  }
+
+  .mobileInfoValue {
+    font-size: 0.85rem;
+    color: white;
+    font-weight: 500;
+  }
+
+  .mobileVideosSection {
+    grid-column: 1 / -1;
+    margin-top: 0.25rem;
+  }
+
+  .mobileVideoGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-top: 0.25rem;
+  }
+
+  .mobileVideoItem {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .mobileVideoLabel {
+    font-size: 0.7rem;
+    color: white;
+    font-weight: 600;
+    opacity: 0.8;
+  }
+
+  .mobileVideoThumbnail {
+    width: 100%;
+    max-width: 120px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .videoCountMobile {
+    font-size: 0.65rem;
+    color: white;
+    opacity: 0.9;
+  }
+
+  .uploadSuccessMobile {
+    font-size: 0.65rem;
+    color: var(--brand2);
+    font-weight: 600;
+  }
+
+  .mobileNoVideo {
+    font-size: 0.75rem;
+    color: white;
+    font-style: italic;
+    opacity: 0.8;
+  }
+
+  .mobileActions {
+    grid-column: 1 / -1;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--hairline);
+  }
+
+  .mobileActionButtons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .mobileStatusButton {
+    width: 100%;
+    padding: 0.6rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    background: linear-gradient(135deg, var(--brand2), #15803d);
+    color: white;
+  }
+
+  .mobileStatusButton:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.1);
+  }
+
+  .mobileStatusButton:disabled {
+    background: var(--hairline);
+    color: var(--ink-weak);
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .mobileUploadSection {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--hairline);
+  }
+
+  .mobileUploadLabel {
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    color: white;
+  }
+
+  .mobileUploadInput {
+    width: 100%;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--hairline);
+    border-radius: 6px;
+    color: white;
+    font-size: 0.75rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .mobileUploadHint {
+    font-size: 0.65rem;
+    color: white;
+    opacity: 0.8;
+    text-align: center;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .mobileCardContent {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .mobileVideoGrid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .mobileVideoThumbnail {
+    max-width: 100%;
+  }
+
+  .mobileCardHeader {
+    flex-direction: column;
+    gap: 0.4rem;
+    align-items: flex-start;
+  }
+
+  .mobileStatus {
+    align-self: flex-start;
+  }
+
+  .modalContent {
+    max-width: 95vw;
+    max-height: 85vh;
+  }
+}
+
+/* Show mobile layout only on mobile */
+@media (min-width: 769px) {
+  .mobileOrdersContainer {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .tableWrapper {
+    display: none;
+  }
+  
+  .mobileOrdersContainer {
+    display: flex;
   }
 }

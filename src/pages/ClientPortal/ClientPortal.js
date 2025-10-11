@@ -60,33 +60,31 @@ export default function ClientPortal() {
   const [orders, setOrders] = useState([]);
   const [isLoading] = useState(false);
 
-  useEffect(() => {
-    const open = orders.filter(o => (o.status || '').toLowerCase() !== 'completed');
-    if (!open.length) return;
+useEffect(() => {
+  if (stage !== "portal" || activeTab !== "status") return;
+  const uId = user?.id ?? user?.user?.id;
+  if (!uId) return;
 
-    let cancelled = false;
+  (async () => {
+    try {
+      const data = await portalApi.getUserOrders(uId);
+      const list = Array.isArray(data?.orders) ? data.orders
+                : Array.isArray(data)          ? data
+                : [];
+      setOrders(list.map((o, i) => ({
+        id:      o.order_id ?? o.id ?? `order-${i}`,
+        package: o.package ?? "Unknown",
+        status:  String(o.status ?? "submitted").toLowerCase(),
+        date:    o.date ?? o.created_at ?? o.updated_at ?? new Date().toISOString(),
+        videos:  o.videos ?? [],
+      })));
+    } catch (e) {
+      console.error("Orders fetch failed:", e);
+      setOrders([]);
+    }
+  })();
+}, [stage, activeTab, user]);
 
-    const poll = async () => {
-      try {
-        const updates = await Promise.all(
-          open.map(o => portalApi.getRunwayStatus({ order_id: o.id ?? o.order_id }))
-        );
-        if (cancelled) return;
-
-        setOrders(prev => prev.map(o => {
-          const u = updates.find(x => (x.order_id ?? x.id) === (o.id ?? o.order_id));
-          return u ? { ...o, status: u.status, date: u.updated_at ?? o.date } : o;
-        }));
-      } catch (e) {
-        console.error('runway status poll failed', e);
-      } finally {
-        if (!cancelled) setTimeout(poll, 10000);
-      }
-    };
-
-    poll();
-    return () => { cancelled = true; };
-  }, [orders]);
 
   // --- NEW: current user id + the package chosen on Gate (needed for Stripe on Add-Ons)
   const userId = user?.id ?? user?.user?.id;

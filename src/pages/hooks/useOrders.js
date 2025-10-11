@@ -82,7 +82,13 @@ export function useOrders() {
         videoUrl: order.videos && order.videos.length > 0 ? order.videos[0].url : null,
         // For final video, you might need to adjust based on your backend
         finalVideoUrl: null,
+<<<<<<< HEAD
         videos: order.videos || []
+=======
+        videos: order.videos || [],
+        // Add user_id for client association
+        user_id: order.user_id || null
+>>>>>>> 819d09c370c812ef8c4343aace0d962fee36c470
       }));
       
       console.log('Transformed orders:', transformedOrders);
@@ -128,7 +134,11 @@ export function useOrders() {
     }
   };
 
+<<<<<<< HEAD
   // Upload final rendered video - FIXED VERSION
+=======
+  // Upload final rendered video - UPDATED to match your backend workflow
+>>>>>>> 819d09c370c812ef8c4343aace0d962fee36c470
   const uploadFinalVideo = async (orderId, file) => {
     try {
       console.log('Uploading file for order:', orderId);
@@ -137,6 +147,7 @@ export function useOrders() {
         type: file.type,
         size: file.size
       });
+<<<<<<< HEAD
 
       const formData = new FormData();
       formData.append('video', file); // Try 'video' as field name
@@ -149,6 +160,27 @@ export function useOrders() {
         method: 'POST',
         body: formData,
         // Don't set Content-Type header - let browser set it with boundary
+=======
+
+      // Convert orderId to integer to match backend expectation
+      const imageId = parseInt(orderId);
+      if (isNaN(imageId)) {
+        throw new Error(`Invalid order ID: ${orderId}. Expected a numeric ID.`);
+      }
+
+      const formData = new FormData();
+      formData.append('video', file);
+      formData.append('file', file);
+      formData.append('order_id', orderId.toString());
+
+      // Use the correct endpoint for final video upload
+      const uploadUrl = `${BASE_URL}/api/admin/orders/${imageId}/final-video`;
+      console.log('Sending request to:', uploadUrl);
+      
+      const res = await fetch(uploadUrl, {
+        method: 'POST',
+        body: formData,
+>>>>>>> 819d09c370c812ef8c4343aace0d962fee36c470
       });
 
       console.log('Upload response status:', res.status);
@@ -160,7 +192,10 @@ export function useOrders() {
           const errorData = await res.json();
           errorMessage += ` - ${JSON.stringify(errorData)}`;
         } catch (e) {
+<<<<<<< HEAD
           // If no JSON response, use status text
+=======
+>>>>>>> 819d09c370c812ef8c4343aace0d962fee36c470
           errorMessage += ` - ${res.statusText}`;
         }
         throw new Error(errorMessage);
@@ -169,13 +204,30 @@ export function useOrders() {
       const result = await res.json();
       console.log('Upload successful, response:', result);
 
+<<<<<<< HEAD
+=======
+      // Update local state with the new video information
+>>>>>>> 819d09c370c812ef8c4343aace0d962fee36c470
       setOrders(prevOrders =>
         prevOrders.map(order =>
           order.id === orderId
             ? {
                 ...order,
                 status: result.status || order.status,
+<<<<<<< HEAD
                 finalVideoUrl: result.final_video_url || result.video_url || result.local_url || order.finalVideoUrl,
+=======
+                finalVideoUrl: result.video_url || result.final_video_url || result.local_url || order.finalVideoUrl,
+                // Add the new video to the videos array
+                videos: result.video_url ? [
+                  ...(order.videos || []),
+                  {
+                    filename: file.name,
+                    url: result.video_url,
+                    status: 'completed'
+                  }
+                ] : order.videos
+>>>>>>> 819d09c370c812ef8c4343aace0d962fee36c470
               }
             : order
         )

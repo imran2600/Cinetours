@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
+import { Card, Table, Button, Spinner, Badge, Dropdown } from 'react-bootstrap';
+import styles from './OrderList.module.css';
 import { useOrders } from '../../../hooks/useOrders.js';
+
+const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://qunatum-tour.onrender.com';
 
 const OrderList = () => {
   const { orders, loading, error, fetchOrders, updateOrderStatus, uploadFinalVideo } = useOrders();
-  const [uploading, setUploading] = useState({}); // track uploading per order
+  const [uploading, setUploading] = useState({});
+  const [expandedDescriptions, setExpandedDescriptions] = useState({});
+  const [modalVideo, setModalVideo] = useState(null);
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
@@ -29,259 +35,424 @@ const OrderList = () => {
     fetchOrders();
   };
 
-  if (loading) return (
-    <div style={{ textAlign: 'center', padding: '20px' }}>
-      <p>Loading orders...</p>
-    </div>
-  );
-  
-  if (error) return (
-    <div style={{ color: 'red', textAlign: 'center', padding: '20px' }}>
-      <h3>Error Loading Orders</h3>
-      <p>{error}</p>
-      <p style={{ fontSize: '14px', color: '#666' }}>
-        Data format issue. Please check:
-      </p>
-      <ul style={{ textAlign: 'left', display: 'inline-block', fontSize: '14px', color: '#666' }}>
-        <li>Backend response format</li>
-        <li>Check browser console for details</li>
-        <li>Backend server status</li>
-      </ul>
-      <button 
-        onClick={handleRetry}
-        style={{ 
-          marginTop: '10px', 
-          padding: '8px 16px', 
-          backgroundColor: '#007bff', 
-          color: 'white', 
-          border: 'none', 
-          borderRadius: '4px',
-          cursor: 'pointer'
-        }}
-      >
-        Retry
-      </button>
-    </div>
-  );
+  const toggleDescription = (orderId) => {
+    setExpandedDescriptions((prev) => ({
+      ...prev,
+      [orderId]: !prev[orderId],
+    }));
+  };
+
+  const openModal = (videoUrl, orderId) => {
+    setModalVideo({ videoUrl, orderId });
+  };
+
+  const closeModal = () => {
+    setModalVideo(null);
+  };
+
+  if (loading) {
+    return (
+      <div className={styles.loadingWrapper}>
+        <Spinner animation="border" variant="light" />
+        <span className={styles.loadingText}>Loading orders...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className={styles.invoiceCard}>
+        <Card.Header className={styles.invoiceHeader}>
+          <h5 className={styles.headerTitle}>Order List</h5>
+        </Card.Header>
+        <Card.Body className={styles.invoiceBody}>
+          <div className={styles.errorMessage}>
+            <h3>Error Loading Orders</h3>
+            <p>{error}</p>
+            <p className={styles.errorDetails}>
+              Data format issue. Please check:
+            </p>
+            <ul className={styles.errorList}>
+              <li>Backend response format</li>
+              <li>Check browser console for details</li>
+              <li>Backend server status</li>
+            </ul>
+            <Button 
+              onClick={handleRetry}
+              className={styles.retryButton}
+            >
+              Retry
+            </Button>
+          </div>
+        </Card.Body>
+      </Card>
+    );
+  }
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>Order List</h2>
-      
-      <div style={{ marginBottom: '20px' }}>
-        <button 
-          onClick={fetchOrders}
-          style={{ 
-            padding: '8px 16px', 
-            backgroundColor: '#28a745', 
-            color: 'white', 
-            border: 'none', 
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-        >
-          Refresh Orders
-        </button>
-      </div>
+    <>
+      <Card className={styles.invoiceCard}>
+        <Card.Header className={styles.invoiceHeader}>
+          <h5 className={styles.headerTitle}>Order List</h5>
+          <Button 
+            onClick={fetchOrders}
+            className={styles.refreshButton}
+          >
+            Refresh Orders
+          </Button>
+        </Card.Header>
 
-      {orders.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px' }}>
-          <p>No orders available</p>
-          <p style={{ fontSize: '14px', color: '#666' }}>
-            There are currently no orders in the system.
-          </p>
-        </div>
-      ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table border="1" cellPadding="8" style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#f8f9fa' }}>
-                <th>ID</th>
-                <th>Package</th>
-                <th>Photos</th>
-                <th>Status</th>
-                <th>Date</th>
-                <th>Preview Videos</th>
-                <th>Final Video</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map(order => (
-                <tr key={order.id} style={{ borderBottom: '1px solid #dee2e6' }}>
-                  <td style={{ fontWeight: 'bold' }}>{order.id}</td>
-                  <td>{order.package}</td>
-                  <td>{order.photos}</td>
-                  <td>
-                    <span style={{
-                      padding: '4px 8px',
-                      borderRadius: '12px',
-                      fontSize: '12px',
-                      fontWeight: 'bold',
-                      backgroundColor: 
-                        order.status === 'completed' ? '#d4edda' :
-                        order.status === 'processing' ? '#fff3cd' :
-                        order.status === 'submitted' ? '#cce7ff' :
-                        '#f8d7da',
-                      color: 
-                        order.status === 'completed' ? '#155724' :
-                        order.status === 'processing' ? '#856404' :
-                        order.status === 'submitted' ? '#004085' :
-                        '#721c24'
-                    }}>
-                      {order.status?.toUpperCase() || 'UNKNOWN'}
-                    </span>
-                  </td>
-                  <td>{order.date ? new Date(order.date).toLocaleDateString() : 'N/A'}</td>
-                  <td>
-                    {order.videoUrl || (order.videos && order.videos.length > 0) ? (
-                      <div>
-                        {order.videoUrl && (
-                          <video width="200" controls style={{ maxWidth: '100%', marginBottom: '10px' }}>
-                            <source src={order.videoUrl} type="video/mp4" />
-                            Your browser does not support the video tag.
-                          </video>
-                        )}
-                        <div style={{ fontSize: '12px', color: '#666' }}>
-                          {order.videos && order.videos.length > 0 ? (
-                            <div>
-                              <strong>{order.videos.length}</strong> video(s) available
-                              {order.videos.length > 1 && (
-                                <div style={{ marginTop: '5px' }}>
-                                  {order.videos.slice(0, 3).map((video, index) => (
-                                    <div key={index} style={{ fontSize: '10px', marginBottom: '2px' }}>
-                                      • {video.filename || `Video ${index + 1}`}
-                                    </div>
-                                  ))}
-                                  {order.videos.length > 3 && (
-                                    <div style={{ fontSize: '10px' }}>
-                                      • ...and {order.videos.length - 3} more
+        <Card.Body className={styles.invoiceBody}>
+          {/* Desktop Table Layout */}
+          <div className={styles.tableWrapper}>
+            <Table hover responsive className={styles.invoiceTable}>
+              <thead className={styles.tableHead}>
+                <tr className={styles.tableRowHead}>
+                  <th className={styles.tableHeading}>Status</th>
+                  <th className={styles.tableHeading}>Order ID</th>
+                  <th className={styles.tableHeading}>Package</th>
+                  <th className={styles.tableHeading}>Photos</th>
+                  <th className={styles.tableHeading}>Date</th>
+                  <th className={styles.tableHeading}>Preview Videos</th>
+                  <th className={styles.tableHeading}>Final Video</th>
+                  <th className={styles.tableHeading}>Actions</th>
+                </tr>
+              </thead>
+              <tbody className={styles.tableBody}>
+                {orders.length > 0 ? (
+                  orders.map((order) => {
+                    const isExpanded = expandedDescriptions[order.id] || false;
+                    const hasPreviewVideos = order.videoUrl || (order.videos && order.videos.length > 0);
+                    
+                    return (
+                      <tr key={order.id} className={styles.invoiceRow}>
+                        <td data-label="Status" className={styles.invoiceCell}>
+                          <Badge className={`${styles.invoiceStatus} ${styles[`status_${order.status}`]}`}>
+                            {order.status?.toUpperCase() || 'UNKNOWN'}
+                          </Badge>
+                        </td>
+                        <td data-label="Order ID" className={styles.invoiceCell}>
+                          <strong>{order.id}</strong>
+                        </td>
+                        <td data-label="Package" className={styles.invoiceCell}>
+                          {order.package}
+                        </td>
+                        <td data-label="Photos" className={styles.invoiceCell}>
+                          {order.photos}
+                        </td>
+                        <td data-label="Date" className={styles.invoiceCell}>
+                          {order.date ? new Date(order.date).toLocaleDateString() : 'N/A'}
+                        </td>
+                        <td data-label="Preview Videos" className={styles.invoiceCell}>
+                          {hasPreviewVideos ? (
+                            <div className={styles.videoSection}>
+                              {order.videoUrl && (
+                                <div className={styles.videoPreviewWrapper}>
+                                  <video 
+                                    className={styles.videoThumbnail}
+                                    onClick={() => openModal(order.videoUrl, order.id)}
+                                  >
+                                    <source src={order.videoUrl} type="video/mp4" />
+                                    Your browser does not support the video tag.
+                                  </video>
+                                </div>
+                              )}
+                              {order.videos && order.videos.length > 0 && (
+                                <div className={styles.videoCount}>
+                                  <strong>{order.videos.length}</strong> video(s)
+                                  {order.videos.length > 1 && (
+                                    <div className={styles.videoList}>
+                                      {order.videos.slice(0, 2).map((video, index) => (
+                                        <div key={index} className={styles.videoItem}>
+                                          • {video.filename || `Video ${index + 1}`}
+                                        </div>
+                                      ))}
+                                      {order.videos.length > 2 && (
+                                        <div className={styles.videoItem}>
+                                          • ...and {order.videos.length - 2} more
+                                        </div>
+                                      )}
                                     </div>
                                   )}
                                 </div>
                               )}
                             </div>
-                          ) : 'Preview available'}
-                        </div>
-                      </div>
-                    ) : (
-                      <span style={{ color: '#6c757d', fontStyle: 'italic' }}>No preview</span>
-                    )}
-                  </td>
-                  <td>
-                    {order.finalVideoUrl ? (
-                      <div>
-                        <video width="200" controls style={{ maxWidth: '100%' }}>
-                          <source src={order.finalVideoUrl} type="video/mp4" />
-                          Your browser does not support the video tag.
-                        </video>
-                        <div style={{ fontSize: '12px', color: '#28a745', marginTop: '5px' }}>
-                          ✓ Final video uploaded
-                        </div>
-                      </div>
-                    ) : (
-                      <span style={{ color: '#6c757d', fontStyle: 'italic' }}>Not uploaded</span>
-                    )}
-                  </td>
-                  <td>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '150px' }}>
-                      <button 
-                        onClick={() => handleStatusChange(order.id, 'processing')}
-                        disabled={order.status === 'processing'}
-                        style={{
-                          padding: '6px 12px',
-                          backgroundColor: order.status === 'processing' ? '#6c757d' : '#ffc107',
-                          color: order.status === 'processing' ? '#fff' : '#000',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: order.status === 'processing' ? 'not-allowed' : 'pointer',
-                          fontSize: '12px'
-                        }}
-                      >
-                        {order.status === 'processing' ? 'Processing...' : 'Mark Processing'}
-                      </button>
-                      
-                      <button 
-                        onClick={() => handleStatusChange(order.id, 'completed')}
-                        disabled={order.status === 'completed'}
-                        style={{
-                          padding: '6px 12px',
-                          backgroundColor: order.status === 'completed' ? '#6c757d' : '#28a745',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: order.status === 'completed' ? 'not-allowed' : 'pointer',
-                          fontSize: '12px'
-                        }}
-                      >
-                        {order.status === 'completed' ? 'Completed' : 'Mark Completed'}
-                      </button>
-                      
-                      {order.status === 'completed' && (
-                        <div style={{ marginTop: '10px', borderTop: '1px solid #dee2e6', paddingTop: '10px' }}>
-                          <label style={{ fontSize: '12px', fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>
-                            Upload Final Video:
-                          </label>
-                          <input
-                            type="file"
-                            accept="video/mp4,.mp4,video/*"
-                            onChange={e => {
-  const file = e.target.files[0];
-  if (file) {
-    // Validate file size (e.g., 50MB limit - more realistic)
-    if (file.size > 50 * 1024 * 1024) {
-      alert('File size too large. Please select a video under 50MB.');
-      e.target.value = ''; // Clear the input
-      return;
-    }
-    
-    // Validate file type more specifically
-    const allowedTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/wmv', 'video/flv'];
-    if (!file.type.startsWith('video/') && !allowedTypes.includes(file.type)) {
-      alert('Please select a valid video file (MP4, AVI, MOV, WMV, FLV).');
-      e.target.value = ''; // Clear the input
-      return;
-    }
-    
-    console.log('Selected file:', file.name, 'Size:', file.size, 'Type:', file.type);
-    handleFinalVideoUpload(order.id, file);
-  }
-}}
-                            disabled={uploading[order.id]}
-                            style={{ 
-                              fontSize: '11px',
-                              width: '100%',
-                              padding: '4px'
-                            }}
-                          />
-                          {uploading[order.id] && (
-                            <p style={{ 
-                              fontSize: '11px', 
-                              margin: '5px 0', 
-                              color: '#007bff',
-                              textAlign: 'center'
-                            }}>
-                              ⏳ Uploading...
-                            </p>
+                          ) : (
+                            <span className={styles.noPreview}>No preview</span>
                           )}
-                          <p style={{ fontSize: '10px', color: '#6c757d', margin: '5px 0 0 0' }}>
-                            Max 100MB, MP4 format recommended
-                          </p>
-                        </div>
-                      )}
+                        </td>
+                        <td data-label="Final Video" className={styles.invoiceCell}>
+                          {order.finalVideoUrl ? (
+                            <div className={styles.finalVideoSection}>
+                              <video 
+                                className={styles.videoThumbnail}
+                                onClick={() => openModal(order.finalVideoUrl, order.id)}
+                              >
+                                <source src={order.finalVideoUrl} type="video/mp4" />
+                                Your browser does not support the video tag.
+                              </video>
+                              <div className={styles.uploadSuccess}>
+                                ✓ Final video uploaded
+                              </div>
+                            </div>
+                          ) : (
+                            <span className={styles.noUpload}>Not uploaded</span>
+                          )}
+                        </td>
+                        <td data-label="Actions" className={styles.invoiceCell}>
+                          <div className={styles.actionsContainer}>
+                            <Dropdown className={styles.statusDropdown}>
+                              <Dropdown.Toggle variant="outline-light" size="sm" className={styles.dropdownToggle}>
+                                Update Status
+                              </Dropdown.Toggle>
+                              <Dropdown.Menu className={styles.statusDropdownMenu}>
+                                <Dropdown.Item 
+                                  className={styles.statusDropdownItem}
+                                  onClick={() => handleStatusChange(order.id, 'processing')}
+                                  disabled={order.status === 'processing'}
+                                >
+                                  {order.status === 'processing' ? '✓ Processing' : 'Mark Processing'}
+                                </Dropdown.Item>
+                                <Dropdown.Item 
+                                  className={styles.statusDropdownItem}
+                                  onClick={() => handleStatusChange(order.id, 'completed')}
+                                  disabled={order.status === 'completed'}
+                                >
+                                  {order.status === 'completed' ? '✓ Completed' : 'Mark Completed'}
+                                </Dropdown.Item>
+                              </Dropdown.Menu>
+                            </Dropdown>
+
+                            {order.status === 'completed' && (
+                              <div className={styles.uploadSection}>
+                                <label className={styles.uploadLabel}>
+                                  Upload Final Video:
+                                </label>
+                                <input
+                                  type="file"
+                                  accept="video/mp4,.mp4,video/*"
+                                  onChange={e => {
+                                    const file = e.target.files[0];
+                                    if (file) {
+                                      if (file.size > 50 * 1024 * 1024) {
+                                        alert('File size too large. Please select a video under 50MB.');
+                                        e.target.value = '';
+                                        return;
+                                      }
+                                      
+                                      const allowedTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/wmv', 'video/flv'];
+                                      if (!file.type.startsWith('video/') && !allowedTypes.includes(file.type)) {
+                                        alert('Please select a valid video file (MP4, AVI, MOV, WMV, FLV).');
+                                        e.target.value = '';
+                                        return;
+                                      }
+                                      
+                                      console.log('Selected file:', file.name, 'Size:', file.size, 'Type:', file.type);
+                                      handleFinalVideoUpload(order.id, file);
+                                    }
+                                  }}
+                                  disabled={uploading[order.id]}
+                                  className={styles.uploadInput}
+                                />
+                                {uploading[order.id] && (
+                                  <div className={styles.uploadingIndicator}>
+                                    <Spinner animation="border" size="sm" className={styles.uploadSpinner} />
+                                    ⏳ Uploading...
+                                  </div>
+                                )}
+                                <div className={styles.uploadHint}>
+                                  Max 50MB, MP4 format recommended
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan="8" className={styles.noOrdersCell}>
+                      No orders available.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </Table>
+          </div>
+
+          {/* Mobile Card Layout */}
+          <div className={styles.mobileOrdersContainer}>
+            {orders.length > 0 ? (
+              orders.map((order) => (
+                <div key={order.id} className={styles.mobileOrderCard}>
+                  <div className={styles.mobileCardHeader}>
+                    <div className={styles.mobileOrderId}>Order #{order.id}</div>
+                    <Badge className={`${styles.mobileStatus} ${styles[`status_${order.status}`]}`}>
+                      {order.status?.toUpperCase() || 'UNKNOWN'}
+                    </Badge>
+                  </div>
+                  
+                  <div className={styles.mobileCardContent}>
+                    <div className={styles.mobileInfoItem}>
+                      <span className={styles.mobileInfoLabel}>Package</span>
+                      <span className={styles.mobileInfoValue}>{order.package}</span>
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    
+                    <div className={styles.mobileInfoItem}>
+                      <span className={styles.mobileInfoLabel}>Photos</span>
+                      <span className={styles.mobileInfoValue}>{order.photos}</span>
+                    </div>
+                    
+                    <div className={styles.mobileInfoItem}>
+                      <span className={styles.mobileInfoLabel}>Date</span>
+                      <span className={styles.mobileInfoValue}>
+                        {order.date ? new Date(order.date).toLocaleDateString() : 'N/A'}
+                      </span>
+                    </div>
+
+                    <div className={styles.mobileVideosSection}>
+                      <div className={styles.mobileVideoGrid}>
+                        <div className={styles.mobileVideoItem}>
+                          <span className={styles.mobileVideoLabel}>Preview Videos</span>
+                          {order.videoUrl || (order.videos && order.videos.length > 0) ? (
+                            <>
+                              {order.videoUrl && (
+                                <video 
+                                  className={styles.mobileVideoThumbnail}
+                                  onClick={() => openModal(order.videoUrl, order.id)}
+                                >
+                                  <source src={order.videoUrl} type="video/mp4" />
+                                </video>
+                              )}
+                              {order.videos && order.videos.length > 0 && (
+                                <div className={styles.videoCountMobile}>
+                                  {order.videos.length} video(s) available
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <span className={styles.mobileNoVideo}>No preview</span>
+                          )}
+                        </div>
+                        
+                        <div className={styles.mobileVideoItem}>
+                          <span className={styles.mobileVideoLabel}>Final Video</span>
+                          {order.finalVideoUrl ? (
+                            <>
+                              <video 
+                                className={styles.mobileVideoThumbnail}
+                                onClick={() => openModal(order.finalVideoUrl, order.id)}
+                              >
+                                <source src={order.finalVideoUrl} type="video/mp4" />
+                              </video>
+                              <div className={styles.uploadSuccessMobile}>✓ Uploaded</div>
+                            </>
+                          ) : (
+                            <span className={styles.mobileNoVideo}>Not uploaded</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className={styles.mobileActions}>
+                      <div className={styles.mobileActionButtons}>
+                        <button
+                          onClick={() => handleStatusChange(order.id, 'processing')}
+                          disabled={order.status === 'processing'}
+                          className={styles.mobileStatusButton}
+                        >
+                          {order.status === 'processing' ? '✓ Processing' : 'Mark Processing'}
+                        </button>
+                        
+                        <button
+                          onClick={() => handleStatusChange(order.id, 'completed')}
+                          disabled={order.status === 'completed'}
+                          className={styles.mobileStatusButton}
+                        >
+                          {order.status === 'completed' ? '✓ Completed' : 'Mark Completed'}
+                        </button>
+
+                        {order.status === 'completed' && (
+                          <div className={styles.mobileUploadSection}>
+                            <label className={styles.mobileUploadLabel}>
+                              Upload Final Video:
+                            </label>
+                            <input
+                              type="file"
+                              accept="video/mp4,.mp4,video/*"
+                              onChange={e => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                  if (file.size > 50 * 1024 * 1024) {
+                                    alert('File size too large. Please select a video under 50MB.');
+                                    e.target.value = '';
+                                    return;
+                                  }
+                                  
+                                  const allowedTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/wmv', 'video/flv'];
+                                  if (!file.type.startsWith('video/') && !allowedTypes.includes(file.type)) {
+                                    alert('Please select a valid video file (MP4, AVI, MOV, WMV, FLV).');
+                                    e.target.value = '';
+                                    return;
+                                  }
+                                  
+                                  handleFinalVideoUpload(order.id, file);
+                                }
+                              }}
+                              disabled={uploading[order.id]}
+                              className={styles.mobileUploadInput}
+                            />
+                            {uploading[order.id] && (
+                              <div className={styles.uploadingIndicator}>
+                                <Spinner animation="border" size="sm" className={styles.uploadSpinner} />
+                                ⏳ Uploading...
+                              </div>
+                            )}
+                            <div className={styles.mobileUploadHint}>
+                              Max 50MB, MP4 format recommended
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className={styles.noOrdersCell}>
+                No orders available.
+              </div>
+            )}
+          </div>
+          
+          {orders.length > 0 && (
+            <div className={styles.ordersCount}>
+              Total Orders: {orders.length}
+            </div>
+          )}
+        </Card.Body>
+      </Card>
+
+      {/* Modal Overlay for Large Video Preview */}
+      {modalVideo && (
+        <div className={styles.modalOverlay} onClick={closeModal} role="dialog" aria-modal="true">
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <button className={styles.modalCloseBtn} onClick={closeModal} aria-label="Close video preview">
+              &times;
+            </button>
+            <video
+              src={modalVideo.videoUrl}
+              controls
+              autoPlay
+              className={styles.modalVideo}
+            >
+              Your browser does not support the video tag.
+            </video>
+          </div>
         </div>
       )}
-      
-      <div style={{ marginTop: '20px', fontSize: '12px', color: '#6c757d', textAlign: 'center' }}>
-        Total Orders: {orders.length}
-      </div>
-    </div>
+    </>
   );
 };
 
