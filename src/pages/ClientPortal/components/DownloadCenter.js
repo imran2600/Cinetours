@@ -56,7 +56,7 @@ const DownloadCenter = ({ userId, onDownload }) => {
         console.error('Admin endpoint failed, trying client endpoint:', adminError);
         
         // Fallback: Try client endpoint (if implemented)
-        const clientRes = await fetch(`${BASE_URL}/client/orders?user_id=${userId}`);
+        const clientRes = await fetch(`${BASE_URL}/api/client/orders?user_id=${userId}`);
         
         if (!clientRes.ok) {
           throw new Error(`Client endpoint also failed: ${clientRes.status}`);
