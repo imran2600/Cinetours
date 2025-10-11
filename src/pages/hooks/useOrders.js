@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const BASE_URL = 'https://qunatum-tour.onrender.com'; // adjust if backend is hosted elsewhere
+const BASE_URL = 'https://qunatum-tour.onrender.com'; // adjust if backend is hosted
 
 export function useOrders() {
   const [orders, setOrders] = useState([]);
@@ -87,7 +87,7 @@ export function useOrders() {
 
       return result;
     } catch (err) {
-      console.error('Failed to upload final video:', err);
+      console.error('Failed to upload final video :', err);
       throw err;
     }
   };
