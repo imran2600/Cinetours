@@ -21,24 +21,36 @@ import portalApi from '../../../services/portalApi';
 const Invoices = ({ invoices }) => {
   const handleDownload = async (invoiceId) => {
     try {
-      // TODO: Implement API call
+      const { blob, json, contentType } = await portalApi.getInvoiceBlob(invoiceId);
 
-      alert(`Invoice #${invoiceId} download started`);
-      const data = await portalApi.getInvoice(invoiceId);
-      // Save the JSON details as a file (backend can later return a PDF)
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `invoice-${invoiceId}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      if (blob && contentType.includes("application/pdf")) {
+        // PDF path
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `invoice-${invoiceId}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } else {
+        // Fallback: JSON (current backend)
+        const data = json ?? await portalApi.getInvoice(invoiceId);
+        const file = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(file);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `invoice-${invoiceId}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
     } catch (error) {
       console.error('Download failed:', error);
     }
   };
+
 
   return (
     <Card className={styles.invoiceCard}>

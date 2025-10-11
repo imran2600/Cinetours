@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Form, Button, Card, Spinner } from "react-bootstrap";
 import styles from "./UploadOrder.module.css";
-import { useOrders } from "../../hooks/useOrders";
 import { useAuth } from "../../../auth/AuthContext";
 import portalApi from "../../../services/portalApi";
 
@@ -46,7 +45,6 @@ const UploadOrder = ({
   initialAddons = null,
   onSubmit,
 }) => {
-  const { addOrder } = useOrders();
   const { user } = useAuth();
   const PACKAGE_LIMITS = {
     Starter:       { min: 5,  max: 10 },
@@ -110,19 +108,9 @@ const UploadOrder = ({
 
     setIsSubmitting(true);
     try {
-      // ✅ Normal flow: create order + invoice
-      await portalApi.uploadPhotos(selectedPkg.name, addons, selectedFiles);
+      const order = await portalApi.createOrder(userId, selectedPkg.name, addons, selectedFiles);
 
-      // keep existing local state behavior / UI flow
-      const newOrder = {
-        package: selectedPkg.name,
-        photos: selectedFiles.length,
-        addons,
-        addonsTotal,
-      };
-      addOrder(newOrder);
-      onSubmit?.(newOrder);
-
+      onSubmit(order);            // keep this
       setSelectedFiles([]);
       setSelectedPackage("");
     } catch (err) {
@@ -131,6 +119,7 @@ const UploadOrder = ({
     } finally {
       setIsSubmitting(false);
     }
+
   };
 
   return (
@@ -146,7 +135,7 @@ const UploadOrder = ({
             <Form.Control
               type="file"
               multiple
-              onChange={(e) => setSelectedFiles([...e.target.files])}
+              onChange={(e) => setSelectedFiles(Array.from(e.target.files))}
               accept="image/*"
               required
               className={styles.fileUploadInput}

@@ -10,8 +10,6 @@ import DownloadCenter from "./components/DownloadCenter";
 import BrandAssets from "./components/BrandAssets";
 import Reorder from "./components/Reorder";
 import Invoices from "./components/Invoices";
-
-import { useOrders } from "../hooks/useOrders";
 import styles from "./styles/Portal.module.css";
 
 import ClientPortalGate from "./components/ClientPortalGate";
@@ -59,8 +57,34 @@ export default function ClientPortal() {
   const [preselectedAddons, setPreselectedAddons] = useState(null);
   const [activeTab, setActiveTab] = useState(null);
 
-  const { orders } = useOrders();
+  const [orders, setOrders] = useState([]);
   const [isLoading] = useState(false);
+
+useEffect(() => {
+  if (stage !== "portal" || activeTab !== "status") return;
+  const uId = user?.id ?? user?.user?.id;
+  if (!uId) return;
+
+  (async () => {
+    try {
+      const data = await portalApi.getUserOrders(uId);
+      const list = Array.isArray(data?.orders) ? data.orders
+                : Array.isArray(data)          ? data
+                : [];
+      setOrders(list.map((o, i) => ({
+        id:      o.order_id ?? o.id ?? `order-${i}`,
+        package: o.package ?? "Unknown",
+        status:  String(o.status ?? "submitted").toLowerCase(),
+        date:    o.date ?? o.created_at ?? o.updated_at ?? new Date().toISOString(),
+        videos:  o.videos ?? [],
+      })));
+    } catch (e) {
+      console.error("Orders fetch failed:", e);
+      setOrders([]);
+    }
+  })();
+}, [stage, activeTab, user]);
+
 
   // --- NEW: current user id + the package chosen on Gate (needed for Stripe on Add-Ons)
   const userId = user?.id ?? user?.user?.id;
@@ -260,7 +284,7 @@ useEffect(() => {
       return (
         <div className={styles.screenWrap}>
           <button onClick={goBack} className={styles.backBtn}>← Back</button>
-          <DownloadCenter videos={dlVideos} />
+          <DownloadCenter videos={dlVideos} userId={user?.id ?? user?.user?.id} />
         </div>
       );
     }

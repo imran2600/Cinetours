@@ -10,6 +10,7 @@ function authHeaders(extra = {}) {
   return h;
 }
 
+
 async function get(path) {
   const res = await fetch(`${BASE_URL}${path}`, { headers: authHeaders() });
   let data = {};
@@ -41,13 +42,22 @@ async function post(path, body, asJson = true) {
 
 const portalApi = {
   // Upload (immediate generation)
-  uploadPhotos(pkgName, addOns, files) {
-    const fd = new FormData();
-    fd.append("package", pkgName);
-    if (addOns) fd.append("add_ons", JSON.stringify(addOns));
-    files.forEach(f => fd.append("files", f));
-    return post("/upload", fd, /*asJson*/ false);
+
+  // Add alongside other methods
+  async getInvoiceBlob(invoiceId) {
+    const path = `${CLIENT_PREFIX}/invoice/${encodeURIComponent(invoiceId)}`;
+    const res = await fetch(`${BASE_URL}${path}`, { headers: authHeaders() });
+    if (!res.ok) throw new Error(`GET ${path} failed (${res.status})`);
+
+    const contentType = res.headers.get("content-type") || "";
+    if (contentType.includes("application/pdf")) {
+      return { blob: await res.blob(), contentType };
+    }
+    // Fallback: JSON (for current behavior)
+    const json = await res.json().catch(() => ({}));
+    return { json, contentType };
   },
+
 
   // Create Order (+ invoice)
   createOrder(userId, pkgName, addOns, files) {
@@ -55,7 +65,7 @@ const portalApi = {
     fd.append("user_id", userId);
     fd.append("package", pkgName);
     if (addOns) fd.append("add_ons", JSON.stringify(addOns));
-    files.forEach(f => fd.append("files", f));
+    files.forEach(f => fd.append("files", f));   // ✅ add this line
     return post(`${CLIENT_PREFIX}/orders/new`, fd, false);
   },
 
@@ -86,9 +96,16 @@ const portalApi = {
     return post(`${STRIPE_PREFIX}/create-checkout-session`, payload);
   },
 
+  getUserOrders(userId) {
+    return get(`/api/client/orders?user_id=${encodeURIComponent(userId)}`);
+  },
+
+
   getPaymentStatus(sessionId) {
     return get(`${STRIPE_PREFIX}/payment-status/${encodeURIComponent(sessionId)}`);
   },
+
+  
 };
 
 export default portalApi;

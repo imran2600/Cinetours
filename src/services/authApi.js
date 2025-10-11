@@ -24,8 +24,8 @@ async function request(path, { method = "GET", body, asJson = true } = {}) {
   return data;
 }
 
-export function apiSignup(email, password) {
-  return request("/auth/signup", { method: "POST", body: { email, password } });
+export function apiSignup(name, email, password) {
+  return request("/auth/signup", { method: "POST", body: { name, email, password } });
 }
 export function apiSignin(email, password) {
   return request("/auth/signin", { method: "POST", body: { email, password } });
@@ -36,5 +36,3 @@ export function apiGuest() {
 export function apiForgotPassword(email) {
   return request("/auth/password/forgot", { method: "POST", body: { email } });
 }
-
-

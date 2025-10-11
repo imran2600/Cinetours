@@ -1,142 +1,70 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState, useCallback } from "react";
+// ⬇️ Adjust the import path if your portalApi lives elsewhere
+import  portalApi from "../../services/portalApi";
 
 /**
- * Central data management hook for Client Portal
- * @hook
- * @returns {Object} Portal data and methods
- * 
- * Backend Integration Points:
- * - Replace mock API calls with actual endpoints
- * - Add proper error handling
- * - Implement authentication
+ * Central data management hook for Client Portal (no mocks)
+ * @param {string} userId - signed-in user's id
  */
-const usePortalData = () => {
-  const [orders, setOrders] = useState([]);
-  const [videos, setVideos] = useState([]);
-  const [brandAssets, setBrandAssets] = useState(null);
+const usePortalData = (userId) => {
   const [invoices, setInvoices] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Mock data - Replace with API calls in production
-  const MOCK_ORDERS = [
-    {
-      id: 1,
-      status: 'delivered',
-      package: 'Professional',
-      date: '2023-05-15',
-      photos: 15
-    },
-    {
-      id: 2,
-      status: 'processing',
-      package: 'Premium',
-      date: '2023-06-20',
-      photos: 25
-    }
-  ];
+  // --- Helpers --------------------------------------------------------------
 
-  const MOCK_VIDEOS = [
-    {
-      id: 1,
-      orderId: 1,
-      name: 'Property_1234_video.mp4',
-      downloadUrl: '#',
-      created: '2023-05-17'
+  const normalizeErr = (e, fallback = "Request failed") => {
+    try {
+      if (!e) return fallback;
+      if (typeof e === "string") return e;
+      if (e.message) return e.message;
+      return JSON.stringify(e);
+    } catch {
+      return fallback;
     }
-  ];
-
-  const MOCK_BRANDING = {
-    logo: '/assets/branding/logo.png',
-    introVideo: '/assets/branding/intro.mp4',
-    font: 'Montserrat',
-    colorScheme: '#2563eb'
   };
 
-  const MOCK_INVOICES = [
-    {
-      id: 1,
-      date: '2023-05-15',
-      amount: 99,
-      status: 'paid',
-      downloadUrl: '#'
+  // --- Fetchers -------------------------------------------------------------
+
+  const refetchInvoices = useCallback(async () => {
+    if (!userId) return;
+    try {
+      const list = await portalApi.getUserInvoices(userId);
+      setInvoices(Array.isArray(list) ? list : []);
+    } catch (e) {
+      setError(normalizeErr(e, "Failed to load invoices"));
     }
-  ];
+  }, [userId]);
 
-  const NEW_ORDER = {
-    id: Date.now(),
-    status: 'submitted',
-    package: '',
-    date: new Date().toISOString().split('T')[0],
-    photos: 0
-  };
+  // --- Initial load ---------------------------------------------------------
 
-  // Fetch initial data
   useEffect(() => {
-    const fetchPortalData = async () => {
+    let cancelled = false;
+    const run = async () => {
+      if (!userId) return;
       setIsLoading(true);
+      setError(null);
       try {
-        // TODO: Replace with actual API calls
-        // const res = await axios.get('/api/portal-data');
-        setOrders(MOCK_ORDERS);
-        setVideos(MOCK_VIDEOS);
-        setBrandAssets(MOCK_BRANDING);
-        setInvoices(MOCK_INVOICES);
-      } catch (err) {
-        setError(err.message);
+        const invoicesRes = await portalApi.getUserInvoices(userId);
+        if (cancelled) return;
+        setInvoices(Array.isArray(invoicesRes) ? invoicesRes : []);
+      } catch (e) {
+        if (!cancelled) setError(normalizeErr(e, "Failed to load portal data"));
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     };
+    run();
+    return () => { cancelled = true; };
+  }, [userId]);
 
-    fetchPortalData();
-  }, []);
 
-  // Upload new photos
-  const uploadPhotos = async (data) => {
-    setIsLoading(true);
-    try {
-      // TODO: Implement API call
-      // const res = await axios.post('/api/orders', data);
-      const newOrder = {
-        ...NEW_ORDER,
-        ...data,
-        photos: data.files.length
-      };
-      setOrders(prev => [...prev, newOrder]);
-      return newOrder;
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Download video
-  const downloadVideo = (videoId) => {
-    // TODO: Implement download logic
-    console.log('Downloading video:', videoId);
-    return Promise.resolve();
-  };
-
-  // Update brand assets
-  const updateBrandAssets = (assets) => {
-    // TODO: Implement API call
-    setBrandAssets(assets);
-    return Promise.resolve();
-  };
 
   return {
-    orders,
-    videos,
-    brandAssets,
     invoices,
     isLoading,
     error,
-    uploadPhotos,
-    downloadVideo,
-    updateBrandAssets
+    refetchInvoices,
   };
 };
 
