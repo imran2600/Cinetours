@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styles from "./DownloadCenter.module.css";
 
-const BASE_URL = 'https://quantum-tour.onrender.com';
+const BASE_URL = 'https://qunatum-tour.onrender.com';
 
 const DownloadCenter = ({ userId, onDownload }) => {
   const [videos, setVideos] = useState([]);
