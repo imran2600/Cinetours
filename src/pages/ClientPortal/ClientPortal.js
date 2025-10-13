@@ -42,16 +42,11 @@ const PACKAGE_OPTIONS = [
 ];
 
 export default function ClientPortal() {
-  const { user } = useAuth();
+  const { user, authLoading } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Decide first screen
-  const startNew = searchParams.get("new") === "1";
-  const portalState = getPortalState(user?.email); // { hasOrder: boolean }
-
-  const [stage, setStage] = useState(
-    startNew || !portalState?.hasOrder ? "gate" : "hub"
-  ); // "gate" → "addons" → "upload" → "hub" → "portal"
+  const [stage, setStage] = useState(null);
 
   const [preselectedPkgId, setPreselectedPkgId] = useState(null);
   const [preselectedAddons, setPreselectedAddons] = useState(null);
@@ -60,30 +55,63 @@ export default function ClientPortal() {
   const [orders, setOrders] = useState([]);
   const [isLoading] = useState(false);
 
-useEffect(() => {
-  if (stage !== "portal" || activeTab !== "status") return;
-  const uId = user?.id ?? user?.user?.id;
-  if (!uId) return;
-
-  (async () => {
-    try {
-      const data = await portalApi.getUserOrders(uId);
-      const list = Array.isArray(data?.orders) ? data.orders
-                : Array.isArray(data)          ? data
-                : [];
-      setOrders(list.map((o, i) => ({
-        id:      o.order_id ?? o.id ?? `order-${i}`,
-        package: o.package ?? "Unknown",
-        status:  String(o.status ?? "submitted").toLowerCase(),
-        date:    o.date ?? o.created_at ?? o.updated_at ?? new Date().toISOString(),
-        videos:  o.videos ?? [],
-      })));
-    } catch (e) {
-      console.error("Orders fetch failed:", e);
-      setOrders([]);
+  // Clean the URL if user has an order
+  useEffect(() => {
+    if (authLoading || !user?.email) return;
+    const ps = getPortalState(user.email);
+    if (ps?.hasOrder && searchParams.get("new") === "1") {
+      setSearchParams({}); // remove ?new=1
     }
-  })();
-}, [stage, activeTab, user]);
+  }, [authLoading, user, searchParams, setSearchParams]);
+
+  // Decide initial stage
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (!user?.email) { 
+      setStage("gate");
+      return;
+    }
+
+    const ps = getPortalState(user.email);
+    const hasOrder = !!ps?.hasOrder;
+    const wantsNew = searchParams.get("new") === "1";
+
+    // If the user already has an order, always show Hub (ignore ?new=1)
+    if (hasOrder) {
+      setStage("hub");
+      return;
+    }
+
+    // No order yet → show Gate (wantsNew doesn’t change this right now)
+    setStage("gate");
+  }, [authLoading, user, searchParams, setStage]);
+
+
+  useEffect(() => {
+    if (stage !== "portal" || activeTab !== "status") return;
+    const uId = user?.id ?? user?.user?.id;
+    if (!uId) return;
+
+    (async () => {
+      try {
+        const data = await portalApi.getUserOrders(uId);
+        const list = Array.isArray(data?.orders) ? data.orders
+                  : Array.isArray(data)          ? data
+                  : [];
+        setOrders(list.map((o, i) => ({
+          id:      o.order_id ?? o.id ?? `order-${i}`,
+          package: o.package ?? "Unknown",
+          status:  String(o.status ?? "submitted").toLowerCase(),
+          date:    o.date ?? o.created_at ?? o.updated_at ?? new Date().toISOString(),
+          videos:  o.videos ?? [],
+        })));
+      } catch (e) {
+        console.error("Orders fetch failed:", e);
+        setOrders([]);
+      }
+    })(); 
+  }, [stage, activeTab, user]);
 
 
   // --- NEW: current user id + the package chosen on Gate (needed for Stripe on Add-Ons)
@@ -185,7 +213,9 @@ useEffect(() => {
 
     (async () => {
       try {
+        console.log("Fetching invoices portal invoices", user);
         const data = await portalApi.getUserInvoices(uId);
+        
         const mapped = (data?.invoices || []).map((inv) => ({
           ...inv,
           status: inv.status === "paid" ? "paid" : "pending",
