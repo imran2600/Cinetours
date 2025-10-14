@@ -55,6 +55,10 @@ const portalApi = {
     return post(`${CLIENT_PREFIX}/orders/${encodeURIComponent(orderId)}/reorder`);
   },
 
+  getClientStatus() {
+    return get(`${CLIENT_PREFIX}/client/status`);
+  },
+
   getUserOrders() {
     return get(`${CLIENT_PREFIX}/orders/status`);
   },

@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styles from "./DownloadCenter.module.css";
+import portalApi from "../../../services/portalApi";
 
-const BASE_URL = 'https://qunatum-tour.onrender.com';
+const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://qunatum-tour.onrender.com';
 
 const DownloadCenter = ({ userId, onDownload }) => {
   const [videos, setVideos] = useState([]);
@@ -9,8 +10,8 @@ const DownloadCenter = ({ userId, onDownload }) => {
   const [error, setError] = useState(null);
   const [downloadingId, setDownloadingId] = useState(null);
 
-  // Fetch client orders with videos - USING ADMIN ENDPOINT AS FALLBACK
-  const fetchClientVideos = async () => {
+  // Fetch client orders with videos
+  const fetchClientOrders = async () => {
     try {
       setLoading(true);
       setError(null);
@@ -21,51 +22,16 @@ const DownloadCenter = ({ userId, onDownload }) => {
         return;
       }
 
-      console.log('Fetching videos for user:', userId);
+      console.log('Fetching client orders for user:', userId);
       
-      // Try multiple endpoints since client endpoint might not be implemented
-      let data = null;
+      const res = await fetch(`${BASE_URL}/api/client/orders?user_id=${userId}`);
       
-      // First try: Use the admin endpoint and filter by user_id
-      try {
-        const res = await fetch(`${BASE_URL}/api/Admin/order_management`);
-        
-        if (!res.ok) {
-          throw new Error(`Admin endpoint failed: ${res.status}`);
-        }
-        
-        const allOrders = await res.json();
-        console.log('All orders from admin endpoint:', allOrders);
-        
-        // Filter orders by user_id and extract videos
-        if (Array.isArray(allOrders)) {
-          const userOrders = allOrders.filter(order => 
-            order.user_id == userId || order.user_id === parseInt(userId)
-          );
-          data = { orders: userOrders };
-        } else if (allOrders.orders && Array.isArray(allOrders.orders)) {
-          const userOrders = allOrders.orders.filter(order => 
-            order.user_id == userId || order.user_id === parseInt(userId)
-          );
-          data = { orders: userOrders };
-        } else {
-          throw new Error('Unexpected data format from admin endpoint');
-        }
-        
-      } catch (adminError) {
-        console.error('Admin endpoint failed, trying client endpoint:', adminError);
-        
-        // Fallback: Try client endpoint (if implemented)
-        const clientRes = await fetch(`${BASE_URL}/api/client/orders?user_id=${userId}`);
-        
-        if (!clientRes.ok) {
-          throw new Error(`Client endpoint also failed: ${clientRes.status}`);
-        }
-        
-        data = await clientRes.json();
+      if (!res.ok) {
+        throw new Error(`Failed to fetch orders: ${res.status}`);
       }
 
-      console.log('Filtered user orders:', data);
+      const data = await res.json();
+      console.log('Client orders response:', data);
 
       // Extract videos from orders
       const allVideos = [];
@@ -76,26 +42,14 @@ const DownloadCenter = ({ userId, onDownload }) => {
             order.videos.forEach(video => {
               if (video.url && order.status === 'completed') {
                 allVideos.push({
-                  id: `${order.order_id || order.id}-${video.filename || 'video'}`,
-                  name: video.filename || `Order ${order.order_id || order.id} Video`,
+                  id: `${order.order_id}-${video.filename || 'video'}`,
+                  name: video.filename || `Order ${order.order_id} Video`,
                   downloadUrl: video.url,
-                  orderId: order.order_id || order.id,
+                  orderId: order.order_id,
                   created: order.date || new Date().toISOString(),
                   status: 'completed'
                 });
               }
-            });
-          }
-          
-          // Also check for finalVideoUrl in the order object
-          if (order.finalVideoUrl && order.status === 'completed') {
-            allVideos.push({
-              id: `${order.order_id || order.id}-final`,
-              name: `Final Video - Order ${order.order_id || order.id}`,
-              downloadUrl: order.finalVideoUrl,
-              orderId: order.order_id || order.id,
-              created: order.date || new Date().toISOString(),
-              status: 'completed'
             });
           }
         });
@@ -105,8 +59,8 @@ const DownloadCenter = ({ userId, onDownload }) => {
       setVideos(allVideos);
       
     } catch (err) {
-      console.error('Error fetching videos:', err);
-      setError(`Failed to load videos: ${err.message}. Please check if the user ID is correct and try again.`);
+      console.error('Error fetching client orders:', err);
+      setError(`Failed to load videos: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -128,7 +82,7 @@ const DownloadCenter = ({ userId, onDownload }) => {
       const a = document.createElement("a");
       a.href = video.downloadUrl;
       a.download = `${videoName}.mp4`;
-      a.target = "_blank";
+      a.target = "_blank"; // Open in new tab for better UX
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -149,7 +103,7 @@ const DownloadCenter = ({ userId, onDownload }) => {
   // Fetch orders when component mounts or userId changes
   useEffect(() => {
     if (userId) {
-      fetchClientVideos();
+      fetchClientOrders();
     }
   }, [userId]);
 
@@ -213,7 +167,7 @@ const DownloadCenter = ({ userId, onDownload }) => {
         <header className={styles.header}>
           <h1 className={styles.title}>Your Videos</h1>
           <button 
-            onClick={fetchClientVideos}
+            onClick={fetchClientOrders}
             className={styles.refreshButton}
             disabled={loading}
           >
@@ -234,15 +188,13 @@ const DownloadCenter = ({ userId, onDownload }) => {
               <div className={styles.emptyIcon}>🎬</div>
               <div className={styles.emptyTitle}>No completed videos yet</div>
               <div className={styles.emptySub}>
-                {userId 
-                  ? "When your orders are finished and videos are uploaded, they will appear here."
-                  : "Please log in to view your videos."
-                }
+                When your orders are finished, your download links will appear here.
+                {!userId && " Please make sure you're logged in."}
               </div>
-              {userId && (
-                <button onClick={fetchClientVideos} className={styles.retryButton}>
-                  Check Again
-                </button>
+              {!userId && (
+                <div className={styles.emptyAction}>
+                  Please log in to view your videos
+                </div>
               )}
             </div>
           ) : (

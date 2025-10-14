@@ -34,7 +34,6 @@ function clearPreselection() {
   localStorage.removeItem("qt_addons");
 }
 
-
 const PACKAGE_OPTIONS = [
   { id: 1, name: "Starter",      photos: "5-10",  price: 49  },
   { id: 2, name: "Professional", photos: "11-20", price: 99  },
@@ -45,97 +44,74 @@ export default function ClientPortal() {
   const { user, authLoading } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Decide first screen
   const [stage, setStage] = useState(null);
-
   const [preselectedPkgId, setPreselectedPkgId] = useState(null);
   const [preselectedAddons, setPreselectedAddons] = useState(null);
   const [activeTab, setActiveTab] = useState(null);
 
   const [orders, setOrders] = useState([]);
-  const [isLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [checkedOrders, setCheckedOrders] = useState(false);
 
-  // Clean the URL if user has an order
+  const userId = user?.id ?? user?.user?.id;
+
+  /* ------------------- INITIAL STAGE DECISION ------------------- */
   useEffect(() => {
-    if (authLoading || !user?.email) return;
-    const ps = getPortalState(user.email);
-    if (ps?.hasOrder && searchParams.get("new") === "1") {
-      setSearchParams({}); // remove ?new=1
-    }
-  }, [authLoading, user, searchParams, setSearchParams]);
-
-  // Decide initial stage
-  useEffect(() => {
-    if (authLoading) return;
-
-    if (!user?.email) { 
-      setStage("gate");
-      return;
-    }
-
-    const ps = getPortalState(user.email);
-    const hasOrder = !!ps?.hasOrder;
-    const wantsNew = searchParams.get("new") === "1";
-
-    // If the user already has an order, always show Hub (ignore ?new=1)
-    if (hasOrder) {
-      setStage("hub");
-      return;
-    }
-
-    // No order yet → show Gate (wantsNew doesn’t change this right now)
-    setStage("gate");
-  }, [authLoading, user, searchParams, setStage]);
-
-
-  useEffect(() => {
-    if (stage !== "portal" || activeTab !== "status") return;
-    const uId = user?.id ?? user?.user?.id;
-    if (!uId) return;
+    if (authLoading || !userId || checkedOrders) return;
 
     (async () => {
       try {
-        const data = await portalApi.getUserOrders(uId);
-        const list = Array.isArray(data?.orders) ? data.orders
-                  : Array.isArray(data)          ? data
-                  : [];
-        setOrders(list.map((o, i) => ({
-          id:      o.order_id ?? o.id ?? `order-${i}`,
-          package: o.package ?? "Unknown",
-          status:  String(o.status ?? "submitted").toLowerCase(),
-          date:    o.date ?? o.created_at ?? o.updated_at ?? new Date().toISOString(),
-          videos:  o.videos ?? [],
-        })));
-      } catch (e) {
-        console.error("Orders fetch failed:", e);
-        setOrders([]);
+        const res = await portalApi.getClientStatus();
+        console.log("Client status response:", res);
+        if (res.has_orders === true) {
+          setPortalState(user.email, { hasOrder: true });
+          setStage("hub");
+        } else {
+          setPortalState(user.email, { hasOrder: false });
+          setStage("gate");
+        }
+      } catch (err) {
+        console.error("Failed to fetch client status:", err);
+        setStage("gate");
+      } finally {
+        setCheckedOrders(true);
       }
-    })(); 
-  }, [stage, activeTab, user]);
+    })();
+  }, [authLoading, userId, checkedOrders, user]);
 
+  /* ------------------- FETCH ORDERS FOR STATUS/REORDER ------------------- */
+  useEffect(() => {
+    const uId = userId;
+    if (!uId) return;
 
-  // --- NEW: current user id + the package chosen on Gate (needed for Stripe on Add-Ons)
-  const userId = user?.id ?? user?.user?.id;
-  const selectedPackage = PACKAGE_OPTIONS.find(
-    (p) => String(p.id) === String(preselectedPkgId)
-  );
+    if (stage === "hub" || (stage === "portal" && ["status", "reorder"].includes(activeTab))) {
+      (async () => {
+        try {
+          setIsLoading(true);
+          const data = await portalApi.getUserOrders();
+          const list = Array.isArray(data?.orders) ? data.orders : data || [];
+          setOrders(
+            list.map((o, i) => ({
+              id: o.order_id ?? o.id ?? `order-${i}`,
+              package: o.package ?? "Unknown",
+              status: String(o.status ?? "submitted").toLowerCase(),
+              date: o.date ?? o.created_at ?? o.updated_at ?? new Date().toISOString(),
+              videos: o.videos ?? [],
+              photos: o.photos ?? (o.videos?.length || 0),
+            }))
+          );
+        } catch (e) {
+          console.error("Orders fetch failed:", e);
+          setOrders([]);
+        } finally {
+          setIsLoading(false);
+        }
+      })();
+    }
+  }, [stage, activeTab, userId]);
 
-  // Backend data for download center & invoices
-  const [dlVideos, setDlVideos] = useState([]);
-  const [invoiceList, setInvoiceList] = useState([]);
-
-  const clearNewFlag = () => setSearchParams({});
-  const toGate = () => {
-    setPreselectedPkgId(null);
-    setPreselectedAddons(null);
-    setStage("gate");
-  };
-
-  /* ------------------- Effects (top-level; not conditional) ------------------- */
-
-  // --- NEW: when Stripe redirects back with session_id, verify and advance to Upload
-// If Stripe sent us back with start=upload, jump immediately and prefill
-useEffect(() => {
+  /* ------------------- STRIPE REDIRECT & UPLOAD HANDLING ------------------- */
+  useEffect(() => {
     const sid = searchParams.get("session_id");
     const paid = searchParams.get("paid");
     const startUpload = searchParams.get("start") === "upload";
@@ -147,6 +123,7 @@ useEffect(() => {
         const { status } = await portalApi.getPaymentStatus(sid);
         if (cancelled) return;
         if (status === "succeeded") {
+          if (user?.email) setPortalState(user.email, { hasOrder: true });
           setStage("upload");
           return;
         }
@@ -164,30 +141,28 @@ useEffect(() => {
     };
     poll();
     return () => { cancelled = true; };
-  }, [searchParams]);
+  }, [searchParams, user]);
 
-  // Jump straight to Upload if Stripe sent us back with start=upload
   useEffect(() => {
     const startUpload = searchParams.get("start") === "upload";
     if (!startUpload) return;
 
-    const { pkgId, addons } = readPreselection();   // your helpers already defined
+    const { pkgId, addons } = readPreselection();
     if (pkgId) setPreselectedPkgId(pkgId);
     if (addons) setPreselectedAddons(addons);
 
     setStage("upload");
   }, [searchParams]);
 
-
-  // Fetch Download Center items when the "downloads" tab is opened
+  /* ------------------- DOWNLOAD CENTER ------------------- */
+  const [dlVideos, setDlVideos] = useState([]);
   useEffect(() => {
     if (stage !== "portal" || activeTab !== "downloads") return;
-    const uId = user?.id ?? user?.user?.id;
-    if (!uId) return;
+    if (!userId) return;
 
     (async () => {
       try {
-        const data = await portalApi.getDownloads(uId);
+        const data = await portalApi.getDownloads(userId);
         const mapped = (data?.downloads || []).flatMap((ord) =>
           (ord.videos || []).map((v, idx) => ({
             id: `${ord.order_id}-${idx}`,
@@ -203,19 +178,17 @@ useEffect(() => {
         setDlVideos([]);
       }
     })();
-  }, [stage, activeTab, user]);
+  }, [stage, activeTab, userId]);
 
-  // Fetch invoices when the "invoices" tab is opened
+  /* ------------------- INVOICES ------------------- */
+  const [invoiceList, setInvoiceList] = useState([]);
   useEffect(() => {
     if (stage !== "portal" || activeTab !== "invoices") return;
-    const uId = user?.id ?? user?.user?.id;
-    if (!uId) return;
+    if (!userId) return;
 
     (async () => {
       try {
-        console.log("Fetching invoices portal invoices", user);
-        const data = await portalApi.getUserInvoices(uId);
-        
+        const data = await portalApi.getUserInvoices(userId);
         const mapped = (data?.invoices || []).map((inv) => ({
           ...inv,
           status: inv.status === "paid" ? "paid" : "pending",
@@ -226,9 +199,21 @@ useEffect(() => {
         setInvoiceList([]);
       }
     })();
-  }, [stage, activeTab, user]);
+  }, [stage, activeTab, userId]);
 
-  /* ------------------------------- Rendering ------------------------------- */
+  /* ------------------- HELPERS ------------------- */
+  const clearNewFlag = () => setSearchParams({});
+  const toGate = () => {
+    if (user?.email) setPortalState(user.email, { hasOrder: false });
+    setPreselectedPkgId(null);
+    setPreselectedAddons(null);
+    setStage("gate");
+  };
+
+  /* ------------------------------- RENDER ------------------------------- */
+  const selectedPackage = PACKAGE_OPTIONS.find(
+    (p) => String(p.id) === String(preselectedPkgId)
+  );
 
   // STEP 1: Choose Package
   if (stage === "gate") {
@@ -249,11 +234,9 @@ useEffect(() => {
       <AddonScreen
         onBack={() => setStage("gate")}
         onContinue={(addons) => {
-          // keep this path for $0/test flows; real payments will redirect back and trigger the useEffect above
           setPreselectedAddons(addons);
           setStage("upload");
         }}
-        // --- NEW props used by Add-Ons when creating the Stripe Checkout session
         userId={userId}
         selectedPackage={selectedPackage}
       />
@@ -273,12 +256,15 @@ useEffect(() => {
           clearPreselection();
           setStage("hub");
         }}
-        onBack={() => {setStage("addons");clearPreselection();}}
+        onBack={() => {
+          setStage("addons");
+          clearPreselection();
+        }}
       />
     );
   }
 
-  // STEP 4: Hub (no sidebar)
+  // STEP 4: Hub
   if (stage === "hub") {
     return (
       <OrderHub
@@ -294,7 +280,7 @@ useEffect(() => {
     );
   }
 
-  // STEP 5: Dedicated views with Back
+  // STEP 5: Portal (detailed tabs)
   if (stage === "portal") {
     const goBack = () => {
       clearNewFlag();
@@ -314,7 +300,7 @@ useEffect(() => {
       return (
         <div className={styles.screenWrap}>
           <button onClick={goBack} className={styles.backBtn}>← Back</button>
-          <DownloadCenter videos={dlVideos} userId={user?.id ?? user?.user?.id} />
+          <DownloadCenter videos={dlVideos} userId={userId} />
         </div>
       );
     }
@@ -325,9 +311,10 @@ useEffect(() => {
           <button onClick={goBack} className={styles.backBtn}>← Back</button>
           <BrandAssets
             assets={{
-              logo:[ "/assets/logo-placeholder.png"],
+              logo: ["/assets/logo-placeholder.png"],
               colorScheme: "#21ABB5",
-              font: "Montserrat" }}
+              font: "Montserrat",
+            }}
             onUpdate={(assets) => {
               alert("Brand assets updated (hook up backend)");
               console.log(assets);
