@@ -1,141 +1,243 @@
-/* ============================= */
-/* Order Status Component Styles */
-/* ============================= */
-
-/* tokens (fallbacks if globals aren't present) */
-:root{
-  --line: rgba(148,163,184,.16);
-  --ink: rgba(255,255,255,.88);
-  --hairline:rgba(148,163,184,.16);
+/* ===== GRID: professional 4-column layout ===== */
+.orderGrid{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap:24px;
+  max-width:1200px;
+  margin:20px auto 40px;
+  padding:0 20px;
+  perspective:1200px;
 }
 
-/* Card shell – same glass look as Download screen */
-.orderCard{
-  color:#fff;
-  border-radius:16px;
- --bg-top: rgba(10,14,20,.78);   /* was ~.04–.02 */
-  --bg-bot: rgba(7,10,16,.72);
-  --edge:   rgba(236,242,255,.28);
-
-  border: 1.5px solid var(--edge);
-  border-radius: 18px;
-  background: linear-gradient(180deg, var(--bg-top), var(--bg-bot));
-  backdrop-filter: blur(8px) saturate(120%);
-  -webkit-backdrop-filter: blur(8px) saturate(120%);
-  box-shadow:
-    0 20px 50px rgba(0,0,0,.45),
-    inset 0 1px 0 rgba(255,255,255,.06);
+/* ===== CARD: vertical professional design ===== */
+.orderItem{
+  position:relative;
+  display:flex; 
+  flex-direction:column;
+  min-height:280px;
+  border-radius:20px;
+  padding:0;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.02)) border-box,
+    radial-gradient(140% 100% at 50% 0%, var(--g1), var(--g2)) padding-box;
+  border:1px solid rgba(236,242,255,.2);
+  box-shadow: 
+    0 10px 40px rgba(0,0,0,.5),
+    0 4px 12px rgba(0,0,0,.3),
+    inset 0 1px 0 rgba(255,255,255,.08);
+  transform:
+    translateZ(var(--tz, 0px))
+    rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transform-style:preserve-3d;
+  transition: all .35s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, box-shadow;
   overflow:hidden;
 }
 
-/* Header */
-.orderHeader{
-  background:transparent;
-  color:#fff;
-  font-weight:700;
-  letter-spacing:.2px;
-  margin-bottom: 6px;
-  text-align:center;
-  border-bottom: 1px solid var(--hairline);
-}
-
-/* Body */
-.orderBody{
-  background:transparent;
-  color:#fff;
-}
-
-/* Loading state */
-.loadingContainer{ padding:2rem; }
-.loadingSpinner{ color:#1fb454; }
-
-/* One order row – same “rowCard” feel */
-.orderItem{
-  /* same tile treatment as downloads */
-  border: 1px solid rgba(148,163,184,.16);
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-  box-shadow: 0 16px 36px rgba(0,0,0,.34);
-  padding: 16px 20px;
-  /* center the tile and keep it narrow like the download card */
-  max-width: 1120px;
-  margin: 0 auto 18px;
-}
-.orderItem:hover{
-  transform: translateY(-2px);
-  background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.025));
-  box-shadow: 0 26px 70px rgba(0,0,0,.48);
-}
-
-/* Top line: ID + date (pills) */
-.orderTop{
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-}
-.orderId{
-  font-weight: 600;
-  color: #22c55e;
-  background: rgba(34,197,94,.08);
-  border: 1px solid rgba(34,197,94,.28);
-  padding: .45rem .8rem;
-  border-radius: 999px;
-}
-.orderDate{
-  color: rgba(255,255,255,.9);
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.12);
-  padding: .45rem .8rem;
-  border-radius: 999px;
-  white-space: nowrap;
-}
-
-/* Progress bar (works with either your divs or Bootstrap .progress/.progress-bar) */
-.orderProgress{
-  height: 12px;
-  border-radius: 999px;
-  background: rgba(255,255,255,.08);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
-  /* the important part: reduce width + center */
-  width: clamp(260px, 60vw, 900px);
-  margin: 12px auto 8px;
-  overflow: hidden;
-}
-
-
-/* If you render a .progressFill element, this styles it */
-.orderProgress .progressFill{
-  height:100%;
-  width:var(--pct, 0%);
-  background-image:linear-gradient(135deg, #22c55e, #15803d);
-  box-shadow: inset 0 8px 16px rgba(21,128,61,.28);
-  transition:width .3s ease;
+/* Enhanced glow effects */
+.orderItem::before{
+  content:"";
+  position:absolute; 
+  inset:-2px; 
   border-radius:inherit;
+  background: linear-gradient(135deg, var(--g1), var(--g2));
+  opacity:0; 
+  pointer-events:none;
+  filter: blur(12px);
+  transition: opacity .35s ease;
 }
 
-/* If you're using Bootstrap's ProgressBar */
-.orderProgress .progress-bar{
-  background-image:linear-gradient(135deg, #22c55e, #15803d);
-  box-shadow: inset 0 8px 16px rgba(21,128,61,.28);
-  transition:width .3s ease;
+.orderItem::after{
+  content:"";
+  position:absolute; 
+  top:0; left:0; right:0;
+  height:120px;
+  border-radius:inherit;
+  background: radial-gradient(ellipse 120% 80% at 50% -10%, rgba(255,255,255,.12), transparent 70%);
+  opacity: calc(.3 + var(--glow, 0)*.3);
+  pointer-events:none;
+  transition: opacity .35s ease;
 }
 
-/* Optional labels inside/around progress */
-.progressStep{
-  background: linear-gradient(135deg, #22c55e, #15803d);
-  color: transparent;   
+.orderItem:hover{
+  box-shadow: 
+    0 20px 60px rgba(0,0,0,.6),
+    0 8px 20px rgba(0,0,0,.4),
+    inset 0 1px 0 rgba(255,255,255,.1);
+  transform:
+    translateZ(12px)
+    rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
 }
 
-/* Bottom row matches the same inner width as the bar */
-.orderDetails{
-  display: flex; align-items:center; justify-content: space-between;
-  max-width: 900px;
-  margin: 6px auto 0;
-  padding: 0 6px;
+.orderItem:hover::before{
+  opacity:.4;
 }
-.orderPackage{ color: rgba(255,255,255,.95); font-weight: 600; }
-.orderPhotos{ color:#22c55e; font-weight:600; }
-.orderPhotos:hover{
-  filter:brightness(1.08);
-  text-decoration:underline;
+
+/* Card Header Section */
+.orderTop{
+  position:relative;
+  padding:24px 20px 20px;
+  background: linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+  border-bottom:1px solid rgba(255,255,255,.1);
+}
+
+/* Card Body Section */
+.orderMid{
+  display:flex; 
+  flex-direction:column;
+  gap:16px;
+  padding:20px;
+  flex:1;
+}
+
+/* Order ID - Large prominent */
+.orderId{
+  font-weight:900; 
+  font-size:1.75rem; 
+  color:#fff; 
+  letter-spacing:.5px;
+  text-shadow:0 2px 8px rgba(0,0,0,.4);
+  margin-bottom:8px;
+}
+
+/* Date badge */
+.orderDate{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  color:#D1E3FF; 
+  background: rgba(255,255,255,.08);
+  backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.15);
+  padding:.5rem .85rem; 
+  border-radius:10px; 
+  font-size:.875rem;
+  font-weight:600;
+  white-space:nowrap;
+}
+
+.orderDate::before{
+  content:"📅";
+  font-size:.9rem;
+}
+
+/* Package info section */
+.orderPackageSection{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding:16px;
+  background: rgba(0,0,0,.15);
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.08);
+}
+
+.orderPackageLabel{
+  font-size:.75rem;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:rgba(255,255,255,.5);
+  font-weight:700;
+}
+
+.orderPackage{ 
+  color:#FFF; 
+  font-weight:800; 
+  font-size:1.1rem;
+  letter-spacing:.3px; 
+  text-shadow:0 1px 4px rgba(0,0,0,.4); 
+}
+
+/* Status badge - floating at bottom */
+.orderStatus{
+  display:inline-flex; 
+  align-items:center; 
+  justify-content:center;
+  gap:.5rem;
+  padding:.65rem 1.1rem; 
+  border-radius:12px; 
+  font-weight:700;
+  font-size:.875rem;
+  letter-spacing:.3px;
+  box-shadow:0 4px 12px rgba(0,0,0,.3), 0 0 0 1px rgba(255,255,255,.15) inset;
+  margin-top:auto;
+  transition: all .3s ease;
+}
+
+.orderStatus::before{
+  content:"";
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:currentColor;
+  box-shadow: 0 0 8px currentColor;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse{
+  0%, 100%{ opacity:1; transform:scale(1); }
+  50%{ opacity:.7; transform:scale(1.1); }
+}
+
+.status_completed{ 
+  background:linear-gradient(135deg, rgba(34,197,94,.25), rgba(16,185,129,.18)); 
+  color:#86EFAC; 
+  border:1px solid rgba(34,197,94,.5); 
+}
+
+.status_processing{ 
+  background:linear-gradient(135deg, rgba(251,191,36,.25), rgba(245,158,11,.18)); 
+  color:#FDE68A; 
+  border:1px solid rgba(251,191,36,.5); 
+}
+
+.status_submitted{  
+  background:linear-gradient(135deg, rgba(59,130,246,.25), rgba(37,99,235,.18));  
+  color:#BFDBFE; 
+  border:1px solid rgba(59,130,246,.5); 
+}
+
+/* heading – same vibe, cleaner weight */
+.orderHeader{
+  background:transparent; color:#E9EEFF; text-align:center;
+  font-weight:900; font-size:clamp(1.4rem,2.6vw,2.3rem);
+  letter-spacing:.3px; margin: 6px 0 12px;
+  text-shadow:0 2px 18px rgba(110,215,255,.28);
+  border-bottom:1px solid rgba(148,163,184,.16);
+}
+
+/* palettes (kept) */
+.palettePurple { --g1: rgba(196,149,239,.30); --g2: rgba(163,214,236,.12); }
+.paletteBlue   { --g1: rgba(163,214,236,.30); --g2: rgba(196,149,239,.12); }
+.paletteTeal   { --g1: rgba(120,220,180,.28); --g2: rgba(196,149,239,.10); }
+
+/* responsive */
+@media (max-width:1100px){
+  .orderGrid{ 
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); 
+    gap:20px;
+  }
+}
+
+@media (max-width:768px){
+  .orderGrid{ 
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+    gap:16px;
+    padding:0 12px;
+  }
+  .orderItem{ 
+    min-height:260px; 
+  }
+  .orderId{ 
+    font-size:1.5rem; 
+  }
+}
+
+@media (max-width:640px){
+  .orderGrid{ 
+    grid-template-columns: 1fr; 
+    max-width:400px;
+  }
 }
 
 .bubbles {
@@ -144,8 +246,8 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  z-index: 0;            /* behind content */
-  pointer-events: none;   /* don’t block UI */
+  z-index: 0;
+  pointer-events: none;
   overflow: hidden;
 }
 
@@ -171,68 +273,3 @@
   75%  { transform: translate(var(--x3), var(--y3)) scale(calc(var(--s)*1.02)); }
   100% { transform: translate(var(--x4), var(--y4)) scale(var(--s)); }
 }
-
-
-/* Mobile polish */
-@media (max-width: 640px){
-  .orderTop{ flex-direction: column; align-items: flex-start; gap: 8px; }
-  .orderDate{ align-self: flex-end; }
-  .orderProgress,
-  .orderDetails{ max-width: 100%; width: 100%; }
-}
-/* existing styles… keep them */
-/* Add these new ones for the status pill + ensure the progress bar is a single color */
-
-.orderStatus{
-  display:inline-flex;
-  align-items:center;
-  gap:.4rem;
-  padding:.28rem .65rem;
-  border-radius:999px;
-  font-weight:400;
-  line-height:1;
-  white-space:nowrap;
-  box-shadow:0 6px 16px rgba(0,0,0,.25);
-}
-
-/* Color by status */
-.status_submitted{
-  background:rgba(56,189,248,.18);      /* sky-400/blue */
-  color:#7dd3fc;
-  border:1px solid rgba(56,189,248,.45);
-}
-.status_processing{
-  background:rgba(250,204,21,.18);      /* amber */
-  color:#fde68a;
-  border:1px solid rgba(250,204,21,.45);
-}
-.status_completed{
-  background:rgba(34,197,94,.20);       /* emerald */
-  color:#34d399;
-  border:1px solid rgba(34,197,94,.45);
-}
-
-/* (Optional) Make the bar look a touch thicker / cinematic */
-.orderProgress{
-  height: 12px;
-  border-radius: 999px;
-  background-color: rgba(255,255,255,.08);
-}
-
-@media (max-width: 768px){
-  .backBtn{
-    position: static;    /* no absolute positioning */
-    transform: none;
-    margin: 0 0 12px;    /* space under the button */
-  }
-}
-
-@media (max-width: 480px){
-  .backBtn{
-    position: fixed ;
-    top: 72px;
-    left: 16px;
-    transform: none;
-  }
-}
-

@@ -61,269 +61,334 @@
   padding: 0 1rem 1.25rem;
 }
 
-/* Table wrapper */
-.tableWrapper {
-  width: 100%;
-  overflow-x: auto;
+/* Orders Grid Layout */
+.ordersGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
-/* Table */
-.invoiceTable {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0 14px;
-  --bs-table-bg: transparent;
-  --bs-table-striped-bg: transparent;
-  --bs-table-hover-bg: transparent;
-  --bs-table-border-color: transparent;
-  color: #fff !important;
-  background: transparent !important;
-}
-
-.tableHead tr {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent);
-}
-
-.tableRowHead th {
-  background: transparent !important;
-  color: #fff !important;
-  font-weight: 700;
-  padding: 0.9rem 1rem;
-  white-space: nowrap;
-  border: 0 !important;
-  text-align: center;
-}
-
-/* Each data row becomes a single rounded "card" */
-.invoiceRow td {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)) !important;
-  border-top: 1px solid var(--hairline);
-  border-bottom: 1px solid var(--hairline);
-  padding: 1rem 1rem !important;
-  vertical-align: middle;
-  text-align: center;
-}
-
-/* Rounded corners for the row card */
-.invoiceRow td:first-child {
-  border-left: 1px solid var(--hairline);
-  border-top-left-radius: 14px;
-  border-bottom-left-radius: 14px;
-}
-
-.invoiceRow td:last-child {
-  border-right: 1px solid var(--hairline);
-  border-top-right-radius: 14px;
-  border-bottom-right-radius: 14px;
-}
-
-/* Hover glow like the order/download cards */
-.invoiceRow:hover td {
-  background: rgba(255, 255, 255, 0.05) !important;
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3) inset, 0 8px 20px rgba(0, 0, 0, 0.28);
-}
-
-/* Cells (shared) */
-.invoiceCell {
-  background: transparent !important;
-  color: #fff !important;
-  border: 0 !important;
-}
-
-/* Status Badges */
-.invoiceStatus {
-  font-size: 0.85rem;
-  padding: 0.3rem 0.6rem;
-  border-radius: 999px;
-  font-weight: 600;
-}
-
-.status_pending {
-  background: rgba(250, 204, 21, 0.18) !important;
-  color: #fde68a !important;
-  border: 1px solid rgba(250, 204, 21, 0.45);
-}
-
-.status_processing {
-  background: rgba(56, 189, 248, 0.2) !important;
-  color: #7dd3fc !important;
-  border: 1px solid rgba(56, 189, 248, 0.45);
-}
-
-.status_completed {
-  background: rgba(34, 197, 94, 0.2) !important;
-  color: #34d399 !important;
-  border: 1px solid rgba(34, 197, 94, 0.45);
-}
-
-.status_failed {
-  background: rgba(220, 38, 38, 0.22) !important;
-  color: #fca5a5 !important;
-  border: 1px solid rgba(220, 38, 38, 0.5);
-}
-
-.status_submitted {
-  background: rgba(56, 189, 248, 0.2) !important;
-  color: #7dd3fc !important;
-  border: 1px solid rgba(56, 189, 248, 0.45);
-}
-
-/* Video and Image Previews */
-.videoThumbnail {
-  max-width: 120px;
-  height: auto;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  transition: transform 0.2s ease-in-out;
-}
-
-.videoThumbnail:hover {
-  transform: scale(1.03);
-}
-
-.videoSection, .finalVideoSection {
+/* Order Card */
+.orderCard {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
+  min-height: 400px;
 }
 
-.videoCount, .videoList {
-  font-size: 0.8rem;
-  color: white;
+.orderCard:hover {
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3) inset, 0 8px 20px rgba(0, 0, 0, 0.28);
+  transform: translateY(-2px);
 }
 
-.videoItem {
-  font-size: 0.7rem;
-  margin-bottom: 0.1rem;
-  color: white;
+/* Card Header */
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--hairline);
+  flex-shrink: 0;
 }
 
-.noPreview, .noUpload {
-  color: white;
-  font-style: italic;
-  font-size: 0.9rem;
-}
-
-.uploadSuccess {
-  font-size: 0.75rem;
-  color: var(--brand2);
-  margin-top: 0.25rem;
-}
-
-/* Actions Container */
-.actionsContainer {
+.orderBasicInfo {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  min-width: 180px;
 }
 
-/* Status Dropdown */
-.statusDropdown {
-  width: 100%;
-}
-
-.dropdownToggle {
-  width: 100%;
-  background: linear-gradient(135deg, var(--brand2), #15803d) !important;
-  border: none !important;
-  color: white !important;
-  font-size: 0.85rem;
-  padding: 0.5rem 0.8rem;
-  border-radius: 8px;
+.orderStatus {
+  font-size: 0.8rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
   font-weight: 600;
+  align-self: flex-start;
 }
 
-.dropdownToggle:hover {
-  background: linear-gradient(135deg, var(--brand2), #0f722f) !important;
+.orderMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.orderId {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ink-strong);
+}
+
+.orderDate {
+  font-size: 0.85rem;
+  color: var(--ink-weak);
+}
+
+.packageInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.packageName {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink-strong);
+}
+
+.photosCount {
+  font-size: 0.85rem;
+  color: var(--ink-weak);
+}
+
+/* Card Content */
+.cardContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+  min-height: 200px;
+}
+
+.sectionTitle {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ink-strong);
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Video Section */
+.videoSection {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.videoPreviews {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.videoPreviewWrapper {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+  flex: 1;
+  min-height: 200px;
+}
+
+.videoPlayer {
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  object-fit: cover;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.videoPlayer:hover {
+  transform: scale(1.02);
+}
+
+.videoOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  cursor: pointer;
+}
+
+.videoPreviewWrapper:hover .videoOverlay {
+  opacity: 1;
+}
+
+.playIcon {
+  font-size: 3rem;
+  color: white;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.fullscreenText {
+  font-size: 0.9rem;
+  color: white;
+  font-weight: 600;
+  text-align: center;
+}
+
+.additionalVideos {
+  margin-top: 0.75rem;
+  text-align: center;
+}
+
+.videoCount {
+  font-size: 0.85rem;
+  color: var(--ink-weak);
+  font-weight: 500;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  border: 1px solid var(--hairline);
+}
+
+.noVideoPlaceholder {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px dashed var(--hairline);
+  border-radius: 12px;
+  padding: 2rem;
+  min-height: 200px;
+}
+
+.noVideoText {
+  color: var(--ink-weak);
+  font-style: italic;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* Card Actions */
+.cardActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--hairline);
+  flex-shrink: 0;
+  align-items: start;
+}
+
+.statusActions, .uploadAction {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.statusButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.statusButton {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.statusButton:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
   transform: translateY(-1px);
 }
 
-.statusDropdownMenu {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.08));
-  border: 1px solid var(--hairline);
-  backdrop-filter: blur(10px);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.statusDropdownItem {
-  color: white !important;
-  font-size: 0.85rem;
-  padding: 0.6rem 1rem;
-  border-bottom: 1px solid var(--hairline);
-  transition: all 0.2s ease;
-}
-
-.statusDropdownItem:last-child {
-  border-bottom: none;
-}
-
-.statusDropdownItem:hover {
-  background: rgba(255, 255, 255, 0.15) !important;
-  color: white !important;
-}
-
-.statusDropdownItem:disabled {
-  color: var(--ink-weak) !important;
-  background: transparent !important;
+.statusButton:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
+}
+
+.statusActive {
+  background: linear-gradient(135deg, var(--brand2), #15803d) !important;
+  border-color: var(--brand2) !important;
 }
 
 /* Upload Section */
 .uploadSection {
-  border-top: 1px solid var(--hairline);
-  padding-top: 0.75rem;
-  margin-top: 0.5rem;
-}
-
-.uploadLabel {
-  font-size: 0.8rem;
-  font-weight: 600;
-  display: block;
-  margin-bottom: 0.4rem;
-  color: white;
-  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  height: 100%;
+  justify-content: flex-start;
 }
 
 .uploadInput {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--hairline);
+  display: none;
+}
+
+.uploadLabel {
+  padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+
+  border: none;
+  border-radius: 8px;
   color: white;
-  border-radius: 6px;
-  padding: 0.4rem;
-  font-size: 0.75rem;
-  width: 100%;
-  margin-bottom: 0.4rem;
-}
-
-.uploadInput:focus {
-  outline: none;
-  border-color: var(--brand2);
-}
-
-.uploadingIndicator {
-  font-size: 0.75rem;
-  color: var(--brand2);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
   text-align: center;
-  margin: 0.4rem 0;
+  transition: all 0.3s ease;
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
+}
+
+.uploadLabel:hover {
+  background: rgba(255, 255, 255, 0.03);
+  transform: translateY(-1px);
+}
+
+.uploadingIndicator {
+  font-size: 0.8rem;
+  color: var(--brand2);
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
 }
 
 .uploadSpinner {
-  width: 0.8rem !important;
-  height: 0.8rem !important;
+  width: 0.9rem !important;
+  height: 0.9rem !important;
 }
 
 .uploadHint {
-  font-size: 0.7rem;
-  color: white;
+  font-size: 0.75rem;
+  color: var(--ink-weak);
   text-align: center;
+  line-height: 1.4;
 }
 
 /* Loading and Error States */
@@ -379,18 +444,54 @@
   filter: brightness(1.1);
 }
 
-.noOrdersCell {
+.noOrders {
+  grid-column: 1 / -1;
   text-align: center;
-  padding: 2rem !important;
-  color: white;
+  padding: 3rem;
+  color: var(--ink-weak);
   font-style: italic;
+}
+
+.noOrdersText {
+  font-size: 1.1rem;
 }
 
 .ordersCount {
   margin-top: 1rem;
   font-size: 0.9rem;
-  color: white;
+  color: var(--ink);
   text-align: center;
+}
+
+/* Status Badges */
+.status_pending {
+  background: rgba(250, 204, 21, 0.18) !important;
+  color: #fde68a !important;
+  border: 1px solid rgba(250, 204, 21, 0.45);
+}
+
+.status_processing {
+  background: rgba(56, 189, 248, 0.2) !important;
+  color: #7dd3fc !important;
+  border: 1px solid rgba(56, 189, 248, 0.45);
+}
+
+.status_completed {
+  background: rgba(34, 197, 94, 0.2) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(34, 197, 94, 0.45);
+}
+
+.status_failed {
+  background: rgba(220, 38, 38, 0.22) !important;
+  color: #fca5a5 !important;
+  border: 1px solid rgba(220, 38, 38, 0.5);
+}
+
+.status_submitted {
+  background: rgba(56, 189, 248, 0.2) !important;
+  color: #7dd3fc !important;
+  border: 1px solid rgba(56, 189, 248, 0.45);
 }
 
 /* Modal overlay for large video preview */
@@ -400,7 +501,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.95);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -411,22 +512,24 @@
 
 .modalContent {
   position: relative;
-  max-width: 90vw;
-  max-height: 90vh;
+  max-width: 95vw;
+  max-height: 95vh;
   background: #000;
   border-radius: 12px;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
   display: flex;
   flex-direction: column;
   align-items: center;
   overflow: hidden;
+  width: auto;
+  height: auto;
 }
 
 .modalCloseBtn {
   position: absolute;
-  top: 8px;
-  right: 12px;
-  font-size: 2rem;
+  top: 15px;
+  right: 20px;
+  font-size: 2.5rem;
   color: #fff;
   background: transparent;
   border: none;
@@ -436,18 +539,25 @@
   user-select: none;
   transition: color 0.2s ease;
   z-index: 10;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modalCloseBtn:hover,
 .modalCloseBtn:focus {
   color: var(--brand2);
   outline: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
 }
 
 .modalVideo {
   width: 100%;
   height: auto;
-  max-height: 80vh;
+  max-height: 85vh;
   border-radius: 12px;
   background: #000;
   outline: none;
@@ -472,7 +582,7 @@
   }
 
   .refreshButton {
-    width: 100%;
+    width: 28%;
     padding: 0.75rem 1rem;
     font-size: 1rem;
   }
@@ -481,250 +591,124 @@
     padding: 0 0.5rem 1rem;
   }
 
-  /* Hide table on mobile and show card layout */
-  .tableWrapper {
-    overflow-x: visible;
+  .ordersGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
-  .invoiceTable {
-    display: none;
-  }
-
-  /* Mobile Card Layout */
-  .mobileOrdersContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .mobileOrderCard {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
-    border: 1px solid var(--hairline);
-    border-radius: 12px;
+  .orderCard {
     padding: 1rem;
-    transition: all 0.3s ease;
+    min-height: 350px;
   }
 
-  .mobileOrderCard:hover {
-    background: rgba(255, 255, 255, 0.05);
-    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3) inset, 0 8px 20px rgba(0, 0, 0, 0.28);
-  }
-
-  .mobileCardHeader {
-    display: flex;
-    justify-content: space-between;
+  .cardHeader {
+    flex-direction: column;
+    gap: 1rem;
     align-items: flex-start;
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--hairline);
   }
 
-  .mobileOrderId {
-    font-weight: 700;
+  .packageInfo {
+    align-items: flex-start;
+  }
+
+  .cardActions {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .videoPlayer {
+    min-height: 180px;
+  }
+
+  .noVideoPlaceholder {
+    min-height: 150px;
+    padding: 1.5rem;
+  }
+
+  .playIcon {
+    font-size: 2.5rem;
+    width: 70px;
+    height: 70px;
+  }
+
+  .fullscreenText {
+    font-size: 0.8rem;
+  }
+
+  .videoCount {
+    font-size: 0.8rem;
+    padding: 0.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .ordersGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .orderCard {
+    padding: 0.75rem;
+    min-height: 320px;
+  }
+
+  .cardHeader {
+    margin-bottom: 1rem;
+  }
+
+  .orderId {
     font-size: 1rem;
-    color: white;
   }
 
-  .mobileStatus {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 999px;
-    font-weight: 600;
+  .videoPlayer {
+    min-height: 150px;
   }
 
-  .mobileCardContent {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
-  }
-
-  .mobileInfoItem {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-  }
-
-  .mobileInfoLabel {
-    font-size: 0.7rem;
-    color: white;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    opacity: 0.8;
-  }
-
-  .mobileInfoValue {
-    font-size: 0.85rem;
-    color: white;
-    font-weight: 500;
-  }
-
-  .mobileVideosSection {
-    grid-column: 1 / -1;
-    margin-top: 0.25rem;
-  }
-
-  .mobileVideoGrid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-    margin-top: 0.25rem;
-  }
-
-  .mobileVideoItem {
-    display: flex;
-    flex-direction: column;
+  .statusButtons {
     gap: 0.4rem;
   }
 
-  .mobileVideoLabel {
-    font-size: 0.7rem;
-    color: white;
-    font-weight: 600;
-    opacity: 0.8;
+  .statusButton {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.8rem;
+    min-height: 40px;
   }
 
-  .mobileVideoThumbnail {
-    width: 100%;
-    max-width: 120px;
-    border-radius: 6px;
-    cursor: pointer;
+  .uploadLabel {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.8rem;
+    min-height: 40px;
   }
 
-  .videoCountMobile {
-    font-size: 0.65rem;
-    color: white;
-    opacity: 0.9;
+  .modalContent {
+    max-width: 98vw;
+    max-height: 90vh;
   }
 
-  .uploadSuccessMobile {
-    font-size: 0.65rem;
-    color: var(--brand2);
-    font-weight: 600;
-  }
-
-  .mobileNoVideo {
+  .videoCount {
     font-size: 0.75rem;
-    color: white;
-    font-style: italic;
-    opacity: 0.8;
-  }
-
-  .mobileActions {
-    grid-column: 1 / -1;
-    margin-top: 0.5rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid var(--hairline);
-  }
-
-  .mobileActionButtons {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .mobileStatusButton {
-    width: 100%;
-    padding: 0.6rem;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.85rem;
-    transition: all 0.2s ease;
-    background: linear-gradient(135deg, var(--brand2), #15803d);
-    color: white;
-  }
-
-  .mobileStatusButton:hover {
-    transform: translateY(-1px);
-    filter: brightness(1.1);
-  }
-
-  .mobileStatusButton:disabled {
-    background: var(--hairline);
-    color: var(--ink-weak);
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  .mobileUploadSection {
-    margin-top: 0.75rem;
-    padding-top: 0.75rem;
-    border-top: 1px solid var(--hairline);
-  }
-
-  .mobileUploadLabel {
-    font-size: 0.75rem;
-    font-weight: 600;
-    margin-bottom: 0.4rem;
-    color: white;
-  }
-
-  .mobileUploadInput {
-    width: 100%;
-    padding: 0.5rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--hairline);
-    border-radius: 6px;
-    color: white;
-    font-size: 0.75rem;
-    margin-bottom: 0.4rem;
-  }
-
-  .mobileUploadHint {
-    font-size: 0.65rem;
-    color: white;
-    opacity: 0.8;
-    text-align: center;
   }
 }
 
 /* Small mobile devices */
-@media (max-width: 480px) {
-  .mobileCardContent {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
+@media (max-width: 360px) {
+  .orderCard {
+    padding: 0.5rem;
+    min-height: 300px;
   }
 
-  .mobileVideoGrid {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
+  .cardContent {
+    gap: 0.75rem;
   }
 
-  .mobileVideoThumbnail {
-    max-width: 100%;
+  .videoPlayer {
+    min-height: 120px;
   }
 
-  .mobileCardHeader {
-    flex-direction: column;
-    gap: 0.4rem;
-    align-items: flex-start;
+  .sectionTitle {
+    font-size: 0.75rem;
   }
 
-  .mobileStatus {
-    align-self: flex-start;
-  }
-
-  .modalContent {
-    max-width: 95vw;
-    max-height: 85vh;
-  }
-}
-
-/* Show mobile layout only on mobile */
-@media (min-width: 769px) {
-  .mobileOrdersContainer {
-    display: none;
-  }
-}
-
-@media (max-width: 768px) {
-  .tableWrapper {
-    display: none;
-  }
-  
-  .mobileOrdersContainer {
-    display: flex;
+  .videoCount {
+    font-size: 0.7rem;
   }
 }

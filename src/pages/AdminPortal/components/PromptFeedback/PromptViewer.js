@@ -56,8 +56,8 @@ const PromptViewer = () => {
           className={styles.tabsWrapper}
         >
           <Tab eventKey="current" title="Current Prompt" tabClassName={styles.tabItem} />
-          <Tab eventKey="history" title="Version History" tabClassName={styles.tabItem} />
         </Tabs>
+        
       </Card.Header>
 
       <Card.Body className={styles.cardBody}>

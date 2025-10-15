@@ -15,56 +15,57 @@ const DownloadCenter = ({ userId, onDownload }) => {
     try {
       setLoading(true);
       setError(null);
-      
-      if (!userId) {
-        setError("User ID is required");
+
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        setError("Missing access token — please log in again.");
         setLoading(false);
         return;
       }
 
-      console.log('Fetching client orders for user:', userId);
-      
-      const res = await fetch(`${BASE_URL}/api/client/orders?user_id=${userId}`);
-      
-      if (!res.ok) {
-        throw new Error(`Failed to fetch orders: ${res.status}`);
-      }
+      console.log("Fetching client downloads...");
+
+      const res = await fetch(`${BASE_URL}/api/client/download-center`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // ✅ add JWT token
+        },
+      });
+
+      if (!res.ok) throw new Error(`Failed to fetch videos: ${res.status}`);
 
       const data = await res.json();
-      console.log('Client orders response:', data);
+      console.log("Download center response:", data);
 
-      // Extract videos from orders
+      // Extract completed videos
       const allVideos = [];
-      
-      if (data.orders && Array.isArray(data.orders)) {
-        data.orders.forEach(order => {
+      if (data.downloads && Array.isArray(data.downloads)) {
+        data.downloads.forEach((order) => {
           if (order.videos && Array.isArray(order.videos)) {
-            order.videos.forEach(video => {
-              if (video.url && order.status === 'completed') {
-                allVideos.push({
-                  id: `${order.order_id}-${video.filename || 'video'}`,
-                  name: video.filename || `Order ${order.order_id} Video`,
-                  downloadUrl: video.url,
-                  orderId: order.order_id,
-                  created: order.date || new Date().toISOString(),
-                  status: 'completed'
-                });
-              }
+            order.videos.forEach((video) => {
+              allVideos.push({
+                id: `${order.order_id}-${video.filename || "video"}`,
+                name: video.filename || `Order ${order.order_id} Video`,
+                downloadUrl: video.url,
+                orderId: order.order_id,
+                created: order.date || new Date().toISOString(),
+                status: "completed",
+              });
             });
           }
         });
       }
 
-      console.log('Extracted videos:', allVideos);
       setVideos(allVideos);
-      
     } catch (err) {
-      console.error('Error fetching client orders:', err);
+      console.error("Error fetching client downloads:", err);
       setError(`Failed to load videos: ${err.message}`);
     } finally {
       setLoading(false);
     }
   };
+
 
   // Handle download with proper error handling
   const handleDownload = async (videoId, videoName) => {

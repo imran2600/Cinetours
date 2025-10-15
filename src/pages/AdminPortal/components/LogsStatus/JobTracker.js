@@ -1,16 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { Card, Table, Badge, Spinner, Pagination } from 'react-bootstrap';
+import React, { useEffect, useState, useRef } from 'react';
+import { Card, Badge, Spinner, Pagination } from 'react-bootstrap';
 import styles from './JobTracker.module.css';
+import { gsap } from 'gsap';
 
 const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://qunatum-tour.onrender.com';
 
 const JobTracker = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  // pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
+  const pageSize = 8;
+
+  const cardsRef = useRef([]);
+  const statusRef = useRef(null);
+  const paginationRef = useRef(null);
+  const hasInitialLoad = useRef(false);
 
   const fetchLogsStatus = async () => {
     try {
@@ -26,25 +30,124 @@ const JobTracker = () => {
 
   useEffect(() => {
     fetchLogsStatus();
-    const interval = setInterval(fetchLogsStatus, 5000); // poll every 5s
+    const interval = setInterval(fetchLogsStatus, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (data?.logs && data.logs.length > 0 && !hasInitialLoad.current) {
+      hasInitialLoad.current = true;
+      
+      // Animate status badges
+      if (statusRef.current) {
+        gsap.fromTo(statusRef.current.children, 
+          { 
+            opacity: 0, 
+            scale: 0.8,
+            y: 20
+          },
+          { 
+            opacity: 1, 
+            scale: 1,
+            y: 0,
+            duration: 0.6,
+            stagger: 0.1,
+            ease: "back.out(1.2)"
+          }
+        );
+      }
+
+      // Animate log cards with innovative staggered effect
+      const tl = gsap.timeline();
+      tl.fromTo(cardsRef.current, 
+        { 
+          opacity: 0, 
+          x: -50,
+          rotationY: 90
+        },
+        { 
+          opacity: 1, 
+          x: 0,
+          rotationY: 0,
+          duration: 0.8,
+          stagger: {
+            amount: 0.6,
+            from: "random"
+          },
+          ease: "power3.out"
+        }
+      );
+
+      // Animate pagination
+      if (paginationRef.current) {
+        gsap.fromTo(paginationRef.current, 
+          { 
+            opacity: 0, 
+            y: 30 
+          },
+          { 
+            opacity: 1, 
+            y: 0,
+            duration: 0.6,
+            delay: 0.5,
+            ease: "power2.out"
+          }
+        );
+      }
+    }
+  }, [data?.logs]);
 
   const totalLogs = data?.logs?.length || 0;
   const totalPages = Math.ceil(totalLogs / pageSize);
 
   const handlePageChange = (page) => {
-    setCurrentPage(page);
+    // Page change animation
+    gsap.to(cardsRef.current, {
+      opacity: 0,
+      y: 20,
+      duration: 0.3,
+      onComplete: () => {
+        setCurrentPage(page);
+        setTimeout(() => {
+          gsap.fromTo(cardsRef.current, 
+            { 
+              opacity: 0, 
+              y: -20 
+            },
+            { 
+              opacity: 1, 
+              y: 0,
+              duration: 0.5,
+              stagger: 0.1,
+              ease: "power2.out"
+            }
+          );
+        }, 50);
+      }
+    });
   };
 
   const paginatedLogs = data?.logs
     ? data.logs.slice((currentPage - 1) * pageSize, currentPage * pageSize)
     : [];
 
+  // Status color mapping
+  const getStatusColor = (status) => {
+    switch(status) {
+      case 'queued': return styles.queued;
+      case 'processing': return styles.processing;
+      case 'completed':
+      case 'succeeded': return styles.success;
+      case 'failed':
+      case 'error': return styles.error;
+      default: return styles.queued;
+    }
+  };
+
   if (loading) {
     return (
       <div className={styles.loadingWrapper}>
-        <Spinner animation="border" variant="light" />
+        <div className={styles.pulseSpinner}></div>
         <span className={styles.loadingText}>Loading logs...</span>
       </div>
     );
@@ -53,118 +156,149 @@ const JobTracker = () => {
   return (
     <Card className={styles.jobTrackerCard}>
       <Card.Header className={styles.jobTrackerHeader}>
-        <h5 className={styles.jobTrackerTitle}>Logs & Status (Real-time)</h5>
+        <div className={styles.headerContent}>
+          <h5 className={styles.jobTrackerTitle}>
+            <span className={styles.titleIcon}>📊</span>
+            Job Status Monitor
+          </h5>
+          <div className={styles.lastUpdate}>
+            Real-time updates • Auto-refresh every 5s
+          </div>
+        </div>
       </Card.Header>
+      
       <Card.Body className={styles.jobTrackerBody}>
-        {/* Status Summary */}
+        {/* Status Summary with innovative layout */}
         {data && (
-          <div className={styles.statusSummary}>
-            <Badge className={`${styles.statusBadge} ${styles.queued}`}>
-              Queued: {data.status?.queued || 0}
-            </Badge>
-            <Badge className={`${styles.statusBadge} ${styles.processing}`}>
-              Processing: {data.status?.processing || 0}
-            </Badge>
-            <Badge className={`${styles.statusBadge} ${styles.success}`}>
-              Succeeded: {data.status?.succeeded || 0}
-            </Badge>
-            <Badge className={`${styles.statusBadge} ${styles.error}`}>
-              Failed: {data.status?.failed || 0}
-            </Badge>
+          <div className={styles.statusSummary} ref={statusRef}>
+            <div className={styles.statusCard}>
+              <div className={styles.statusIcon}>⏳</div>
+              <div className={styles.statusInfo}>
+                <span className={styles.statusCount}>{data.status?.queued || 0}</span>
+                <span className={styles.statusLabel}>Queued</span>
+              </div>
+            </div>
+            
+            <div className={styles.statusCard}>
+              <div className={styles.statusIcon}>⚡</div>
+              <div className={styles.statusInfo}>
+                <span className={styles.statusCount}>{data.status?.processing || 0}</span>
+                <span className={styles.statusLabel}>Processing</span>
+              </div>
+            </div>
+            
+            <div className={styles.statusCard}>
+              <div className={styles.statusIcon}>✅</div>
+              <div className={styles.statusInfo}>
+                <span className={styles.statusCount}>{data.status?.succeeded || 0}</span>
+                <span className={styles.statusLabel}>Succeeded</span>
+              </div>
+            </div>
+            
+            <div className={styles.statusCard}>
+              <div className={styles.statusIcon}>❌</div>
+              <div className={styles.statusInfo}>
+                <span className={styles.statusCount}>{data.status?.failed || 0}</span>
+                <span className={styles.statusLabel}>Failed</span>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* Logs Table */}
-        <div className="table-responsive mt-4">
-          <Table bordered hover variant="dark" className={styles.logsTable}>
-            <thead>
-              <tr>
-                <th>Video ID</th>
-                <th>Order ID</th>
-                <th>Status</th>
-                <th>Stage</th>
-                <th>Prompt</th>
-                <th>Client Email</th>
-                <th>Package</th>
-                <th>Created</th>
-                <th>Updated</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedLogs.length > 0 ? (
-                paginatedLogs.map((log, idx) => (
-                  <tr key={idx}>
-                    <td>{log.video_id}</td>
-                    <td>{log.order_id}</td>
-                    <td>
-                      <Badge
-                        className={`${styles.logBadge} ${styles[log.status]}`}
-                      >
+        {/* Logs Timeline Layout */}
+        <div className={styles.logsTimeline}>
+          {paginatedLogs.length > 0 ? (
+            paginatedLogs.map((log, index) => (
+              <div 
+                key={`${log.video_id}-${index}`} 
+                className={styles.timelineItem}
+                ref={el => cardsRef.current[index] = el}
+              >
+                <div className={styles.timelineConnector}></div>
+                
+                <div className={styles.logNode}>
+                  <div className={styles.nodeHeader}>
+                    <div className={styles.nodeMainInfo}>
+                      <Badge className={`${styles.statusIndicator} ${getStatusColor(log.status)}`}>
                         {log.status}
                       </Badge>
-                    </td>
-                    <td>{log.stage}</td>
-                    <td className={styles.promptCell}>{log.prompt}</td>
-                    <td>{log.client_email}</td>
-                    <td>{log.package}</td>
-                    <td>{new Date(log.created_at).toLocaleString()}</td>
-                    <td>{new Date(log.updated_at).toLocaleString()}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="9" className="text-center">
-                    No logs available
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </Table>
-
-          {/* Pagination Controls */}
-          {totalPages > 1 && (
-            <Pagination className={styles.paginationWrapper}>
-              {[...Array(totalPages)].map((_, i) => (
-                <Pagination.Item
-                  key={i + 1}
-                  active={i + 1 === currentPage}
-                  onClick={() => handlePageChange(i + 1)}
-                >
-                  {i + 1}
-                </Pagination.Item>
-              ))}
-            </Pagination>
+                      <div className={styles.idInfo}>
+                        <span className={styles.videoId}>Video: {log.video_id}</span>
+                        <span className={styles.orderId}>Order: {log.order_id}</span>
+                      </div>
+                    </div>
+                    <div className={styles.nodeMeta}>
+                      <span className={styles.packageTag}>{log.package}</span>
+                      <span className={styles.stageBadge}>{log.stage}</span>
+                    </div>
+                  </div>
+                  
+                  <div className={styles.nodeContent}>
+                    <div className={styles.timeInfo}>
+                      <span className={styles.createdTime}>
+                        Created: {new Date(log.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className={styles.progressBar}>
+                    <div 
+                      className={`${styles.progressFill} ${getStatusColor(log.status)}`}
+                      style={{
+                        width: log.status === 'completed' || log.status === 'succeeded' ? '100%' :
+                               log.status === 'processing' ? '60%' :
+                               log.status === 'failed' || log.status === 'error' ? '100%' : '30%'
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className={styles.noLogs}>
+              <div className={styles.noLogsIcon}>📝</div>
+              <span className={styles.noLogsText}>No logs available</span>
+              <span className={styles.noLogsSubtext}>Logs will appear here as jobs are processed</span>
+            </div>
           )}
         </div>
 
-        {/* Processing Now */}
-        {data?.processing_now?.length > 0 && (
-          <div className="mt-4">
-            <h6>Currently Processing</h6>
-            <Table bordered hover variant="dark" className={styles.logsTable}>
-              <thead>
-                <tr>
-                  <th>Video ID</th>
-                  <th>Image ID</th>
-                  <th>Prompt</th>
-                  <th>Runway Job ID</th>
-                  <th>Started At</th>
-                  <th>Elapsed (s)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.processing_now.map((p, idx) => (
-                  <tr key={idx}>
-                    <td>{p.video_id}</td>
-                    <td>{p.image_id}</td>
-                    <td className={styles.promptCell}>{p.prompt}</td>
-                    <td>{p.runway_job_id}</td>
-                    <td>{new Date(p.started_at).toLocaleString()}</td>
-                    <td>{p.elapsed_seconds}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
+        {/* Enhanced Pagination */}
+        {totalPages > 1 && (
+          <div className={styles.paginationContainer} ref={paginationRef}>
+            <div className={styles.paginationWrapper}>
+              <button
+                onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={styles.paginationArrow}
+              >
+                ‹
+              </button>
+              
+              {[...Array(totalPages)].map((_, i) => (
+                <button
+                  key={i + 1}
+                  onClick={() => handlePageChange(i + 1)}
+                  className={`${styles.paginationItem} ${
+                    i + 1 === currentPage ? styles.paginationItemActive : ''
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+              
+              <button
+                onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={styles.paginationArrow}
+              >
+                ›
+              </button>
+            </div>
+            
+            <div className={styles.pageInfo}>
+              Page {currentPage} of {totalPages} • {totalLogs} total logs
+            </div>
           </div>
         )}
       </Card.Body>
