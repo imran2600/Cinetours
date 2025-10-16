@@ -3,6 +3,24 @@ const BASE_URL = "https://qunatum-tour.onrender.com";
 const CLIENT_PREFIX = "/api/client";   // Assuming this is the prefix used for your FastAPI router
 const STRIPE_PREFIX = "/stripe";
 
+async function refreshAccessToken() {
+  const refresh = localStorage.getItem("refresh_token");
+  if (!refresh) return false;
+
+  const res = await fetch(`${BASE_URL}/auth/token/refresh`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ refresh_token: refresh }),
+  });
+
+  if (!res.ok) return false;
+  const data = await res.json();
+  if (!data.access_token) return false;
+  localStorage.setItem("access_token", data.access_token);
+  return true;
+}
+
+
 function authHeaders(extra = {}) {
   const token = localStorage.getItem("access_token");
   const h = { ...extra };
@@ -14,6 +32,17 @@ async function get(path) {
   const res = await fetch(`${BASE_URL}${path}`, { headers: authHeaders() });
   let data = {};
   try { data = await res.json(); } catch {}
+
+  // ✅ Handle expired/invalid token
+  if (res.status === 401 || res.status === 403) {
+    const refreshed = await refreshAccessToken();
+    if (refreshed) return await get(path);
+    // if refresh failed, clear session + redirect
+    localStorage.clear();
+    window.location.href = "/portal"; // redirect to client hub
+    return;
+  }
+
   if (!res.ok) {
     throw new Error(data?.detail || data?.message || `GET ${path} failed (${res.status})`);
   }
@@ -32,6 +61,16 @@ async function post(path, body, asJson = true) {
   const res = await fetch(`${BASE_URL}${path}`, init);
   let data = {};
   try { data = await res.json(); } catch {}
+
+  // ✅ Handle expired/invalid token
+  if (res.status === 401 || res.status === 403) {
+    const refreshed = await refreshAccessToken();
+    if (refreshed) return await post(path, body, asJson);
+    localStorage.clear();
+    window.location.href = "/portal";
+    return;
+  }
+
   if (!res.ok) {
     throw new Error(data?.detail || data?.message || `POST ${path} failed (${res.status})`);
   }
@@ -69,9 +108,8 @@ const portalApi = {
   },
 
   /* ------------------ INVOICES ------------------ */
-  getUserInvoices(userId) {
-    // ✅ Matches GET /{user_id}/invoices
-    return get(`${CLIENT_PREFIX}/${encodeURIComponent(userId)}/invoices`);
+  getUserInvoices() {
+    return get(`${CLIENT_PREFIX}/invoices`);
   },
 
   getInvoice(invoiceId) {

@@ -14,15 +14,40 @@ const Notifications = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch(`${BASE_URL}/api/admin/notifications`);
+        
+        console.log('Fetching from:', `${BASE_URL}/api/admin/notifications`);
+        
+        const response = await fetch(`${BASE_URL}/api/admin/notifications`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
         }
+        
         const data = await response.json();
-        setNotifications(data.notifications || []);
+        console.log('API Response:', data);
+        
+        // Handle the response structure from your example
+        if (Array.isArray(data)) {
+          setNotifications(data);
+        } else if (data.notifications && Array.isArray(data.notifications)) {
+          setNotifications(data.notifications);
+        } else {
+          setNotifications([]);
+        }
+        
       } catch (e) {
         console.error("Failed to fetch notifications:", e);
-        setError("Failed to load notifications. Please try again later.");
+        
+        if (e.name === 'TypeError' && e.message.includes('Failed to fetch')) {
+          setError("Network error: Unable to connect to server. Please check your connection.");
+        } else {
+          setError(e.message || "Failed to load notifications. Please try again later.");
+        }
       } finally {
         setLoading(false);
       }
@@ -30,6 +55,30 @@ const Notifications = () => {
 
     fetchNotifications();
   }, []);
+
+  // Function to get badge class based on category
+  const getCategoryBadgeClass = (category) => {
+    if (!category) return styles.statusBadge;
+    
+    const categoryLower = category.toLowerCase();
+    if (categoryLower.includes('completed') || categoryLower.includes('success')) {
+      return `${styles.statusBadge} ${styles.success}`;
+    } else if (categoryLower.includes('processing') || categoryLower.includes('pending')) {
+      return `${styles.statusBadge} ${styles.warning}`;
+    } else if (categoryLower.includes('error') || categoryLower.includes('failed')) {
+      return `${styles.statusBadge} ${styles.error}`;
+    } else {
+      return `${styles.statusBadge} ${styles.info}`;
+    }
+  };
+
+  // Format category for display
+  const formatCategory = (category) => {
+    if (!category) return 'Unknown';
+    return category.split('_').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+  };
 
   return (
     <Card className={styles.adminCard}>
@@ -43,7 +92,15 @@ const Notifications = () => {
             <span className={styles.loadingText}>Loading notifications...</span>
           </div>
         ) : error ? (
-          <p className={styles.errorMessage}>{error}</p>
+          <div className={styles.errorWrapper}>
+            <p className={styles.errorMessage}>{error}</p>
+            <button 
+              className={styles.retryButton}
+              onClick={() => window.location.reload()}
+            >
+              Retry
+            </button>
+          </div>
         ) : notifications.length === 0 ? (
           <p className={styles.noData}>No notifications available.</p>
         ) : (
@@ -51,27 +108,40 @@ const Notifications = () => {
             <Table hover responsive className={styles.notificationsTable}>
               <thead>
                 <tr>
-                  <th>Status</th>
-                  <th>Title</th>
+                  <th>Category</th>
                   <th>Message</th>
-                  <th>Date</th>
+                  <th>Video ID</th>
+                  <th>Image ID</th>
+                  <th>Order ID</th>
+                  <th>User</th>
                 </tr>
               </thead>
               <tbody>
-                {notifications.map((notif) => (
-                  <tr key={notif.id}>
-                    <td>
-                      <Badge
-                        className={`${styles.statusBadge} ${
-                          notif.status ? styles[notif.status.toLowerCase()] : ''
-                        }`}
-                      >
-                        {notif.status || 'Unknown'}
+                {notifications.map((notif, index) => (
+                  <tr key={notif.id || notif._id || index}>
+                    <td data-label="Category">
+                      <Badge className={getCategoryBadgeClass(notif.category)}>
+                        {formatCategory(notif.category)}
                       </Badge>
                     </td>
-                    <td>{notif.title || '-'}</td>
-                    <td>{notif.message || '-'}</td>
-                    <td>{new Date(notif.created_at).toLocaleString() || '-'}</td>
+                    <td data-label="Message" className={styles.messageCell}>
+                      {notif.message || '-'}
+                    </td>
+                    <td data-label="Video ID">
+                      {notif.video_id || '-'}
+                    </td>
+                    <td data-label="Image ID">
+                      {notif.image_id || '-'}
+                    </td>
+                    <td data-label="Order ID">
+                      {notif.order_id ? `#${notif.order_id}` : '-'}
+                    </td>
+                    <td data-label="User">
+                      <div className={styles.userInfo}>
+                        <div className={styles.userId}>ID: {notif.user_id || '-'}</div>
+                        <div className={styles.userEmail}>{notif.user_email || '-'}</div>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>

@@ -13,6 +13,7 @@ export function AuthProvider({ children }) {
   // Normalize + store session from backend payload
   const setSessionFromApi = (payload, nameOverride) => {
     if (payload?.access_token) localStorage.setItem(KEY_TOKEN, payload.access_token);
+    if (payload?.refresh_token) localStorage.setItem("refresh_token", payload.refresh_token);
     const u = payload?.user ?? payload ?? {};
     const sessionUser = {
       id: u.id,
@@ -31,11 +32,39 @@ export function AuthProvider({ children }) {
       const raw = localStorage.getItem(KEY_USER);
       if (token && raw) {
         setUser(JSON.parse(raw));
-      } else {
-        // optional: if you have /auth/me, you could call it here using token
       }
     } catch (_) {}
     setAuthLoading(false);
+  }, []);
+
+  // ✅ NEW — Auto logout when token expires
+  useEffect(() => {
+    try {
+      const token = localStorage.getItem(KEY_TOKEN);
+      if (!token) return;
+
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const expiryMs = payload.exp * 1000 - Date.now();
+
+      // Already expired? logout immediately
+      if (expiryMs <= 0) {
+        localStorage.clear();
+        window.location.href = "/portal";
+        return;
+      }
+
+      // Logout when timer reaches expiry
+      const timer = setTimeout(() => {
+        localStorage.clear();
+        alert("Your session expired. Please sign in again.");
+        window.location.href = "/portal";
+      }, expiryMs);
+
+      // Cleanup on unmount
+      return () => clearTimeout(timer);
+    } catch (err) {
+      console.warn("Auto-logout timer error:", err);
+    }
   }, []);
 
   // Backend-only auth

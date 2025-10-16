@@ -60,6 +60,7 @@
   white-space: nowrap;
   border: 0 !important;
   text-align: center;
+  font-size: 0.9rem;
 }
 
 .notificationsTable td {
@@ -70,7 +71,8 @@
   vertical-align: middle;
   text-align: center;
   border-radius: 10px;
-  color: #fff !important; /* Text color white */
+  color: #fff !important;
+  font-size: 0.9rem;
 }
 
 .notificationsTable tr:hover td {
@@ -79,12 +81,12 @@
 }
 
 .statusBadge {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   padding: 0.3rem 0.6rem;
   border-radius: 999px;
   font-weight: 600;
   display: inline-block;
-  min-width: 70px;
+  min-width: 90px;
 }
 
 .statusBadge.success {
@@ -105,6 +107,34 @@
   border: 1px solid rgba(220, 38, 38, 0.5);
 }
 
+.statusBadge.info {
+  background: rgba(59, 130, 246, 0.2) !important;
+  color: #93c5fd !important;
+  border: 1px solid rgba(59, 130, 246, 0.45);
+}
+
+.messageCell {
+  max-width: 250px;
+  word-wrap: break-word;
+  text-align: left !important;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.userId {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.userEmail {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
 .loadingWrapper {
   display: flex;
   align-items: center;
@@ -119,6 +149,11 @@
   font-weight: 500;
 }
 
+.errorWrapper {
+  text-align: center;
+  padding: 20px;
+}
+
 .errorMessage {
   color: #fca5a5;
   background: rgba(220, 38, 38, 0.22);
@@ -129,6 +164,20 @@
   text-align: center;
 }
 
+.retryButton {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.retryButton:hover {
+  background-color: #0056b3;
+}
+
 .noData {
   text-align: center;
   font-size: 1rem;
@@ -136,8 +185,24 @@
   padding: 1rem 0;
 }
 
-/* Responsive */
+/* Mobile Responsive Styles */
 @media (max-width: 768px) {
+  .cardHeader {
+    padding: 0.75rem 1rem !important;
+  }
+
+  .headerTitle {
+    font-size: 1.25rem;
+  }
+
+  .cardBody {
+    padding: 0 0.5rem 1rem;
+  }
+
+  .notificationsTable {
+    border-spacing: 0 8px;
+  }
+
   .notificationsTable thead {
     display: none;
   }
@@ -148,16 +213,19 @@
     border-radius: 14px;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)) !important;
     border: 1px solid var(--hairline);
+    padding: 0;
   }
 
   .notificationsTable td {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 0.75rem 1rem !important;
     border: none !important;
     border-bottom: 1px solid var(--hairline) !important;
     text-align: left;
-    color: #fff !important; /* Text color white on mobile */
+    color: #fff !important;
+    font-size: 0.85rem;
   }
 
   .notificationsTable td:last-child {
@@ -168,10 +236,52 @@
     content: attr(data-label);
     font-weight: 700;
     color: var(--ink-strong);
-    flex-basis: 30%;
+    flex-basis: 35%;
+    font-size: 0.8rem;
   }
 
   .notificationsTable td > * {
-    flex-basis: 70%;
+    flex-basis: 65%;
+    text-align: right;
+  }
+
+  .messageCell {
+    max-width: none;
+    text-align: right !important;
+  }
+
+  .statusBadge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+    min-width: 80px;
+  }
+
+  .userInfo {
+    align-items: flex-end;
+  }
+
+  .userId, .userEmail {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .notificationsTable td {
+    padding: 0.6rem 0.75rem !important;
+  }
+
+  .notificationsTable td:before {
+    flex-basis: 40%;
+    font-size: 0.75rem;
+  }
+
+  .notificationsTable td > * {
+    flex-basis: 60%;
+    font-size: 0.8rem;
+  }
+
+  .statusBadge {
+    min-width: 70px;
+    font-size: 0.65rem;
   }
 }

@@ -1,107 +1,84 @@
-// Invoices
-import React from 'react';
-import { Card, Table, Button, Badge } from 'react-bootstrap';
-import styles from './Invoices.module.css';
-import portalApi from '../../../services/portalApi';
+import React, { useEffect, useRef } from "react";
+import { Button, Badge } from "react-bootstrap";
+import { gsap } from "gsap";
+import styles from "./Invoices.module.css";
 
-/**
- * Displays invoice history with download options
- * @component
- * @param {Array} invoices - Array of invoice objects
- * 
- * Backend Integration:
- * - Expects invoices array with:
- *   - id: string
- *   - date: string
- *   - amount: number
- *   - status: 'paid'|'pending'|'failed'
- *   - downloadUrl: string (API endpoint)
- * - Download should GET /api/invoices/{id}
- */
-const Invoices = ({ invoices }) => {
-  const handleDownload = async (invoiceId) => {
-    try {
-      const { blob, json, contentType } = await portalApi.getInvoiceBlob(invoiceId);
+const Invoices = ({ invoices, onBack }) => {
+  const containerRef = useRef();
 
-      if (blob && contentType.includes("application/pdf")) {
-        // PDF path
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `invoice-${invoiceId}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      } else {
-        // Fallback: JSON (current backend)
-        const data = json ?? await portalApi.getInvoice(invoiceId);
-        const file = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-        const url = URL.createObjectURL(file);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `invoice-${invoiceId}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }
-    } catch (error) {
-      console.error('Download failed:', error);
-    }
-  };
+  useEffect(() => {
+    gsap.set(`.${styles.invoiceRow}`, { opacity: 1, y: 0 }); // ensures visible state
+    gsap.from(`.${styles.invoiceRow}`, {
+      opacity: 0,
+      y: 20,
+      stagger: 0.08,
+      duration: 0.6,
+      ease: "power2.out",
+    });
+  }, [invoices]);
 
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.from(`.${styles.invoiceCard}`, {
+        opacity: 0,
+        y: 20,
+        duration: 0.6,
+        ease: "power2.out",
+      });
+      gsap.from(`.${styles.invoiceRow}`, {
+        opacity: 0,
+        y: 20,
+        stagger: 0.08,
+        duration: 0.6,
+        ease: "power2.out",
+        delay: 0.2,
+      });
+    }, containerRef);
+    return () => ctx.revert();
+  }, []);
+
+  const formatDate = (iso) => (iso ? new Date(iso).toLocaleDateString() : "");
 
   return (
-    <Card className={styles.invoiceCard}>
-      <Card.Header as="h4" className={styles.invoiceHeader}>
-        Invoice History
-      </Card.Header>
-      <Card.Body className={`p-0 ${styles.invoiceBody}`}>
-        <div className={styles.invoiceTableWrapper}>
-          <Table className={`mb-0 ${styles.invoiceTable}`}>
-            <thead className={styles.invoiceTableHead}>
-              <tr>
-                <th className={styles.invoiceTableHeading}>Invoice #</th>
-                <th className={styles.invoiceTableHeading}>Date</th>
-                <th className={styles.invoiceTableHeading}>Amount</th>
-                <th className={styles.invoiceTableHeading}>Status</th>
-                <th className={styles.invoiceTableHeading}>Action</th>
-              </tr>
-            </thead>
-            <tbody className={styles.invoiceTableBody}>
-              {invoices.map(invoice => (
-                <tr key={invoice.id} className={styles.invoiceRow}>
-                  <td data-label="Invoice #" className={styles.invoiceCell}>
-                    #{invoice.id}
-                  </td>
-                  <td data-label="Date" className={styles.invoiceCell}>
-                    {new Date(invoice.date).toLocaleDateString()}
-                  </td>
-                  <td data-label="Amount" className={styles.invoiceCell}>
-                    ${invoice.amount.toFixed(2)}
-                  </td>
-                  <td data-label="Status" className={styles.invoiceCell}>
-                    <Badge className={`${styles.invoiceStatus} ${styles[`status_${invoice.status}`]}`}>
-                      {invoice.status}
-                    </Badge>
-                  </td>
-                  <td data-label="Action" className={styles.invoiceCell}>
-                    <Button
-                      onClick={() => handleDownload(invoice.id)}
-                      disabled={invoice.status !== 'paid'}
-                      className={styles.invoiceDownloadBtn}
-                    >
-                      Download
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
+    <div className={styles.wrapper} ref={containerRef}>
+      <div className={styles.headerBar}>
+        <h2 className={styles.title}>Invoice History</h2>
+      </div>
+
+      <div className={styles.invoiceCard}>
+        <div className={styles.tableHeader}>
+          <div>Invoice ID</div>
+          <div>Date</div>
+          <div>Amount</div>
+          <div>Status</div>
+          <div>Action</div>
         </div>
-      </Card.Body>
-    </Card>
+
+        <div className={styles.invoiceList}>
+          {invoices.map((inv) => (
+            <div key={inv.id} className={styles.invoiceRow}>
+              <div>#{inv.id}</div>
+              <div>{formatDate(inv.date)}</div>
+              <div>${inv.amount?.toFixed(2) || "0.00"}</div>
+              <div>
+                <Badge
+                  className={
+                    inv.is_paid
+                      ? styles.status_paid
+                      : styles.status_pending
+                  }
+                >
+                  {inv.is_paid ? "Paid" : "Pending"}
+                </Badge>
+              </div>
+              <div>
+                <Button className={styles.invoiceDownloadBtn}>Download</Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 };
 

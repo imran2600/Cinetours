@@ -1,76 +1,78 @@
-//  Reorder
-import React from 'react';
-import { Card, Table, Button, Badge } from 'react-bootstrap';
-import styles from './Reorder.module.css';
-import portalApi from '../../../services/portalApi';
-
-
-
-/**
- * Displays past orders for reordering
- * @component
- * @param {Array} pastOrders - Completed orders
- * 
- * Backend Integration:
- * - Expects orders array with:
- *   - id: string
- *   - date: string
- *   - package: string
- *   - photos: number
- * - Clicking "Reorder" should POST to /api/orders/{orderId}/reorder
- */
+import React from "react";
+import { useState } from "react";
+import styles from "./Reorder.module.css";
+import portalApi from "../../../services/portalApi";
 
 const Reorder = ({ pastOrders }) => {
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState("info");
   const handleReorder = async (orderId) => {
     try {
       await portalApi.reorder(orderId);
-      alert(`Order #${orderId} has been recreated!`);
+      setAlertType("success");
+      setAlertMessage(`✅ Order #${orderId} has been recreated successfully!`);
     } catch (error) {
-      console.error('Reorder failed:', error);
+      console.error("Reorder failed:", error);
+      setAlertType("error");
+      setAlertMessage("❌ Failed to reorder. Please try again later.");
     }
+    setTimeout(() => setAlertMessage(""), 3500);
   };
 
+  const formatDate = (iso) =>
+    iso ? new Date(iso).toLocaleDateString() : "";
+
   return (
-    <Card className={styles.reorderCard}>
-      <Card.Header as="h4" className={styles.reorderHeader}>Past Orders</Card.Header>
-      <Card.Body className={styles.reorderBody}>
-        <div className={styles.responsiveTableContainer}>
-          <Table className={styles.reorderTable}>
-            <thead className={styles.tableHeader}>
-              <tr className={styles.tableHeaderRow}>
-                <th className={styles.tableHeaderCell}>Order ID</th>
-                <th className={styles.tableHeaderCell}>Date</th>
-                <th className={styles.tableHeaderCell}>Package</th>
-                <th className={styles.tableHeaderCell}>Photos</th>
-                <th className={styles.tableHeaderCell}>Action</th>
-              </tr>
-            </thead>
-            <tbody className={styles.tableBody}>
-              {pastOrders.map(order => (
-                <tr key={order.id} className={styles.tableRow}>
-                  <td className={styles.tableCell} data-label="Order ID">#{order.id}</td>
-                  <td className={styles.tableCell} data-label="Date">
-                    {new Date(order.date).toLocaleDateString()}
-                  </td>
-                  <td className={styles.tableCell} data-label="Package">
-                    <Badge className={styles.packageBadge}>{order.package}</Badge>
-                  </td>
-                  <td className={styles.tableCell} data-label="Photos">{order.photos}</td>
-                  <td className={styles.tableCell} data-label="Action">
-                    <Button
-                      onClick={() => handleReorder(order.id)}
-                      className={`${styles.reorderButton} w-100`}
-                    >
-                      Reorder
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
+    <div className={styles.wrapper}>
+      {alertMessage && (
+  <div
+    className={`${styles.alertBox} ${
+      alertType === "error"
+        ? styles.error
+        : alertType === "success"
+        ? styles.success
+        : styles.info
+    }`}
+  >
+    {alertMessage}
+  </div>
+)}
+
+      <h2 className={styles.title}>Past Orders</h2>
+
+      <div className={styles.reorderCard}>
+        <div className={styles.tableHeader}>
+          <div>Order ID</div>
+          <div>Date</div>
+          <div>Package</div>
+          <div>Photos</div>
+          <div>Action</div>
         </div>
-      </Card.Body>
-    </Card>
+
+        <div className={styles.orderList}>
+          {pastOrders.map((order) => (
+            <div key={order.id} className={styles.orderRow}>
+              <div>#{order.id}</div>
+              <div>{formatDate(order.date)}</div>
+              <div>
+                <span className={styles.packageBadge}>
+                  {order.package || "Starter"}
+                </span>
+              </div>
+              <div>{order.photos || 0}</div>
+              <div>
+                <button
+                  onClick={() => handleReorder(order.id)}
+                  className={styles.reorderButton}
+                >
+                  Reorder
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 };
 

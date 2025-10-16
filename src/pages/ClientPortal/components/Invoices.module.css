@@ -1,149 +1,333 @@
-/* ============================= */
-/* Invoices Component Styles     */
-/* ============================= */
-
-:root{
-  --brand1:#a855f7;
-  --brand2:#22c55e;
-  --hairline:rgba(148,163,184,.16);
-  --ink:rgba(255,255,255,.88);
-  --ink-strong:rgba(255,255,255,.96);
+:root {
+  --brand-green: #22c55e;
+  --brand-purple: #a855f7;
+  --glass-dark: rgba(255,255,255,0.03);
+  --glass-deep: rgba(255,255,255,0.06);
+  --border-glow: rgba(255,255,255,0.08);
+  --ink: rgba(255,255,255,0.9);
+  --ink-strong: rgba(255,255,255,1);
 }
 
-/* Card shell (page section) */
-.invoiceCard{
-  background: transparent;
-  color:#fff;
+/* ---------- Wrapper ---------- */
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem 4rem;
+  color: var(--ink);
+}
+
+/* ---------- Header Bar ---------- */
+.headerBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1100px;
+  margin-bottom: 1.5rem;
+}
+
+.backBtn {
+  background: linear-gradient(135deg, var(--brand-green), #15803d);
   border: none;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 0.55rem 1.2rem;
+  box-shadow: 0 6px 18px rgba(21, 128, 61, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.backBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(21, 128, 61, 0.45);
 }
 
-/* Header */
-.invoiceHeader{
-  background: transparent !important;
-  color:#fff !important;
-  border-bottom: 1px solid var(--hairline) !important;
-  padding: 1rem 1.25rem !important;
+.title {
+  color: var(--ink-strong);
+  font-size: 1.6rem;
+  font-weight: 600;
+  text-align: center;
+  flex: 1;
 }
 
-/* Body */
-.invoiceBody{
-  background: transparent;
-  color:#fff !important;
-  padding: 0 1rem 1.25rem;
+/* ---------- Main Invoice Container ---------- */
+.invoiceCard {
+  width: 100%;
+  max-width: 1100px;
+  border-radius: 20px;
+  padding: 1.5rem;
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.3));
+  backdrop-filter: blur(14px);
+  box-shadow: 0 4px 28px rgba(0,0,0,0.45);
+  border: 1px solid var(--border-glow);
 }
 
-/* ---------- Table to “card rows” ---------- */
-.invoiceTableWrapper{ width:100%; overflow-x:auto; }
-
-/* neutralize Bootstrap table defaults */
-.invoiceTable{
-  width:100%;
-  border-collapse: separate;
-  border-spacing: 0 14px;                 /* space between “cards” */
-  --bs-table-bg: transparent;
-  --bs-table-striped-bg: transparent;
-  --bs-table-hover-bg: transparent;
-  --bs-table-border-color: transparent;
-  color:#fff !important;
-  background: transparent !important;
+/* ---------- Table Header ---------- */
+.tableHeader {
+  display: grid;
+  grid-template-columns: 1.2fr 1.5fr 1.2fr 1fr 1fr;
+  background: rgba(255,255,255,0.05);
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: var(--ink-strong);
+  margin-bottom: 1rem;
 }
 
-.invoiceTable thead tr{
-  background: linear-gradient(180deg, rgba(255,255,255,.03), transparent);
-}
-.invoiceTable thead th{
-  background: transparent !important;
-  color:#fff !important;
-  font-weight: 700;
-  padding: .9rem 1rem;
-  white-space: nowrap;
-  border: 0 !important;
+/* ---------- Invoice Rows ---------- */
+.invoiceList {
+  display: flex;
+  flex-direction: column;
+  gap: 14px; /* adds breathing space between rows */
 }
 
-/* Each data row becomes a single rounded “card” */
-.invoiceRow td{
-  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)) !important;
-  border-top: 1px solid var(--hairline);
-  border-bottom: 1px solid var(--hairline);
-  padding: 1rem 1rem !important;
-  vertical-align: middle;
+.invoiceRow {
+  display: grid;
+  grid-template-columns: 1.2fr 1.5fr 1.2fr 1fr 1fr;
+  align-items: center;
+  background: var(--glass-dark);
+  border: 1px solid var(--border-glow);
+  border-radius: 14px;
+  padding: 1rem 1.2rem;
+  transition: all 0.25s ease;
 }
 
-/* Rounded corners for the row card */
-.invoiceRow td:first-child{
-  border-left: 1px solid var(--hairline);
-  border-top-left-radius: 14px;
-  border-bottom-left-radius: 14px;
-}
-.invoiceRow td:last-child{
-  border-right: 1px solid var(--hairline);
-  border-top-right-radius: 14px;
-  border-bottom-right-radius: 14px;
+.invoiceRow:hover {
+  background: var(--glass-deep);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.45);
 }
 
-/* Hover glow like the order/download cards */
-.invoiceRow:hover td{
-  background: rgba(255,255,255,.05) !important;
-  box-shadow: 0 10px 26px rgba(0,0,0,.30) inset, 0 8px 20px rgba(0,0,0,.28);
+/* ---------- Status Badges ---------- */
+.status_paid {
+  background: rgba(34,197,94,0.2);
+  color: #4ade80;
+  border: 1px solid rgba(34,197,94,0.4);
+  font-weight: 600;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+}
+.status_pending {
+  background: rgba(250,204,21,0.15);
+  color: #fde68a;
+  border: 1px solid rgba(250,204,21,0.4);
+  font-weight: 600;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
 }
 
-/* Cells (shared) */
-.invoiceCell{
-  background: transparent !important;
-  color:#fff !important;
-  border: 0 !important;
+/* ---------- Buttons ---------- */
+.invoiceDownloadBtn {
+  border: none;
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+  background-image: linear-gradient(135deg, var(--brand-green), #15803d);
+  box-shadow: 0 8px 18px rgba(21, 128, 61, 0.35);
+  color: #fff;
+  font-weight: 600;
+  transition: transform 0.18s ease, filter 0.18s ease;
+}
+.invoiceDownloadBtn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
 }
 
-/* Status pill (paid / pending / failed) */
-.invoiceStatus{
-  display:inline-flex; align-items:center;
-  padding:.28rem .6rem;
-  border-radius:999px;
-  font-weight:700; line-height:1;
-  box-shadow:0 6px 16px rgba(0,0,0,.25);
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+  /* .tableHeader {
+    display: none;
+  } */
+  .invoiceRow {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+  .invoiceRow > div {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.3rem 0;
+  }
+  .invoiceRow:hover {
+    transform: scale(1.01);
+  }
 }
-.status_paid    { background:rgba(34,197,94,.20) !important;  color:#34d399 !important; border:1px solid rgba(34,197,94,.45); }
-.status_pending { background:rgba(250,204,21,.18) !important; color:#fde68a !important; border:1px solid rgba(250,204,21,.45); }
-.status_failed  { background:rgba(220,38,38,.22) !important;  color:#fca5a5 !important; border:1px solid rgba(220,38,38,.50); }
+/* ---------- RESPONSIVE TABLE FIX ---------- */
 
-/* Download button — same emerald gradient */
-.invoiceDownloadBtn{
-  color:#fff !important;
-  border:none !important;
-  border-radius:10px;
-  padding:.55rem .95rem;
-  background-image:linear-gradient(135deg, var(--brand2), #15803d);
-  box-shadow:0 10px 24px rgba(21,128,61,.28);
-  transition:transform .18s ease, filter .18s ease, box-shadow .18s ease;
-}
-.invoiceDownloadBtn:hover{
-  transform:translateY(-2px);
-  filter:brightness(1.05);
-  box-shadow:0 16px 30px rgba(21,128,61,.33);
-}
+/* ---------- Responsive Table System (Clean + Stable) ---------- */
 
-/* Small screens */
-@media (max-width: 768px){
-  .invoiceBody{ padding-left: .75rem; padding-right: .75rem; }
-  .invoiceTable{ border-spacing: 0 10px; }
-}
+/* Tablet and small desktop — allow scroll if needed */
+@media (max-width: 1024px) {
+  .invoiceCard,
+  .reorderCard {
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.25) transparent;
+  }
 
+  .invoiceCard::-webkit-scrollbar,
+  .reorderCard::-webkit-scrollbar {
+    height: 6px;
+  }
+  .invoiceCard::-webkit-scrollbar-thumb,
+  .reorderCard::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.25);
+    border-radius: 10px;
+  }
 
-@media (max-width: 768px){
-  .backBtn{
-    position: static;    /* no absolute positioning */
-    transform: none;
-    margin: 0 0 12px;    /* space under the button */
+  .tableHeader,
+  .invoiceRow,
+  .orderRow {
+    grid-template-columns: 1.2fr 1.4fr 1.2fr 1fr 1.1fr;
   }
 }
 
-@media (max-width: 480px){
-  .backBtn{
-    position: fixed ;
-    top: 72px;
-    left: 16px;
-    transform: none;
+/* ---------- Phones (<768px) ---------- */
+@media (max-width: 768px) {
+  /* Keep the table format but allow horizontal scroll instead of stacking */
+  .invoiceCard {
+    overflow-x: auto;
+    padding: 1rem;
+  }
+
+  .tableHeader,
+  .invoiceList,
+  .orderList {
+    min-width: 700px;   /* Prevent text wrapping */
+  }
+
+  .tableHeader {
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    font-size: 0.9rem;
+    text-align: left;
+  }
+
+  .invoiceRow {
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    padding: 0.9rem 1rem;
+    font-size: 0.9rem;
+    min-width: 700px;
+  }
+
+  /* Buttons and badges scale slightly smaller */
+  .invoiceDownloadBtn {
+    font-size: 0.85rem;
+    padding: 0.45rem 0.8rem;
+  }
+
+  .status_paid,
+  .status_pending,
+  .packageBadge {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.55rem;
   }
 }
 
+/* ---------- Very small phones (<480px) ---------- */
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.3rem;
+  }
+  .tableHeader {
+    font-size: 0.8rem;
+  }
+  .invoiceRow,
+  .orderRow {
+    font-size: 0.8rem;
+  }
+  .invoiceDownloadBtn {
+    padding: 0.4rem 0.7rem;
+    border-radius: 8px;
+  }
+}
 
+/* Optional: smooth horizontal scroll aesthetic */
+.invoiceCard::-webkit-scrollbar{
+  height: 6px;
+}
+.invoiceCard::-webkit-scrollbar-thumb{
+  background: rgba(255,255,255,0.25);
+  border-radius: 10px;
+}
+.invoiceCard::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.4);
+}
+.invoiceCard {
+  width: 100%;
+  max-width: 1100px;
+  border-radius: 20px;
+  padding: 1.5rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 4px 28px rgba(0,0,0,0.45);
+  border: 1px solid var(--border-glow);
+}
+
+/* Reuse the same header and row layout as reorder */
+.tableHeader {
+  display: grid;
+  grid-template-columns: 1.2fr 1.5fr 1.2fr 1fr 1fr;
+  background: rgba(255,255,255,0.05);
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  font-weight: 600;
+  color: var(--ink-strong);
+  margin-bottom: 1rem;
+}
+
+.invoiceList {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.invoiceRow {
+  display: grid;
+  grid-template-columns: 1.2fr 1.5fr 1.2fr 1fr 1fr;
+  align-items: center;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border-glow);
+  border-radius: 14px;
+  padding: 1rem 1.2rem;
+  transition: all 0.25s ease;
+  color: var(--ink-strong);
+}
+
+.invoiceRow:hover {
+  background: rgba(255,255,255,0.06);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.45);
+}
+
+/* Download Button */
+.downloadBtn {
+  border: none;
+  border-radius: 10px;
+  padding: 0.55rem 1rem;
+  background-image: linear-gradient(135deg, var(--brand-green), var(--brand-dark));
+  box-shadow: 0 8px 18px rgba(21,128,61,0.35);
+  color: #fff;
+  font-weight: 600;
+  transition: transform 0.18s ease, filter 0.18s ease;
+}
+.downloadBtn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+/* Status Tags */
+.status_paid {
+  background: rgba(34,197,94,0.2);
+  color: #4ade80;
+  border: 1px solid rgba(34,197,94,0.4);
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-weight: 600;
+}
+.status_pending {
+  background: rgba(59,130,246,0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59,130,246,0.4);
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-weight: 600;
+}

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styles from "./DownloadCenter.module.css";
-import portalApi from "../../../services/portalApi";
 
 const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://qunatum-tour.onrender.com';
 
@@ -9,6 +8,25 @@ const DownloadCenter = ({ userId, onDownload }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [downloadingId, setDownloadingId] = useState(null);
+
+  // ✅ Add this helper below:
+  async function refreshAccessToken() {
+    const refresh = localStorage.getItem("refresh_token");
+    if (!refresh) return false;
+
+    const res = await fetch(`${BASE_URL}/auth/token/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: refresh }),
+    });
+
+    if(!res.ok) return false;
+    const data = await res.json();
+    if (!data.access_token) return false;
+
+    localStorage.setItem("access_token", data.access_token);
+    return true;
+  }
 
   // Fetch client orders with videos
   const fetchClientOrders = async () => {
@@ -25,13 +43,32 @@ const DownloadCenter = ({ userId, onDownload }) => {
 
       console.log("Fetching client downloads...");
 
-      const res = await fetch(`${BASE_URL}/api/client/download-center`, {
+      let res = await fetch(`${BASE_URL}/api/client/download-center`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`, // ✅ add JWT token
         },
       });
+
+            // retry after refresh
+      if (res.status === 401 || res.status === 403) {
+        const refreshed = await refreshAccessToken();
+        if (refreshed) {
+          const newToken = localStorage.getItem("access_token");
+          res = await fetch(`${BASE_URL}/api/client/download-center`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${newToken}`,
+            },
+          });
+        } else {
+          localStorage.clear();
+          window.location.href = "/portal";
+          return;
+        }
+      }
 
       if (!res.ok) throw new Error(`Failed to fetch videos: ${res.status}`);
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Card, Badge, Spinner, Pagination } from 'react-bootstrap';
+import { Card, Badge, Spinner } from 'react-bootstrap';
 import styles from './JobTracker.module.css';
 import { gsap } from 'gsap';
 
@@ -158,7 +158,6 @@ const JobTracker = () => {
       <Card.Header className={styles.jobTrackerHeader}>
         <div className={styles.headerContent}>
           <h5 className={styles.jobTrackerTitle}>
-            <span className={styles.titleIcon}>📊</span>
             Job Status Monitor
           </h5>
           <div className={styles.lastUpdate}>
@@ -168,40 +167,21 @@ const JobTracker = () => {
       </Card.Header>
       
       <Card.Body className={styles.jobTrackerBody}>
-        {/* Status Summary with innovative layout */}
+        {/* Simple Status Summary - Like in the image */}
         {data && (
-          <div className={styles.statusSummary} ref={statusRef}>
-            <div className={styles.statusCard}>
-              <div className={styles.statusIcon}>⏳</div>
-              <div className={styles.statusInfo}>
-                <span className={styles.statusCount}>{data.status?.queued || 0}</span>
-                <span className={styles.statusLabel}>Queued</span>
-              </div>
-            </div>
-            
-            <div className={styles.statusCard}>
-              <div className={styles.statusIcon}>⚡</div>
-              <div className={styles.statusInfo}>
-                <span className={styles.statusCount}>{data.status?.processing || 0}</span>
-                <span className={styles.statusLabel}>Processing</span>
-              </div>
-            </div>
-            
-            <div className={styles.statusCard}>
-              <div className={styles.statusIcon}>✅</div>
-              <div className={styles.statusInfo}>
-                <span className={styles.statusCount}>{data.status?.succeeded || 0}</span>
-                <span className={styles.statusLabel}>Succeeded</span>
-              </div>
-            </div>
-            
-            <div className={styles.statusCard}>
-              <div className={styles.statusIcon}>❌</div>
-              <div className={styles.statusInfo}>
-                <span className={styles.statusCount}>{data.status?.failed || 0}</span>
-                <span className={styles.statusLabel}>Failed</span>
-              </div>
-            </div>
+          <div className={styles.simpleStatusSummary} ref={statusRef}>
+            <Badge className={`${styles.statusBadge} ${styles.queued}`}>
+              Queued: {data.status?.queued || 0}
+            </Badge>
+            <Badge className={`${styles.statusBadge} ${styles.processing}`}>
+              Processing: {data.status?.processing || 0}
+            </Badge>
+            <Badge className={`${styles.statusBadge} ${styles.success}`}>
+              Succeeded: {data.status?.succeeded || 0}
+            </Badge>
+            <Badge className={`${styles.statusBadge} ${styles.error}`}>
+              Failed: {data.status?.failed || 0}
+            </Badge>
           </div>
         )}
 
@@ -256,7 +236,6 @@ const JobTracker = () => {
             ))
           ) : (
             <div className={styles.noLogs}>
-              <div className={styles.noLogsIcon}>📝</div>
               <span className={styles.noLogsText}>No logs available</span>
               <span className={styles.noLogsSubtext}>Logs will appear here as jobs are processed</span>
             </div>
