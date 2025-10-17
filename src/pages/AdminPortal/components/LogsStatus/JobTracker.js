@@ -20,7 +20,24 @@ const JobTracker = () => {
     try {
       const res = await fetch(`${BASE_URL}/api/admin/logs-status`);
       const json = await res.json();
-      setData(json);
+      
+      // Transform backend data to frontend format
+      const transformedData = {
+        logs: [
+          ...(json.details?.queued || []).map(log => ({ ...log, status: 'queued' })),
+          ...(json.details?.processing || []).map(log => ({ ...log, status: 'processing' })),
+          ...(json.details?.succeeded || []).map(log => ({ ...log, status: 'succeeded' })),
+          ...(json.details?.failed || []).map(log => ({ ...log, status: 'failed' }))
+        ],
+        status: {
+          queued: json.details?.queued?.length || 0,
+          processing: json.details?.processing?.length || 0,
+          succeeded: json.details?.succeeded?.length || 0,
+          failed: json.details?.failed?.length || 0
+        }
+      };
+      
+      setData(transformedData);
       setLoading(false);
     } catch (err) {
       console.error('Error fetching logs-status:', err);
@@ -205,19 +222,16 @@ const JobTracker = () => {
                       <div className={styles.idInfo}>
                         <span className={styles.videoId}>Video: {log.video_id}</span>
                         <span className={styles.orderId}>Order: {log.order_id}</span>
+                        <span className={styles.email}>{log.username || 'Guest'}</span>
                       </div>
                     </div>
                     <div className={styles.nodeMeta}>
-                      <span className={styles.packageTag}>{log.package}</span>
-                      <span className={styles.stageBadge}>{log.stage}</span>
-                    </div>
-                  </div>
-                  
-                  <div className={styles.nodeContent}>
-                    <div className={styles.timeInfo}>
-                      <span className={styles.createdTime}>
-                        Created: {new Date(log.created_at).toLocaleDateString()}
-                      </span>
+                      <span className={styles.packageTag}>{log.package || 'Standard'}</span>
+                      <div className={styles.timeInfo}>
+                        <span className={styles.createdTime}>
+                          {new Date(log.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   

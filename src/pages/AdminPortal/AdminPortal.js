@@ -8,7 +8,7 @@ import JobTracker from './components/LogsStatus/JobTracker';
 import ClientList from './components/ClientManagement/ClientList';
 import PricingEditor from './components/PricingEditor/PricingForm';
 import Notifications from './components/Notifications/AlertsPanel';
-import FinalVideos from './components/FinalVideos/FinalVideos'; // New Import
+// import FinalVideos from './components/FinalVideos/FinalVideos'; // New Import
 
 const AdminPortal = () => {
   const location = useLocation();
@@ -57,13 +57,13 @@ const AdminPortal = () => {
       icon: "bi-bell",
       path: "/admin/notifications",
     },
-    {
-      key: "final-videos", // New Tile
-      title: "Final Videos",
-      desc: "Review and download generated videos.",
-      icon: "bi-film",
-      path: "/admin/final-videos",
-    },
+    // {
+    //   key: "final-videos", // New Tile
+    //   title: "Final Videos",
+    //   desc: "Review and download generated videos.",
+    //   icon: "bi-film",
+    //   path: "/admin/final-videos",
+    // },
   ];
 
   return (
@@ -148,7 +148,7 @@ const AdminPortal = () => {
           <Route path="clients" element={<ClientList />} />
           <Route path="pricing" element={<PricingEditor />} />
           <Route path="notifications" element={<Notifications />} />
-          <Route path="final-videos" element={<FinalVideos />} /> {/* New Route */}
+          {/* <Route path="final-videos" element={<FinalVideos />} /> New Route */}
         </Routes>
       </div>
     </div>

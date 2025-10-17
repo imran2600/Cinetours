@@ -194,23 +194,34 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   flex-shrink: 0;
+  align-self: flex-start;
 }
 
 .idInfo {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  align-items: flex-start;
 }
 
 .videoId {
   font-size: 1rem;
   font-weight: 700;
   color: var(--ink-strong);
+  text-align: left;
 }
 
 .orderId {
   font-size: 0.85rem;
   color: var(--ink-weak);
+  text-align: left;
+}
+
+.email {
+  font-size: 0.9rem;
+  color: #ffffff !important;
+  font-weight: 500;
+  text-align: left;
 }
 
 .nodeMeta {
@@ -230,31 +241,16 @@
   font-weight: 600;
 }
 
-.stageBadge {
-  background: rgba(34, 197, 94, 0.15);
-  color: var(--brand2);
-  padding: 0.3rem 0.6rem;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
 .nodeContent {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 1rem;
   gap: 1rem;
 }
 
 .clientInfo {
   flex: 1;
-}
-
-.email {
-  font-size: 0.9rem;
-  color: var(--ink);
-  font-weight: 500;
 }
 
 .timeInfo {
@@ -519,11 +515,19 @@
     gap: 0.75rem;
   }
 
+  .nodeMainInfo {
+    width: 100%;
+  }
+
+  .statusIndicator {
+    margin-bottom: 0.5rem;
+  }
+
   .nodeMeta {
     flex-direction: row;
     align-items: center;
     width: 100%;
-    justify-content: flex-start;
+    justify-content: space-between;
   }
 
   .nodeContent {
@@ -533,7 +537,7 @@
   }
 
   .timeInfo {
-    align-items: flex-start;
+    align-items: flex-end;
   }
 
   .paginationContainer {
@@ -576,6 +580,13 @@
   }
 
   .idInfo {
+    width: 100%;
+  }
+
+  .nodeMeta {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
     width: 100%;
   }
 
