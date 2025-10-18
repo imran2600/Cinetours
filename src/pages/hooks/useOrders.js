@@ -147,7 +147,7 @@ export function useOrders() {
       formData.append('image_id', imageId.toString());
 
       // Use the correct endpoint with numeric image_id
-      const uploadUrl = `${BASE_URL}/api/admin/orders/${imageId}/final-video`;
+      const uploadUrl = `${BASE_URL}/api/admin/final-video`;
       console.log('Sending request to:', uploadUrl);
       
       const res = await fetch(uploadUrl, {
