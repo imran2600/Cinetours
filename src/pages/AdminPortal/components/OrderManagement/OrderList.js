@@ -174,7 +174,7 @@ const OrderList = () => {
                           {order.status?.toUpperCase() || 'UNKNOWN'}
                         </Badge>
                         <div className={styles.orderMeta}>
-                          <span className={styles.orderId}>Order #{order.id}</span>
+                          <span className={styles.orderId}>Client #{order.id}</span>
                           <span className={styles.orderDate}>
                             {order.date ? new Date(order.date).toLocaleDateString() : 'N/A'}
                           </span>

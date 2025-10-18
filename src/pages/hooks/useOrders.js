@@ -59,16 +59,17 @@ export function useOrders() {
       
       // Transform the backend data to match frontend expectations
       const transformedOrders = ordersArray.map((order, index) => ({
-        id: order.order_id || order.id || `order-${index}`,
-        status: order.status || 'unknown',
-        package: order.package || 'Unknown',
-        photos: order.photos || 0,
-        date: order.date || new Date().toISOString(),
-        videoUrl: order.videos && order.videos.length > 0 ? order.videos[0].url : null,
-        finalVideoUrl: null,
-        videos: order.videos || [],
-        user_id: order.user_id || null
-      }));
+  id: order.client || order.order_id || order.id || `order-${index}`,
+  status: order.status || 'unknown',
+  package: order.package || 'Unknown',
+  photos: order.photos || 0,
+  date: order.date || new Date().toISOString(),
+  videoUrl: order.videos && order.videos.length > 0 ? order.videos[0].url : null,
+  finalVideoUrl: null,
+  videos: order.videos || [],
+  user_id: order.user_id || null
+}));
+
       
       console.log('Transformed orders:', transformedOrders);
       setOrders(transformedOrders);
