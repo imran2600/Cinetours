@@ -111,11 +111,11 @@ export default function SignIn() {
           </form>
 
           {/* Guest entry (only if your backend supports /auth/guest) */}
-          <div className={styles.guestRow}>
+          {/* <div className={styles.guestRow}>
             <button type="button" className={styles.guestBtn} onClick={handleGuest}>
               Continue as guest
             </button>
-          </div>
+          </div> */}
 
           <p className={styles.alt}>
             No account? <Link to="/signup">Create one</Link>
