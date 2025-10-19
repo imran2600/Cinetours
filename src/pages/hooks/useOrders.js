@@ -146,7 +146,7 @@ export function useOrders() {
     formData.append('user_id', order.client);  // ✅ Correct key
     formData.append('file', file);             // ✅ Correct key
 
-    const uploadUrl = `${BASE_URL}/admin/final-video`;  // ✅ Correct endpoint
+    const uploadUrl = `${BASE_URL}/api/admin/final-video`;  // ✅ Correct endpoint
     console.log('Sending request to:', uploadUrl);
 
     const res = await fetch(uploadUrl, {
