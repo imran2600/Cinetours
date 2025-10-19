@@ -124,79 +124,93 @@ export function useOrders() {
     }
   };
 
-  // Upload final rendered video - CORRECTED ENDPOINT
-  const uploadFinalVideo = async (orderId, file) => {
-    try {
-      console.log('Uploading file for order:', orderId);
-      console.log('File details:', {
-        name: file.name,
-        type: file.type,
-        size: file.size
-      });
+  // Upload final rendered video - FIXED (added user_id query parameter)
+const uploadFinalVideo = async (orderId, file) => {
+  try {
+    console.log('Uploading file for order:', orderId);
+    console.log('File details:', {
+      name: file.name,
+      type: file.type,
+      size: file.size
+    });
 
-      // Convert orderId to integer for image_id parameter
-      const imageId = parseInt(orderId);
-      if (isNaN(imageId)) {
-        throw new Error(`Invalid order ID: ${orderId}. Expected a numeric ID.`);
-      }
-
-      const formData = new FormData();
-      formData.append('video', file);
-      formData.append('file', file);
-      formData.append('order_id', orderId.toString());
-      formData.append('image_id', imageId.toString());
-
-      // Use the correct endpoint with numeric image_id
-      const uploadUrl = `${BASE_URL}/api/admin/final-video`;
-      console.log('Sending request to:', uploadUrl);
-      
-      const res = await fetch(uploadUrl, {
-        method: 'POST',
-        body: formData,
-      });
-
-      console.log('Upload response status:', res.status);
-      
-      if (!res.ok) {
-        let errorMessage = `Failed to upload final video: ${res.status}`;
-        try {
-          const errorData = await res.json();
-          errorMessage += ` - ${JSON.stringify(errorData)}`;
-        } catch (e) {
-          errorMessage += ` - ${res.statusText}`;
-        }
-        throw new Error(errorMessage);
-      }
-
-      const result = await res.json();
-      console.log('Upload successful, response:', result);
-
-      setOrders(prevOrders =>
-        prevOrders.map(order =>
-          order.id === orderId
-            ? {
-                ...order,
-                status: result.status || order.status,
-                finalVideoUrl: result.video_url || result.final_video_url || result.local_url || order.finalVideoUrl,
-                videos: result.video_url ? [
-                  ...(order.videos || []),
-                  {
-                    filename: file.name,
-                    url: result.video_url,
-                    status: 'completed'
-                  }
-                ] : order.videos
-              }
-            : order
-        )
-      );
-
-      return result;
-    } catch (err) {
-      console.error('Failed to upload final video:', err);
-      throw err;
+    // Convert orderId to integer for image_id parameter
+    const imageId = parseInt(orderId);
+    if (isNaN(imageId)) {
+      throw new Error(`Invalid order ID: ${orderId}. Expected a numeric ID.`);
     }
-  };
+
+    // Find the order to get its user_id
+    const orderData = orders.find(o => o.id === orderId);
+    const userId = orderData?.user_id || 0; // default to 0 if not found
+
+    // Prepare form data
+    const formData = new FormData();
+    formData.append('video', file);
+    formData.append('file', file);
+    formData.append('order_id', orderId.toString());
+    formData.append('image_id', imageId.toString());
+
+    // ✅ Include user_id as query parameter (backend requires it)
+    const uploadUrl = `${BASE_URL}/api/admin/orders/${imageId}/final-video?user_id=${userId}`;
+    console.log('Sending request to:', uploadUrl);
+
+    // Send the request
+    const res = await fetch(uploadUrl, {
+      method: 'POST',
+      body: formData,
+    });
+
+    console.log('Upload response status:', res.status);
+
+    if (!res.ok) {
+      let errorMessage = `Failed to upload final video: ${res.status}`;
+      try {
+        const errorData = await res.json();
+        errorMessage += ` - ${JSON.stringify(errorData)}`;
+      } catch (e) {
+        errorMessage += ` - ${res.statusText}`;
+      }
+      throw new Error(errorMessage);
+    }
+
+    const result = await res.json();
+    console.log('Upload successful, response:', result);
+
+    // Update local state
+    setOrders(prevOrders =>
+      prevOrders.map(order =>
+        order.id === orderId
+          ? {
+              ...order,
+              status: result.status || order.status,
+              finalVideoUrl:
+                result.video_url ||
+                result.final_video_url ||
+                result.local_url ||
+                order.finalVideoUrl,
+              videos: result.video_url
+                ? [
+                    ...(order.videos || []),
+                    {
+                      filename: file.name,
+                      url: result.video_url,
+                      status: 'completed',
+                    },
+                  ]
+                : order.videos,
+            }
+          : order
+      )
+    );
+
+    return result;
+  } catch (err) {
+    console.error('Failed to upload final video:', err);
+    throw err;
+  }
+};
+
 
   useEffect(() => {
     fetchOrders();
