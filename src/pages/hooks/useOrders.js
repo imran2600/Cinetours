@@ -60,6 +60,8 @@ export function useOrders() {
       // Transform the backend data to match frontend expectations
       const transformedOrders = ordersArray.map((order, index) => ({
   id: order.client || order.order_id || order.id || `order-${index}`,
+  client: order.client,  // 👈 add this line
+  order_id: order.order_id, // 👈 also keep real order id if needed
   status: order.status || 'unknown',
   package: order.package || 'Unknown',
   photos: order.photos || 0,
@@ -69,6 +71,7 @@ export function useOrders() {
   videos: order.videos || [],
   user_id: order.user_id || null
 }));
+
 
       
       console.log('Transformed orders:', transformedOrders);
