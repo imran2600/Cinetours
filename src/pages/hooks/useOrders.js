@@ -124,8 +124,7 @@ export function useOrders() {
     }
   };
 
-  // Upload final rendered video - FIXED (added user_id query parameter)
-const uploadFinalVideo = async (orderId, file) => {
+  const uploadFinalVideo = async (orderId, file) => {
   try {
     console.log('Uploading file for order:', orderId);
     console.log('File details:', {
@@ -134,28 +133,19 @@ const uploadFinalVideo = async (orderId, file) => {
       size: file.size
     });
 
-    // Convert orderId to integer for image_id parameter
-    const imageId = parseInt(orderId);
-    if (isNaN(imageId)) {
-      throw new Error(`Invalid order ID: ${orderId}. Expected a numeric ID.`);
+    // Find the order to get its client (user_id)
+    const order = orders.find(o => o.id === orderId);
+    if (!order || !order.client) {
+      throw new Error(`No client (user_id) found for order: ${orderId}`);
     }
 
-    // Find the order to get its user_id
-    const orderData = orders.find(o => o.id === orderId);
-    const userId = orderData?.user_id || 0; // default to 0 if not found
-
-    // Prepare form data
     const formData = new FormData();
-    formData.append('video', file);
-    formData.append('file', file);
-    formData.append('order_id', orderId.toString());
-    formData.append('image_id', imageId.toString());
+    formData.append('user_id', order.client);  // ✅ Correct key
+    formData.append('file', file);             // ✅ Correct key
 
-    // ✅ Include user_id as query parameter (backend requires it)
-    const uploadUrl = `${BASE_URL}/api/admin/orders/${imageId}/final-video?user_id=${userId}`;
+    const uploadUrl = `${BASE_URL}/admin/final-video`;  // ✅ Correct endpoint
     console.log('Sending request to:', uploadUrl);
 
-    // Send the request
     const res = await fetch(uploadUrl, {
       method: 'POST',
       body: formData,
@@ -177,28 +167,22 @@ const uploadFinalVideo = async (orderId, file) => {
     const result = await res.json();
     console.log('Upload successful, response:', result);
 
-    // Update local state
+    // Update the order state after upload
     setOrders(prevOrders =>
       prevOrders.map(order =>
         order.id === orderId
           ? {
               ...order,
               status: result.status || order.status,
-              finalVideoUrl:
-                result.video_url ||
-                result.final_video_url ||
-                result.local_url ||
-                order.finalVideoUrl,
-              videos: result.video_url
-                ? [
-                    ...(order.videos || []),
-                    {
-                      filename: file.name,
-                      url: result.video_url,
-                      status: 'completed',
-                    },
-                  ]
-                : order.videos,
+              finalVideoUrl: result.video_url || result.final_video_url || result.local_url || order.finalVideoUrl,
+              videos: result.video_url ? [
+                ...(order.videos || []),
+                {
+                  filename: file.name,
+                  url: result.video_url,
+                  status: 'completed'
+                }
+              ] : order.videos
             }
           : order
       )
