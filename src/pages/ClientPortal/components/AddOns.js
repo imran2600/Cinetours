@@ -70,12 +70,55 @@ function total(a) {
   return t;
 }
 
+const saveInvoiceToLocalStorage = (invoiceData) => {
+  try {
+    // Get existing invoices or initialize empty array
+    const existingInvoices = JSON.parse(localStorage.getItem('qt_invoices') || '[]');
+    
+    // Check for recent duplicates (within last 5 minutes)
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    const isDuplicate = existingInvoices.some(inv => 
+      inv.amount === invoiceData.grandTotal && 
+      new Date(inv.date) > fiveMinutesAgo
+    );
+    
+    if (isDuplicate) {
+      console.log('Duplicate invoice detected, skipping save');
+      return null;
+    }
+    
+    // Create new invoice object
+    const newInvoice = {
+      id: `local_${Date.now()}`, // Generate unique ID
+      date: new Date().toISOString(),
+      amount: invoiceData.grandTotal,
+      package_name: invoiceData.packageName,
+      package_price: invoiceData.packagePrice,
+      addons: invoiceData.addons,
+      addons_total: invoiceData.addonsTotal,
+      is_paid: true,
+      ...invoiceData
+    };
+    
+    // Add new invoice to the list
+    const updatedInvoices = [...existingInvoices, newInvoice];
+    
+    // Save back to localStorage
+    localStorage.setItem('qt_invoices', JSON.stringify(updatedInvoices));
+    
+    console.log('Invoice saved to localStorage:', newInvoice);
+    return newInvoice;
+  } catch (error) {
+    console.error('Error saving invoice to localStorage:', error);
+    return null;
+  }
+};
 
 export default function AddonScreen({ onBack, onContinue, userId, selectedPackage }) {
   const [a, setA] = useState(DEFAULT);
   const rootRef = useRef(null);
 
-  // --- animations
+  // --- animations (UNCHANGED)
   useEffect(() => {
     const wrapEl = rootRef.current;
     if (!wrapEl) return;
@@ -131,7 +174,7 @@ export default function AddonScreen({ onBack, onContinue, userId, selectedPackag
     return () => cancelAnimationFrame(id);
   }, []);
 
-  // --- selection helpers
+  // --- selection helpers (UNCHANGED)
   const covered = new Set(a.bundle ? BUNDLES[a.bundle].includes : []);
   const pick = (k) => setA({ ...a, [k]: !a[k] });
   const qty = (k, d) => setA({ ...a, [k]: Math.max(0, (a[k] || 0) + d) });
@@ -139,71 +182,84 @@ export default function AddonScreen({ onBack, onContinue, userId, selectedPackag
   const pickFree = (k) => setA({ ...a, [k]: !a[k] });
   const setFreeFormat = (v) => setA({ ...a, freeFormat: v });
 
-  // --- totals
+  // --- totals (UNCHANGED)
   const pkgPrice = selectedPackage?.price ?? 0;
   const addonsTotal = total(a);
-  const grandTotal = pkgPrice + addonsTotal; // USD (we'll send cents to backend)
+  const grandTotal = pkgPrice + addonsTotal;
 
-// --- Stripe handler (uses publishable key + falls back to URL)
-async function handleCheckout() {
-  try {
-    // $0 case: skip Stripe
-    if (grandTotal <= 0) {
-      onContinue?.(a);
-      return;
+  // NEW: Updated handleCheckout function to save to localStorage
+  async function handleCheckout() {
+    try {
+      // Save invoice data to localStorage BEFORE processing payment
+      const invoiceData = {
+        grandTotal,
+        packageName: selectedPackage?.name || 'Unknown Package',
+        packagePrice: pkgPrice,
+        addons: a,
+        addonsTotal,
+        userId: userId || 'unknown',
+        timestamp: new Date().toISOString()
+      };
+      
+      saveInvoiceToLocalStorage(invoiceData);
+
+      // $0 case: skip Stripe
+      if (grandTotal <= 0) {
+        onContinue?.(a);
+        return;
+      }
+      if (!userId) {
+        alert("Please sign in again.");
+        return;
+      }
+
+      // Always come back to /portal so the post-payment effect runs
+      const origin = window.location.origin;
+      const success_url = `${origin}/portal?start=upload&paid=1&session_id={CHECKOUT_SESSION_ID}`;
+      const cancel_url  = `${origin}/portal?paid=0`;
+
+      localStorage.setItem("qt_pkgId", String(selectedPackage?.id ?? ""));
+      localStorage.setItem("qt_addons", JSON.stringify(a));
+
+      const payload = {
+        user_id: userId,
+        amount: Math.round(grandTotal * 100), // cents
+        currency: "usd",
+        success_url,
+        cancel_url,
+        addon_type: a.bundle || "custom",
+        metadata: {
+          package_name: selectedPackage?.name || "",
+          package_price: String(pkgPrice),
+          addons: JSON.stringify(a),
+          addons_total: String(addonsTotal),
+          grand_total: String(grandTotal),
+        },
+      };
+
+      // Create checkout session (backend unchanged)
+      const resp = await portalApi.createCheckoutSession(payload);
+
+      // Prefer Stripe.js redirect with sessionId; else fallback to URL
+      const sessionId =
+        resp?.id || (resp?.url?.match(/\/(cs_[^/?#]+)/)?.[1]) || null;
+
+      if (sessionId) {
+        const stripe = await getStripe();
+        const { error } = await stripe.redirectToCheckout({ sessionId });
+        if (error) throw error;
+      } else if (resp?.url) {
+        window.location.href = resp.url;
+      } else {
+        throw new Error("Checkout session missing id/url");
+      }
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Unable to start checkout");
     }
-    if (!userId) {
-      alert("Please sign in again.");
-      return;
-    }
-
-    // Always come back to /portal so the post-payment effect runs
-    const origin = window.location.origin;
-    const success_url = `${origin}/portal?start=upload&paid=1&session_id={CHECKOUT_SESSION_ID}`;
-    const cancel_url  = `${origin}/portal?paid=0`;
-
-    localStorage.setItem("qt_pkgId", String(selectedPackage?.id ?? ""));
-    localStorage.setItem("qt_addons", JSON.stringify(a));
-
-    const payload = {
-      user_id: userId,
-      amount: Math.round(grandTotal * 100), // cents
-      currency: "usd",
-      success_url,
-      cancel_url,
-      addon_type: a.bundle || "custom",
-      metadata: {
-        package_name: selectedPackage?.name || "",
-        package_price: String(pkgPrice),
-        addons: JSON.stringify(a),
-        addons_total: String(addonsTotal),
-        grand_total: String(grandTotal),
-      },
-    };
-
-    // Create checkout session (backend unchanged)
-    const resp = await portalApi.createCheckoutSession(payload);
-
-    // Prefer Stripe.js redirect with sessionId; else fallback to URL
-    const sessionId =
-      resp?.id || (resp?.url?.match(/\/(cs_[^/?#]+)/)?.[1]) || null;
-
-    if (sessionId) {
-      const stripe = await getStripe();
-      const { error } = await stripe.redirectToCheckout({ sessionId });
-      if (error) throw error;
-    } else if (resp?.url) {
-      window.location.href = resp.url;
-    } else {
-      throw new Error("Checkout session missing id/url");
-    }
-  } catch (err) {
-    console.error(err);
-    alert(err.message || "Unable to start checkout");
   }
-}
 
-  // --- background bubbles (unchanged)
+  // --- background bubbles (UNCHANGED)
   const bubbles = useMemo(() => {
     const N = 18;
     const rnd = (min, max) => Math.random() * (max - min) + min;
@@ -263,7 +319,8 @@ async function handleCheckout() {
           </p>
         </header>
 
-        {/* Narration & Presentation */}
+        {/* Rest of your JSX remains completely UNCHANGED */}
+        {/* Narration & Presentation section */}
         <section className={styles.card}>
           <h3><span>🎤</span> Narration & Presentation</h3>
 
@@ -302,7 +359,7 @@ async function handleCheckout() {
           </label>
         </section>
 
-        {/* Social Media */}
+        {/* Social Media section */}
         <section className={styles.card}>
           <h3>📱 Social Media</h3>
 
@@ -330,7 +387,7 @@ async function handleCheckout() {
           </label>
         </section>
 
-        {/* Delivery & Edits */}
+        {/* Delivery & Edits section */}
         <section className={styles.card}>
           <h3>⚡ Delivery & Edits</h3>
 
@@ -379,7 +436,7 @@ async function handleCheckout() {
           </label>
         </section>
 
-        {/* Bundles */}
+        {/* Bundles section */}
         <section className={styles.card}>
           <h3>📦 Packaged Add-On Bundles</h3>
           {Object.entries(BUNDLES).map(([k, b]) => (
@@ -403,7 +460,7 @@ async function handleCheckout() {
           </button>
         </section>
 
-        {/* Free Options */}
+        {/* Free Options section */}
         <section className={styles.card}>
           <h3>✅ Free Options</h3>
 
@@ -468,7 +525,7 @@ async function handleCheckout() {
               (Package ${pkgPrice} + Add-Ons ${addonsTotal})
             </small>
           </div>
-          <button className={styles.next}   onClick={handleCheckout} >
+          <button className={styles.next} onClick={handleCheckout}>
             Continue to Payment
           </button>
         </footer>
