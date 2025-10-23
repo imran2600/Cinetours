@@ -1,4 +1,3 @@
-// File: VideoComparison.js
 import React, { useState, useEffect, useRef } from "react";
 import { gsap } from 'gsap';
 
@@ -6,7 +5,6 @@ import {  ScrollTrigger } from '../../utils/gsapConfig';
 import styles from "./VideoComparison.module.css";
 import { Container, Row, Col } from "react-bootstrap";
 
-// GSAP plugins are now registered in App.js
 
 const VideoComparison = ({
   title,
@@ -130,11 +128,9 @@ const VideoComparison = ({
     // Title animation - triggered by scroll
     const titleElement = titleRef.current;
     if (titleElement) {
-      // Create a container for the animated text
       const textContainer = document.createElement("div");
       textContainer.className = styles.animatedTextContainer;
       
-      // Split text into words for a cleaner animation
       const text = title;
       const words = text.split(" ");
       
@@ -145,11 +141,9 @@ const VideoComparison = ({
         textContainer.appendChild(wordSpan);
       });
       
-      // Replace the title content with our animated container
       titleElement.innerHTML = "";
       titleElement.appendChild(textContainer);
       
-      // Set initial state for words (hidden)
       const wordElements = titleElement.querySelectorAll(`.${styles.word}`);
       if (wordElements.length > 0) {
         gsap.set(wordElements, {
@@ -157,7 +151,6 @@ const VideoComparison = ({
           y: 80
         });
         
-        // Create the animation timeline
         animationRef.current = gsap.timeline({
           scrollTrigger: {
             trigger: containerRef.current,
@@ -167,7 +160,6 @@ const VideoComparison = ({
           }
         });
         
-        // Animate words in when scrolling down to the section
         animationRef.current.to(wordElements, {
           opacity: 1,
           y: 0,
@@ -178,7 +170,6 @@ const VideoComparison = ({
       }
     }
 
-    // Frame animation
     if (frameRef.current) {
       gsap.fromTo(
         frameRef.current,
@@ -197,7 +188,6 @@ const VideoComparison = ({
       );
     }
     
-    // Clean up function
     return () => {
       if (animationRef.current) {
         animationRef.current.kill();
@@ -212,16 +202,13 @@ const VideoComparison = ({
       className={`${styles.sectionWrapper} py-3 py-md-5`}
       ref={containerRef}
     >
-      {/* Animated background */}
       <div className={styles.bgAnimation}>
-        {/* Shapes will be created dynamically */}
       </div>
 
       {/* Header */}
       <Row className="mb-3 mb-md-5 mx-0" ref={headingRef}>
         <Col xs={12} className="px-0">
           <div className={`${styles.headerDesign} text-center`}>
-            {/* Animated title */}
             <h2 className={`${styles.title} mb-2 mb-md-3`} ref={titleRef}>{title}</h2>
             {description && (
               <p className={`${styles.description} mb-0`}>{description}</p>
@@ -236,7 +223,6 @@ const VideoComparison = ({
           <div className={styles.comparisonContainer}>
             <div className={styles.comparisonFrame} ref={frameRef}>
               <div className={styles.mediaWrapper}>
-                {/* Left Arrow */}
                 <button
                   className={`${styles.navArrow} ${styles.arrowLeft}`}
                   onClick={goToPrev}
@@ -245,7 +231,6 @@ const VideoComparison = ({
                 </button>
 
                 <div className={styles.mediaGrid}>
-                  {/* BEFORE - Fixed structure */}
                   <div className={styles.mediaColumn}>
                     <div className={styles.mediaFrame}>
                       <img
@@ -300,7 +285,6 @@ const VideoComparison = ({
         </Col>
       </Row>
 
-      {/* Indicators */}
       <Row className="justify-content-center mx-0 mt-3 mt-md-4">
         <Col xs="auto" className="px-0">
           <div className={styles.indicators}>

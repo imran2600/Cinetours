@@ -1,13 +1,10 @@
-// src/Components/Header/header.js
 import React from "react";
 import "./Header.css";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import Collapse from "bootstrap/js/dist/collapse";
 import UserAvatar from "../../pages/ClientPortal/components/UserAvatar.js";
 
-// ✅ from your AuthContext (enhanced earlier)
 import { useAuth } from "../../auth/AuthContext.jsx";
-// ✅ Admin Auth
 import { useAdminAuth } from "../../auth/adminAuth/adminAuthContext.js";
 
 
@@ -16,17 +13,15 @@ const Header = () => {
   const location = useLocation();
 
   const { user, signedIn, signOut,} = useAuth();
-  const { admin, logout: adminLogout } = useAdminAuth(); // Destructure admin and rename logout to adminLogout
+  const { admin, logout: adminLogout } = useAdminAuth(); 
   const authed = !!(signedIn || user);
 
-  // ⛔️ Hide the whole header on auth pages (Make.com style)
   const isAuthRoute =
     location.pathname.startsWith("/signin") ||
     location.pathname.startsWith("/signup") ||
     location.pathname.startsWith("/set-password");
   if (isAuthRoute) return null;
 
-  // Check if current route is an admin route
   const isAdminRoute = location.pathname.startsWith("/admin");
 
 
@@ -49,7 +44,6 @@ const Header = () => {
   const handleSignIn = () => go("/signin");
   const handleSignUp = () => go("/signup");
 
-  // 🟢 Guest: create temp session then take them to the portal
   const handleGetStart = () => go("/signup");;
 
   const handleAvatarClick = () => go("/portal");
@@ -66,7 +60,7 @@ const Header = () => {
     try {
       await adminLogout();
     } finally {
-      go("/"); // Redirect to homepage or admin login page after admin logout
+      go("/"); 
     }
   };
 
@@ -88,7 +82,6 @@ const Header = () => {
           <span className="navbar-toggler-icon" style={{ transform: "scale(0.7)" }}></span>
         </button>
 
-        {/* Brand with gradient text (matches your logo vibe) */}
         <NavLink
           to="/"
           onClick={closeMobileMenu}
@@ -150,25 +143,21 @@ const Header = () => {
 
           <div className="header-actions d-flex align-items-center gap-2 ms-auto">
             {isAdminRoute && admin ? (
-              // If on an admin route and admin is logged in, show only admin sign out
               <button className="btn btn-outline-secondary btn-sm" onClick={handleAdminSignOut}>
                 Admin Sign out
               </button>
             ) : (
-              // Otherwise, show client-specific buttons
               !authed ? (
                 <>
                   <button className="btn btn-outline-secondary btn-sm" onClick={handleSignIn}>
                     Sign in
                   </button>
-                  {/* “Get Start” acts as Guest entry */}
                   <button className="btn gradient-button btn-sm" onClick={handleGetStart}>
                     Get Started
                   </button>
                 </>
               ) : (
                 <>
-                  {/* Replace “Portal” with avatar initial */}
                   <UserAvatar size={32} withMenu />
                   <button className="btn btn-outline-secondary btn-sm" onClick={handleSignOut}>
                     Sign out

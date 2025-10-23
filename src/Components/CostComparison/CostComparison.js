@@ -58,11 +58,9 @@ const CostComparison = () => {
 
   return (
     <section className={styles.section}>
-      {/* Building Background */}
       <img src="/images/building.png" alt="Building" className={styles.buildingImage} />
 
       <div className={styles.container}>
-        {/* Title */}
         <div className={styles.titleContainer} ref={titleRef}>
           <h2 className={styles.mainTitle}>Comparison with Traditional Video Shooting</h2>
           <p className={styles.subtitle}>
@@ -70,7 +68,6 @@ const CostComparison = () => {
           </p>
         </div>
 
-        {/* Desktop Table */}
         <div className={styles.desktopTable}>
           <table className={styles.comparisonTable}>
             <thead>
@@ -104,7 +101,6 @@ const CostComparison = () => {
           </table>
         </div>
 
-        {/* Mobile Cards */}
         <div className={styles.mobileCards}>
           {comparisonData.map((category, catIndex) => (
             <div key={catIndex} className={styles.categoryCard}>

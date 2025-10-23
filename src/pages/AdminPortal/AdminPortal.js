@@ -8,7 +8,7 @@ import JobTracker from './components/LogsStatus/JobTracker';
 import ClientList from './components/ClientManagement/ClientList';
 import PricingEditor from './components/PricingEditor/PricingForm';
 import Notifications from './components/Notifications/AlertsPanel';
-// import FinalVideos from './components/FinalVideos/FinalVideos'; // New Import
+// import FinalVideos from './components/FinalVideos/FinalVideos'; 
 
 const AdminPortal = () => {
   const location = useLocation();
@@ -68,7 +68,6 @@ const AdminPortal = () => {
 
   return (
     <div className={styles.adminContainer}>
-      {/* Bubbles background effect */}
       <ul className={styles.bubbles}>
         {Array.from({ length: 30 }).map((_, i) => {
           const r = Math.random();

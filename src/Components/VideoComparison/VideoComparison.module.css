@@ -1,6 +1,4 @@
-/* VideoComparison.module.css */
 
-/* Section */
 .sectionWrapper {
   position: relative;
   overflow: hidden;
@@ -8,7 +6,6 @@
   background: rgb(172, 170, 170);
 }
 
-/* Animated background container */
 .bgAnimation {
   position: absolute;
   top: 0;
@@ -20,7 +17,6 @@
   pointer-events: none;
 }
 
-/* Background shapes */
 .bgShape {
   position: absolute;
   opacity: 0.15;
@@ -45,7 +41,6 @@
   border-bottom: 26px solid rgba(30, 144, 255, 0.2);
 }
 
-/* Floating circles for GSAP */
 .bgCircle {
   position: absolute;
   border-radius: 50%;
@@ -54,7 +49,6 @@
   pointer-events: none;
 }
 
-/* Content on top */
 .headerDesign,
 .comparisonContainer,
 .indicators {

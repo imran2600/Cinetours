@@ -74,7 +74,6 @@ const JobTracker = () => {
         );
       }
 
-      // Animate log cards with innovative staggered effect
       const tl = gsap.timeline();
       tl.fromTo(cardsRef.current, 
         { 
@@ -95,7 +94,6 @@ const JobTracker = () => {
         }
       );
 
-      // Animate pagination
       if (paginationRef.current) {
         gsap.fromTo(paginationRef.current, 
           { 
@@ -118,7 +116,6 @@ const JobTracker = () => {
   const totalPages = Math.ceil(totalLogs / pageSize);
 
   const handlePageChange = (page) => {
-    // Page change animation
     gsap.to(cardsRef.current, {
       opacity: 0,
       y: 20,
@@ -148,7 +145,6 @@ const JobTracker = () => {
     ? data.logs.slice((currentPage - 1) * pageSize, currentPage * pageSize)
     : [];
 
-  // Status color mapping
   const getStatusColor = (status) => {
     switch(status) {
       case 'queued': return styles.queued;
@@ -184,7 +180,6 @@ const JobTracker = () => {
       </Card.Header>
       
       <Card.Body className={styles.jobTrackerBody}>
-        {/* Simple Status Summary - Like in the image */}
         {data && (
           <div className={styles.simpleStatusSummary} ref={statusRef}>
             <Badge className={`${styles.statusBadge} ${styles.queued}`}>
@@ -202,7 +197,6 @@ const JobTracker = () => {
           </div>
         )}
 
-        {/* Logs Timeline Layout */}
         <div className={styles.logsTimeline}>
           {paginatedLogs.length > 0 ? (
             paginatedLogs.map((log, index) => (
@@ -256,7 +250,6 @@ const JobTracker = () => {
           )}
         </div>
 
-        {/* Enhanced Pagination */}
         {totalPages > 1 && (
           <div className={styles.paginationContainer} ref={paginationRef}>
             <div className={styles.paginationWrapper}>

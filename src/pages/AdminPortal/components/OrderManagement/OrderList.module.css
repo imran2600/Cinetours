@@ -1,6 +1,4 @@
-/* ============================= */
 /* OrderList Component Styles     */
-/* ============================= */
 
 :root {
   --brand1: #a855f7;
@@ -11,7 +9,6 @@
   --ink-weak: rgba(255, 255, 255, 0.6);
 }
 
-/* Card wrapper - consistent with other admin sections */
 .invoiceCard {
   background: transparent;
   color: #fff;
@@ -563,9 +560,7 @@
   outline: none;
 }
 
-/* ============================= */
 /* Mobile Responsive Design      */
-/* ============================= */
 
 @media (max-width: 768px) {
   .invoiceHeader {

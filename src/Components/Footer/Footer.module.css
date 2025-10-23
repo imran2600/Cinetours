@@ -1,4 +1,3 @@
-/* Footer Base Styling */
 .footer {
   background-color: black;
   color: #fff;
@@ -6,7 +5,6 @@
   font-size: 0.9rem;
 }
 
-/* Brand Styling */
 .logo {
   font-size: 1.5rem;
   font-weight: 700;
@@ -23,7 +21,6 @@ color: transparent;
   font-size: 0.9rem;
 }
 
-/* Social Links */
 .socialLinks {
   display: flex;
   justify-content: center;
@@ -41,14 +38,12 @@ color: transparent;
   transform: translateY(-3px);
 }
 
-/* Copyright */
 .copyright {
   color: rgba(255, 255, 255, 0.7);
   margin: 0;
   font-size: 0.9rem;
 }
 
-/* Additional Links */
 .additionalLinks {
   display: flex;
   justify-content: center;
@@ -69,7 +64,6 @@ color: transparent;
   color: hsl(var(--primary));
 }
 
-/* Responsive Adjustments */
 @media (max-width: 768px) {
   .footer {
     text-align: center;

@@ -83,7 +83,6 @@ const ClientList = () => {
         </div>
       </Card.Header>
 
-      {/* Body */}
       <Card.Body className={styles.cardBody}>
         {error && (
           <Alert variant="danger" className={styles.alert}>
@@ -98,7 +97,6 @@ const ClientList = () => {
           </div>
         ) : (
           <>
-            {/* Desktop Table View */}
             <div className={`${styles.tableWrapper} ${styles.desktopView}`}>
               <Table hover responsive className={styles.clientTable}>
                 <thead className={styles.tableHead}>
@@ -128,7 +126,6 @@ const ClientList = () => {
               </Table>
             </div>
 
-            {/* Mobile Card View */}
             <div className={styles.mobileView}>
               {clients.map((client) => (
                 <MobileClientCard key={client.id} client={client} />

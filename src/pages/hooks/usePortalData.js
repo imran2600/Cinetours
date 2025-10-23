@@ -1,17 +1,12 @@
 import { useEffect, useState, useCallback } from "react";
-// ⬇️ Adjust the import path if your portalApi lives elsewhere
 import  portalApi from "../../services/portalApi";
 
-/**
- * Central data management hook for Client Portal (no mocks)
- * @param {string} userId - signed-in user's id
- */
+
 const usePortalData = (userId) => {
   const [invoices, setInvoices] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // --- Helpers --------------------------------------------------------------
 
   const normalizeErr = (e, fallback = "Request failed") => {
     try {
@@ -24,7 +19,6 @@ const usePortalData = (userId) => {
     }
   };
 
-  // --- Fetchers -------------------------------------------------------------
 
   const refetchInvoices = useCallback(async () => {
     if (!userId) return;
@@ -36,7 +30,6 @@ const usePortalData = (userId) => {
     }
   }, [userId]);
 
-  // --- Initial load ---------------------------------------------------------
 
   useEffect(() => {
     let cancelled = false;

@@ -6,8 +6,7 @@ import React, { useEffect, useRef } from 'react';
  import HIW2 from '../../assets/images/HIW2.jpg';
  import HIW3 from '../../assets/images/HIW3.jpg';
 
- // Import icons (you'll need to add these to your project)
- // Alternatively, you can use an icon library like react-icons
+
  const UploadIcon = () => (
    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -31,7 +30,6 @@ import React, { useEffect, useRef } from 'react';
    </svg>
  );
 
- // Register GSAP plugins
  gsap.registerPlugin(SplitText, ScrollTrigger);
 
  const HowItWorks = () => {
@@ -109,7 +107,6 @@ import React, { useEffect, useRef } from 'react';
      currentIndex.current = index;
    };
 
-   // Animate the "How It Works" title with scrolling
    useEffect(() => {
      const splitTitle = new SplitText(titleRef.current, {
        type: "chars",
@@ -155,14 +152,13 @@ import React, { useEffect, useRef } from 'react';
        timer = setTimeout(() => {
          let newIndex = currentIndex.current + 1;
          if (newIndex >= steps.length) {
-           newIndex = 0; // Loop back to the beginning
+           newIndex = 0; 
          }
          gotoSection(newIndex, 1);
          autoPlay();
-       }, 5000); // Change slide every 5 seconds
+       }, 5000); 
      };
 
-     // Initial setup for the first slide
      gsap.set(sectionsRef.current[0], { autoAlpha: 1, zIndex: 1 });
      gsap.set(outerWrappersRef.current[0], { yPercent: 0 });
      gsap.set(innerWrappersRef.current[0], { yPercent: 0 });

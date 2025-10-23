@@ -4,10 +4,6 @@ import { motion } from 'framer-motion';
 import styles from './PricingForm.module.css';
 import useAdminData from '../../hooks/useAdminData';
 
-/**
- * Pricing Form for editing and previewing package pricing
- * API: GET /admin/pricing, PUT /admin/pricing/:id
- */
 const PricingForm = () => {
   const { pricing, updatePricingLocal } = useAdminData();
   const [editingId, setEditingId] = useState(null);
@@ -24,7 +20,6 @@ const PricingForm = () => {
       return;
     }
 
-    // TODO: Backend Integration
     updatePricingLocal(id, Number(tempPrice));
     setEditingId(null);
     setTempPrice('');
@@ -37,7 +32,6 @@ const PricingForm = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      {/* Pricing Editor */}
       <Card className={styles.adminCard}>
         <Card.Header as="h4" className={styles.cardHeader}>
           Package Pricing Editor

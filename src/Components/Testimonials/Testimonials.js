@@ -154,7 +154,6 @@ const Testimonials = () => {
           <div className={styles.titleUnderline}></div>
         </div>
 
-        {/* Desktop grid view */}
         <div className={styles.testimonialsGrid}>
           {shuffledTestimonials.map((testimonial, index) => (
             <div
@@ -167,7 +166,6 @@ const Testimonials = () => {
           ))}
         </div>
 
-        {/* Mobile slider view */}
         <div className={styles.mobileSlider}>
           <div 
             className={styles.sliderContainer}
@@ -180,7 +178,6 @@ const Testimonials = () => {
             ))}
           </div>
           
-          {/* Navigation arrows */}
           <button className={styles.sliderArrowLeft} onClick={prevSlide}>
             &#8249;
           </button>
@@ -188,7 +185,6 @@ const Testimonials = () => {
             &#8250;
           </button>
           
-          {/* Slider indicators */}
           <div className={styles.sliderIndicators}>
             {shuffledTestimonials.map((_, index) => (
               <button

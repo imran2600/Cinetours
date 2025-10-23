@@ -9,7 +9,7 @@ const FinalVideos = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [expandedPrompts, setExpandedPrompts] = useState({});
-  const [modalVideo, setModalVideo] = useState(null); // { videoUrl, videoId } or null
+  const [modalVideo, setModalVideo] = useState(null); 
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -185,7 +185,6 @@ const FinalVideos = () => {
         </Card.Body>
       </Card>
 
-      {/* Modal Overlay for Large Video Preview */}
       {modalVideo && (
         <div className={styles.modalOverlay} onClick={closeModal} role="dialog" aria-modal="true">
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>

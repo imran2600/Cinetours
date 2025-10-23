@@ -10,7 +10,6 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-// ... imports remain same
 
 const Pricing = () => {
   const { getPublicPricing } = useAdminData();
@@ -20,7 +19,7 @@ const Pricing = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const sliderTrackRef = useRef(null);
 
-  // Mock feature data (extra info based on tier)
+  //  (extra info based on tier)
   const tierFeatures = {
     Express: { video: "30–45 seconds", photos: "6–9 photos" },
     Quick: { video: "~60 seconds", photos: "12 photos" },
@@ -41,13 +40,12 @@ const Pricing = () => {
   // Update slider position when currentSlide changes
   useEffect(() => {
     if (sliderTrackRef.current) {
-      const slideWidth = 100; // 100% per slide
+      const slideWidth = 100; 
       sliderTrackRef.current.style.transform = `translateX(-${currentSlide * slideWidth}%)`;
     }
   }, [currentSlide]);
 
   useEffect(() => {
-    // animations remain same ...
     gsap.fromTo(`.${styles.sectionTitle}`, 
       { y: 50, opacity: 0 },
       { 
@@ -109,7 +107,6 @@ const Pricing = () => {
     }
   };
 
-  // Helper to render features per plan
   const renderFeatures = (plan) => {
     const extra = tierFeatures[plan.package] || {};
     return (
@@ -128,7 +125,6 @@ const Pricing = () => {
 
   return (
     <section className={styles.pricingSection} ref={sectionRef}>
-      {/* Background Image */}
       <div 
         className={styles.backgroundImage}
         style={{ backgroundImage: `url(${buildingImage})` }}

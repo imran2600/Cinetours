@@ -1,6 +1,4 @@
-/* ============================= */
-/* PromptViewer Component Styles */
-/* ============================= */
+
 
 :root {
   --brand1: #a855f7;
@@ -11,7 +9,6 @@
   --ink-weak: rgba(255, 255, 255, 0.6);
 }
 
-/* Card shell (page section) */
 .adminCard {
   background: transparent;
   color: #fff;
@@ -384,9 +381,7 @@
   text-decoration: underline;
 }
 
-/* ============================= */
 /* Mobile Responsive Design      */
-/* ============================= */
 
 @media (max-width: 768px) {
   .cardHeader {

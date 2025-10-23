@@ -1,13 +1,9 @@
-// src/Components/Footer/Footer.js
 import React from "react";
 import styles from "./Footer.module.css";
 import { Container, Row, Col } from "react-bootstrap";
 import { useLocation } from "react-router-dom";
 
-/**
- * Modern footer component with social links and copyright
- * Hidden on auth pages (signin / signup, etc)
- */
+
 const Footer = () => {
   const { pathname } = useLocation();
 
@@ -27,7 +23,6 @@ const Footer = () => {
     <footer className={styles.footer}>
       <Container>
         <Row className="align-items-center">
-          {/* Logo and Description */}
           <Col md={4} className="text-center text-md-start mb-3 mb-md-0">
             <div className={styles.brand}>
               <span className={styles.logo}>QuantumTours</span>
@@ -35,7 +30,6 @@ const Footer = () => {
             </div>
           </Col>
 
-          {/* Social Links */}
           <Col md={4} className="text-center mb-3 mb-md-0">
             <div className={styles.socialLinks}>
               {socialLinks.map((social) => (
@@ -53,7 +47,6 @@ const Footer = () => {
             </div>
           </Col>
 
-          {/* Copyright */}
           <Col md={3} className="text-center text-md-end">
             <p className={styles.copyright}>
               &copy; {new Date().getFullYear()} QuantumTours. All rights reserved.
@@ -61,7 +54,6 @@ const Footer = () => {
           </Col>
         </Row>
 
-        {/* Additional Links */}
         <Row className="mt-4">
           <Col xs={12} className="text-center">
             <div className={styles.additionalLinks}>

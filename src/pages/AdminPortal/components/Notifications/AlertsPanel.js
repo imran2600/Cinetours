@@ -31,7 +31,6 @@ const Notifications = () => {
         const data = await response.json();
         console.log('API Response:', data);
         
-        // Handle the response structure from your example
         if (Array.isArray(data)) {
           setNotifications(data);
         } else if (data.notifications && Array.isArray(data.notifications)) {
@@ -56,7 +55,6 @@ const Notifications = () => {
     fetchNotifications();
   }, []);
 
-  // Function to get badge class based on category
   const getCategoryBadgeClass = (category) => {
     if (!category) return styles.statusBadge;
     
@@ -72,7 +70,6 @@ const Notifications = () => {
     }
   };
 
-  // Format category for display
   const formatCategory = (category) => {
     if (!category) return 'Unknown';
     return category.split('_').map(word => 

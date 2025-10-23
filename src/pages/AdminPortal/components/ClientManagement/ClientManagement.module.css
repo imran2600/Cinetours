@@ -1,6 +1,4 @@
-/* ============================= */
-/* Client Management Styles      */
-/* ============================= */
+
 
 :root{
   --brand1:#a855f7;
@@ -10,14 +8,12 @@
   --ink-strong:rgba(255,255,255,.96);
 }
 
-/* Card wrapper */
 .adminCard {
   background: transparent;
   color:#fff;
   border: none;
 }
 
-/* Header */
 .cardHeader{
   background: transparent !important;
   color:#fff !important;
@@ -60,14 +56,12 @@
   transform: none !important;
 }
 
-/* Card body */
 .cardBody{
   background: transparent;
   color:#fff !important;
   padding: 0 1rem 1.25rem;
 }
 
-/* Loading state */
 .loadingContainer {
   display: flex;
   align-items: center;
@@ -81,7 +75,6 @@
   font-size: 1rem;
 }
 
-/* Alert */
 .alert {
   margin-bottom: 1rem;
   border: none;
@@ -90,7 +83,6 @@
   color: #fff;
 }
 
-/* No data state */
 .noData {
   text-align: center;
   padding: 2rem;
@@ -98,17 +90,15 @@
   font-style: italic;
 }
 
-/* Table wrapper */
 .tableWrapper{ 
   width:100%; 
   overflow-x:auto; 
 }
 
-/* Table */
 .clientTable{
   width:100%;
   border-collapse: separate;
-  border-spacing: 0 14px;                 /* space between "cards" */
+  border-spacing: 0 14px;                
   --bs-table-bg: transparent;
   --bs-table-striped-bg: transparent;
   --bs-table-hover-bg: transparent;
@@ -130,7 +120,6 @@
   border: 0 !important;
 }
 
-/* Each data row becomes a single rounded "card" */
 .tableRow td{
   background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)) !important;
   border-top: 1px solid var(--hairline);
@@ -139,7 +128,6 @@
   vertical-align: middle;
 }
 
-/* Rounded corners for the row card */
 .tableRow td:first-child{
   border-left: 1px solid var(--hairline);
   border-top-left-radius: 14px;
@@ -152,20 +140,17 @@
   border-bottom-right-radius: 14px;
 }
 
-/* Hover glow like the order/download cards */
 .tableRow:hover td{
   background: rgba(255,255,255,.05) !important;
   box-shadow: 0 10px 26px rgba(0,0,0,.30) inset, 0 8px 20px rgba(0,0,0,.28);
 }
 
-/* Cells (shared) */
 .tableCell{
   background: transparent !important;
   color:#fff !important;
   border: 0 !important;
 }
 
-/* Action buttons */
 .viewButton {
   color:#fff !important;
   border:none !important;
@@ -182,7 +167,6 @@
   box-shadow:0 16px 30px #22c55e;
 }
 
-/* Mobile Card View */
 .mobileView {
   display: none;
 }
@@ -226,7 +210,6 @@
   font-size: 0.9rem;
 }
 
-/* Responsive Design */
 @media (max-width: 768px){
   .cardBody{ 
     padding-left: .75rem; 
@@ -247,17 +230,14 @@
     font-size: 1.25rem;
   }
 
-  /* Hide desktop table on mobile */
   .desktopView {
     display: none;
   }
 
-  /* Show mobile cards on mobile */
   .mobileView {
     display: block;
   }
 
-  /* Adjust mobile card padding */
   .mobileCard {
     padding: 0.875rem;
   }
@@ -271,7 +251,6 @@
   }
 }
 
-/* Very small screens */
 @media (max-width: 480px){
   .mobileCard {
     padding: 0.75rem;

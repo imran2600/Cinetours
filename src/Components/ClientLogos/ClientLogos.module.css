@@ -1,6 +1,3 @@
-/* ==========================
-   ClientLogos.module.css
-   ========================== */
 
 /* --- Section / Layout --- */
 .section {
@@ -16,14 +13,14 @@ background:white;
   margin: 0 auto;
   padding: 0 1.25rem;
   position: relative;
-  z-index: 3; /* Higher than building and rings */
+  z-index: 3; 
 }
 
 .header {
   text-align: center;
   margin-bottom: 2.25rem;
   position: relative;
-  z-index: 4; /* Higher than container */
+  z-index: 4; 
 }
 
 /* Title - now single line for better mobile experience */
@@ -34,15 +31,14 @@ background:white;
   display: block;
   line-height: 1.2;
   
-  /* Gradient text styling */
-  /* color:#003366; */
+  
   background: linear-gradient(135deg, #a855f7, #1fb454);
 background-clip: text;
 color: transparent;
 
   overflow: visible;
   position: relative;
-  z-index: 5; /* Higher than header */
+  z-index: 5; 
   padding: 0 1rem;
 }
 
@@ -59,7 +55,7 @@ color: transparent;
 .ring, .ring2 {
   position: absolute;
   border-radius: 50%;
-  z-index: 1; /* Lowest z-index - background elements */
+  z-index: 1; 
   pointer-events: none;
 }
 .ring {
@@ -77,27 +73,25 @@ color: transparent;
   background: radial-gradient(circle at 70% 70%, rgba(6,182,212,0.04), transparent 50%);
 }
 
-/* Building decorative image - should be behind content but above background */
 .buildingImg {
   position: absolute;
   right: 4%;
   top: 8%;
   width: 900px;
-  opacity: 0; /* GSAP sets this to visible on scroll */
+  opacity: 0; 
   transform-origin: center center;
-  z-index: 2; /* Higher than rings but lower than container */
+  z-index: 2; 
   pointer-events: none;
   user-select: none;
   filter: drop-shadow(0 18px 36px rgba(0,0,0,0.35));
 }
 
-/* make building image responsive on smaller screens */
 @media (max-width: 1024px) {
   .buildingImg { 
     width: 900px; 
     right: 2%; 
     top: 6%; 
-    z-index: 2; /* Maintain z-index */
+    z-index: 2;
   }
 }
 
@@ -106,7 +100,7 @@ color: transparent;
     width: 700px; 
     right: 2%; 
     top: 8%; 
-    z-index: 2; /* Maintain z-index */
+    z-index: 2; 
   }
 }
 
@@ -119,7 +113,7 @@ color: transparent;
   background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.01) 100%);
   backdrop-filter: blur(6px);
   box-shadow: 0 8px 30px rgba(2,6,23,0.45);
-  z-index: 4; /* Higher than container */
+  z-index: 4; 
 }
 
 .marqueeTrack {
@@ -148,7 +142,7 @@ color: transparent;
   cursor: pointer;
   z-index: 6;
   transition: box-shadow 0.3s ease;
-  overflow: hidden; /* Added to prevent logo overflow */
+  overflow: hidden; 
 }
 
 .logoBg {
@@ -165,7 +159,7 @@ color: transparent;
   width: auto;
   max-width: 140px;
   object-fit: contain;
-  z-index: 7; /* Highest of all */
+  z-index: 7; 
   filter: grayscale(25%) contrast(0.95) brightness(1.0);
 }
 
@@ -179,7 +173,7 @@ color: transparent;
   .logoCard { 
     width: 150px; 
     height: 90px; 
-    z-index: 6; /* Maintain z-index */
+    z-index: 6; 
   }
   
   .logoImg { 
@@ -213,7 +207,7 @@ color: transparent;
   
   .logoImg { 
     max-height: 46px; 
-    max-width: 110px; /* Added to prevent overflow */
+    max-width: 110px; 
     z-index: 7; 
   }
   
@@ -236,7 +230,7 @@ color: transparent;
   
   .logoImg { 
     max-height: 40px; 
-    max-width: 90px; /* Added to prevent overflow */
+    max-width: 90px; 
   }
   
   .marqueeTrack {
@@ -248,5 +242,5 @@ color: transparent;
 .logoCard:focus-within {
   outline: 3px solid rgba(155,107,255,0.18);
   outline-offset: 6px;
-  z-index: 8; /* Even higher on focus */
+  z-index: 8; 
 }
