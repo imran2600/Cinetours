@@ -1,8 +1,10 @@
+/* ================= UploadOrder Styles (CINEMATIC) ================= */
 
+/* ---- Design tokens ---- */
 :root{
-  --surface-0:#0a0d12;          
-  --surface-1:#0d1117;          
-  --surface-2:#121821;          
+  --surface-0:#0a0d12;          /* page bg */
+  --surface-1:#0d1117;          /* panels/cards */
+  --surface-2:#121821;          /* elevated */
   --line-soft:rgba(148,163,184,.16);
 
   --ink-strong:rgba(255,255,255,.96);
@@ -14,12 +16,14 @@
 
   --ring:rgba(168,85,247,.34);
 
+  /* emerald palette */
   --g-400:#34d399;
   --g-500:#22c55e;
   --g-600:#16a34a;
   --g-700:#15803d;
 }
 
+/* Bootstrap card baseline */
 :global(.card){
   background: transparent !important;
   border: 0 !important;
@@ -28,6 +32,7 @@
   overflow: hidden;
 }
 
+/* ---------- CARD SHELL ---------- */
 .portalCard{
   position: relative;
   width: min(980px, 100%);
@@ -37,6 +42,7 @@
   isolation:isolate;
 }
 
+/* Subtle spinning gradient ring */
 .portalCard::after{
   content:"";
   position:absolute; inset:-1px;
@@ -55,6 +61,7 @@
 }
 @keyframes ring-spin{ to{ transform: rotate(360deg); } }
 
+/* Soft aurora glow behind the card (no lines) */
 .portalCard::before{
   content:"";
   position:absolute; inset:-16% -8% -28% -8%;
@@ -72,6 +79,7 @@
   100%{ transform: translate3d(-1%, 1%, 0) scale(1.01); }
 }
 
+/* ---------- header + body (single joined frame) ---------- */
 .portalCardHeader{
   background: transparent !important;
   color: var(--ink-strong) !important;
@@ -97,6 +105,7 @@
   overflow:hidden;
 }
 
+/* drifting micro-particles inside the body (tiny dots, not lines) */
 .portalCardBody::before{
   content:"";
   position:absolute; inset:0;
@@ -115,6 +124,7 @@
   100%{ transform: translateY(2%) translateX(0); }
 }
 
+/* ---------- Section titles / helper text ---------- */
 .fileUploadGroup{ margin-bottom: 18px; }
 .packageGroup,.addonsGroup{ color: var(--ink) !important; }
 
@@ -131,9 +141,10 @@
 .fileUploadInfo{
   color: var(--ink-weak) !important;
   font-size: .95rem;
-  margin-top: .45rem; 
+  margin-top: .45rem; /* fixed typo */
 }
 
+/* ---------- File input (animated) ---------- */
 .fileUploadInput{
   background: linear-gradient(180deg, var(--surface-2), var(--surface-1)) !important;
   color: var(--ink-strong) !important;
@@ -143,6 +154,7 @@
   transition: box-shadow .18s ease, border-color .18s ease, filter .18s ease;
 }
 
+/* Focus breathing ring + sparkle halo */
 .fileUploadGroup:focus-within .fileUploadInput{
   border-color: var(--ring) !important;
   box-shadow: 0 0 0 6px rgba(168,85,247,.12), 0 0 24px rgba(168,85,247,.18) !important;
@@ -154,6 +166,7 @@
   100%{ box-shadow: 0 0 0 6px rgba(168,85,247,.10); }
 }
 
+/* Sparkles that appear when focused */
 .fileUploadGroup:focus-within::after{
   content:"";
   position:absolute;
@@ -174,6 +187,7 @@
   100%{ transform: translateY(0); opacity:.9;}
 }
 
+/* Sheen + wave on the native file button */
 .fileUploadInput::file-selector-button,
 .fileUploadInput::-webkit-file-upload-button{
   margin-right: .8rem;
@@ -200,11 +214,12 @@
   box-shadow: 0 12px 26px rgba(0,0,0,.38);
 }
 
+/* ---------- Package picker grid ---------- */
 .packageOptions{
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 22px;
-  perspective: 900px; 
+  perspective: 900px; /* enables 3D tilt */
 }
 
 .packageCard{
@@ -221,6 +236,7 @@
   overflow:hidden;
 }
 
+/* top gloss band */
 .packageCard::before{
   content: "";
   position: absolute; inset: 0 0 auto 0; height: 38%;
@@ -229,6 +245,7 @@
   pointer-events: none;
 }
 
+/* gliding gloss on hover */
 .packageCard::after{
   content:"";
   position:absolute; inset:-2px;
@@ -241,6 +258,7 @@
 }
 .packageCard:hover::after{ transform: translateX(110%); }
 
+/* subtle parallax tilt */
 .packageCard:hover{
   transform: perspective(900px) rotateX(1.2deg) rotateY(.8deg) translateY(-3px);
   border-color: rgba(255,255,255,.22) !important;
@@ -248,6 +266,7 @@
   background: linear-gradient(180deg, #15202a, var(--surface-1)) !important;
 }
 
+/* selected: living gradient border */
 .packageCard.selected{
   border: 2px solid transparent !important;
   background:
@@ -261,6 +280,7 @@
 .packageName,.packagePhotos,.price{ color: #fff !important; }
 .price{ margin-top: .45rem !important; font-weight: 700 !important; font-size: 1.16rem !important; }
 
+/* ---------- Add-ons: center + tight checkbox spacing ---------- */
 .addonsGroup{ text-align: center; margin-top: .75rem; }
 .addonsGroup :global(.form-check){
   display: inline-flex !important;
@@ -269,6 +289,7 @@
   margin: 0 .9rem !important;
 }
 
+/* keep your white tick + add pulse ring on focus */
 .addonsGroup :global(.form-check-input),
 :global(.form-check-input){
   transition: box-shadow .18s ease, border-color .18s ease, background-color .18s ease;
@@ -284,6 +305,7 @@
   100%{ box-shadow: 0 0 0 8px rgba(34,197,94,0); }
 }
 
+/* white tick */
 .addonsGroup :global(.form-check-input:checked),
 :global(.form-check-input:checked){
   background-color: var(--surface-1) !important;
@@ -296,12 +318,14 @@
 }
 .addonsGroup :global(.form-check-label){ color: var(--ink) !important; }
 
+/* Neat defaults if any other checks render */
 :global(.form-check){
   display: inline-flex !important;
   align-items: center !important;
   gap: .55rem;
 }
 
+/* ---------- Submit button (cinematic) ---------- */
 .submitButton{
   width: 100% !important;
   border: none !important;
@@ -326,6 +350,7 @@
   100%{ background-position: -200% 0; }
 }
 
+/* ripple on hover */
 .submitButton::after{
   content:"";
   position:absolute; inset:0;
@@ -344,6 +369,7 @@
   transform: translateY(0%);
 }
 
+/* disabled = loading stripes */
 .submitButton:disabled,
 .submitButton[disabled]{
   opacity: 1 !important;
@@ -361,8 +387,10 @@
 }
 @keyframes load-stripes{ to{ background-position: 40px 0, 0 0; } }
 
+/* tighten the gap beneath */
 .submitButton{ margin-top: .4rem !important; }
 
+/* ---------- Misc / responsive ---------- */
 .selectedChip{
   display:inline-block;
   padding:.55rem .8rem;
@@ -376,6 +404,7 @@
   .packageOptions{ grid-template-columns: 1fr; }
 }
 
+/* --- remove ONLY the diagonal sweep/scan overlays; keep aurora + ring --- */
 .portalCardHeader::before,
 .portalCardHeader::after,
 .portalCardBody::after{
@@ -385,6 +414,9 @@
   background: none !important;
   box-shadow: none !important;
 }
+/* === NO-LINE FIX: keep aurora gradient, remove diagonal streaks === */
+
+/* 1) Kill the spinning conic ring (source of thin diagonal lines) */
 .portalCard::after{
   content: none !important;
   display: none !important;
@@ -394,6 +426,7 @@
           mask: none !important;
 }
 
+/* 2) Keep a soft aurora glow only (pure blurred radials, no beams) */
 .portalCard::before{
   content: "";
   position: absolute;
@@ -409,6 +442,7 @@
   animation: aurora-shift 26s ease-in-out infinite alternate;
 }
 
+/* 3) Make sure no other scan/sweep layers can slip back in */
 .portalCardHeader::before,
 .portalCardHeader::after,
 .portalCardBody::after{
@@ -418,6 +452,7 @@
   background: none !important;
   box-shadow: none !important;
 }
+/* ---- Add-ons dropdown (glass) ---- */
 .addonsDropdown{
   border:1px solid var(--line-soft);
   border-radius:12px;
