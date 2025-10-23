@@ -8,7 +8,6 @@
   --emerald:#22c55e;
 }
 
-/* ---------- page wrap + background ---------- */
 .wrap{
   position: relative;
   min-height: calc(100dvh - 120px);
@@ -26,7 +25,6 @@
 .title{ margin:0; color:#fff; font-weight:800; letter-spacing:.2px; }
 .sub{ margin:.3rem 0 0; color:var(--ink-weak); }
 
-/* ---------- bubbles (fast) ---------- */
 .bubbles{ position:absolute; inset:0; margin:0; padding:0; list-style:none; pointer-events:none; z-index:0; }
 .bubble{ position:absolute; left:var(--left); width:var(--size); height:var(--size); border-radius:50%; opacity:.5; }
 .bubble::before{
@@ -39,9 +37,7 @@
   filter:saturate(115%);
 }
 .rise{ bottom:-16vh; animation: rise var(--rise) linear infinite, sway var(--sway) ease-in-out infinite alternate; animation-delay: var(--delay); }
-/* existing: .bubbles, .bubble, .bubble::before, .rise, @keyframes rise, @keyframes sway */
 
-/* ---- fall from the top ---- */
 .fall{
   top:-16vh;
   animation: fall var(--fall) linear infinite,
@@ -55,7 +51,6 @@
   100% { transform: translateY(115vh) scale(1.1); opacity:0; }
 }
 
-/* ---- gentle float in place (random vertical positions) ---- */
 .float{
   top: var(--top);
   animation:
@@ -72,23 +67,21 @@
 @keyframes rise { 0%{transform:translateY(10vh) scale(.95);opacity:0} 10%{opacity:.5} 100%{transform:translateY(-115vh) scale(1.1);opacity:0} }
 @keyframes sway { 0%{transform:translateX(-12px)} 100%{transform:translateX(12px)} }
 
-/* ---------- grid (always centered) ---------- */
 .grid{
   display:flex;
   flex-wrap:wrap;
   gap:22px;
-  justify-content:center;    /* centers both rows */
+  justify-content:center;    
   align-items:stretch;
   margin-top:20px;
 }
 
-/* ---------- tile ---------- */
 .tile{
   width: clamp(250px, 31vw, 330px);          
   background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
   border:1px solid var(--hair);
   border-radius:14px;
-  padding:20px 18px 22px;                     /* tighter bottom padding */
+  padding:20px 18px 22px;                     
   color:#fff;
   text-align:center;
   min-height: 220px; 
@@ -99,28 +92,25 @@
 }
 .tile:hover{
   transform: translateY(-2px);
-  border-color: rgba(168,85,247,.45);         /* highlighted border on hover */
+  border-color: rgba(168,85,247,.45);         
   box-shadow: 0 22px 48px rgba(0,0,0,.45), 0 0 0 6px rgba(168,85,247,.12) inset;
 }
 
-/* icon */
 .iconWrap{
-  width: 52px; height: 52px;                  /* smaller icon box */
+  width: 52px; height: 52px;                
   margin: 0 auto 8px;
   border-radius:12px;
   display:grid; place-items:center;
   background: linear-gradient(180deg, rgba(168,85,247,.22), rgba(34,197,94,.16));
   border:1px solid rgba(255,255,255,.16);
 }
-.iconWrap :global(.bi){ font-size: 20px; color:#fff; opacity:.95; }  /* smaller icon */
+.iconWrap :global(.bi){ font-size: 20px; color:#fff; opacity:.95; }  
 
-/* text */
 .tileTitle{ margin:.25rem 0 .2rem; font-weight:700; font-size:1.12rem; }
 .tileDesc { margin:0; color:var(--ink-weak); font-size:.96rem; line-height:1.45; }
 
-/* button */
 .openBtn{
-  margin-top:12px;                            /* tighter gap to bottom */
+  margin-top:12px;                            
   border:none; color:#fff; font-weight:700;
   padding:.5rem .95rem; border-radius:999px;
   background-image: linear-gradient(135deg, var(--emerald), #15803d);
@@ -129,7 +119,6 @@
 }
 .openBtn:hover{ transform: translateY(-1px); filter:brightness(1.05); }
 
-/* responsive touch-ups */
 @media (max-width: 720px){
   .tile{ width: 100%; }
 }

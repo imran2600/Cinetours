@@ -1,12 +1,10 @@
-// src/pages/ClientPortal/components/FontSelect.jsx
+
 import React, { useEffect } from "react";
 import * as Select from "@radix-ui/react-select";
 import styles from "./FontSelect.module.css";
 
-// Fonts you offer
 const FONTS = ["Montserrat", "Roboto", "Open Sans", "Playfair Display", "Inter", "Poppins"];
 
-// quick helper to load a Google font for preview
 function ensureGoogleFont(name) {
   const id = "gf-" + name.replace(/\s+/g, "-").toLowerCase();
   if (document.getElementById(id)) return;
@@ -18,7 +16,6 @@ function ensureGoogleFont(name) {
 }
 
 export default function FontSelect({ value, onChange }) {
-  // load all so the list previews look correct
   useEffect(() => { FONTS.forEach(ensureGoogleFont); }, []);
 
   return (

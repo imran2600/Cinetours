@@ -4,7 +4,7 @@ import styles from './ClientManagement.module.css';
 
 /**
  * Displays client list with usage stats
- * API: GET /admin/clients
+ * API: GET /admin/clientsa
  */
 const ClientList = () => {
   const [clients, setClients] = useState([]);

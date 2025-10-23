@@ -1,4 +1,4 @@
-/* Client Portal Gate Module */
+
 :root{
   --brand1:#a855f7;
   --brand2:#1fb454;
@@ -108,15 +108,12 @@
   box-shadow: none; cursor:not-allowed;
 }
 
-/* Floating bubbles background */
-/* keep bubbles behind content and non-interactive */
 .bubbles{
   position:absolute; inset:0;
   overflow:hidden; list-style:none; margin:0; padding:0;
   pointer-events:none; z-index:0;
 }
 
-/* base bubble using CSS vars populated from React */
 .bubble{
   position:absolute;
   left: var(--left);
@@ -126,7 +123,6 @@
   will-change: transform, opacity;
 }
 
-/* colored/glow layer */
 .bubble::before{
   content:""; position:absolute; inset:0; border-radius:inherit;
   background:
@@ -140,7 +136,6 @@
   border-radius: inherit;
 }
 
-/* motion variants */
 .rise{
   bottom:-16vh;
   animation:
@@ -157,7 +152,6 @@
   animation-delay: var(--delay);
 }
 
-/* animations */
 @keyframes rise{
   0%   { transform: translateY(10vh) scale(1);    opacity:0; }
   10%  { opacity:.40; }
@@ -175,7 +169,6 @@
   to { transform: rotate(360deg); }
 }
 
-/* ensure cards/content sit above effects */
 .inner{ position:relative; z-index:1; }
 
 

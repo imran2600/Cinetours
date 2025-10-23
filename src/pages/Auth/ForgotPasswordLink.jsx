@@ -4,7 +4,7 @@ import gsap from "gsap";
 import styles from "./ForgotPasswordLink.module.css";
 
 export default function ForgotPasswordLink({ initialEmail = "" }) {
-  const { requestPasswordReset } = useAuth(); // already added earlier
+  const { requestPasswordReset } = useAuth(); 
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState(initialEmail);
   const [busy, setBusy] = useState(false);
@@ -39,12 +39,10 @@ export default function ForgotPasswordLink({ initialEmail = "" }) {
   useEffect(() => {
     if (!open) return;
 
-    // reset state on open
     setMsg("");
     setErr("");
     setBusy(false);
 
-    // build the entrance timeline once per open
     const overlay = overlayRef.current;
     const box = dialogRef.current;
     const items = contentRef.current?.querySelectorAll("[data-stagger]");
@@ -77,10 +75,8 @@ export default function ForgotPasswordLink({ initialEmail = "" }) {
 
     tlRef.current = tl;
 
-    // focus input when open
     setTimeout(() => inputRef.current?.focus(), 0);
 
-    // close on ESC
     const onKey = (e) => e.key === "Escape" && closeWithAnim();
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -103,7 +99,6 @@ export default function ForgotPasswordLink({ initialEmail = "" }) {
 
   return (
     <>
-      {/* trigger text (keeps your wording) */}
       <div className={styles.linkWrap}>
         <span
           role="link"
@@ -123,7 +118,6 @@ export default function ForgotPasswordLink({ initialEmail = "" }) {
           ref={overlayRef}
           className={styles.overlay}
           onMouseDown={(e) => {
-            // click outside dialog closes
             if (e.target === overlayRef.current) closeWithAnim();
           }}
         >

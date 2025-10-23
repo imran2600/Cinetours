@@ -5,16 +5,14 @@ import styles from './BrandAssets.module.css';
 import ColorPickerPopover from './ColorPickerPopover';
 import FontSelect from './FontSelect';
 
-/* ---------- helpers ---------- */
 const safeRevoke = (url) => {
   if (typeof url === 'string' && url.startsWith('blob:')) {
     try { URL.revokeObjectURL(url); } catch {}
   }
 };
 
-// Build a display item from string URL or File/Blob
 const toItem = (item, prefix, i) => {
-  if (!item) return null; // skip empties entirely
+  if (!item) return null; 
   if (typeof item === 'string') {
     const ok = /^(https?:|data:|blob:)/i.test(item);
     return ok ? { id: `${prefix}-${i}`, url: item, file: null } : null;
@@ -30,12 +28,9 @@ const toItem = (item, prefix, i) => {
 const toItems = (arr = [], prefix) =>
   (arr || []).map((it, i) => toItem(it, prefix, i)).filter(Boolean);
 
-/* -------------------- component -------------------- */
 export default function BrandAssets({ assets = {}, onUpdate }) {
   const [formData, setFormData] = useState(assets);
 
-  // IMPORTANT: start empty so the UI shows ONLY the "Logo" slot first.
-  // (If you later want to prefill from assets, toggle PREFILL_FROM_ASSETS = true.)
   const PREFILL_FROM_ASSETS = false;
 
   const [logos, setLogos] = useState(() =>
@@ -44,10 +39,8 @@ export default function BrandAssets({ assets = {}, onUpdate }) {
       : []
   );
 
-  // cleanup blob URLs
   useEffect(() => () => logos.forEach((it) => safeRevoke(it?.url)), [logos]);
 
-  // Add one or many files to logos
   const handleLogoFiles = (fileList) => {
     const files = Array.from(fileList || []);
     if (!files.length) return;
@@ -58,10 +51,9 @@ export default function BrandAssets({ assets = {}, onUpdate }) {
       file: f,
     }));
 
-    setLogos((prev) => [...prev, ...mapped]); // append
+    setLogos((prev) => [...prev, ...mapped]); 
   };
 
-  // Remove one logo (used by the “×” and by img onError)
   const removeLogo = (id) => {
     setLogos((list) =>
       list.filter((it) => {
@@ -76,17 +68,15 @@ export default function BrandAssets({ assets = {}, onUpdate }) {
     try {
       const payload = {
         ...formData,
-        logos: logos.map((it) => it.file ?? it.url), // array of Files or URLs
+        logos: logos.map((it) => it.file ?? it.url), 
       };
       await onUpdate?.(payload);
       alert('Brand assets updated successfully!');
     } catch (err) {
       console.error('Update failed:', err);
-      // optional: surface a toast/inline error
     }
   };
 
-  // background bubbles (unchanged)
   const bubbles = useMemo(() => {
     const N = 18;
     const rnd = (min, max) => Math.random() * (max - min) + min;
@@ -144,7 +134,6 @@ export default function BrandAssets({ assets = {}, onUpdate }) {
               <legend className={styles.groupTitle}>Primary Logos</legend>
 
               <div className={styles.thumbGrid}>
-                {/* If no logos yet: show ONLY the "Logo" slot (click to upload) */}
                 {logos.length === 0 ? (
                   <label
                     className={styles.thumb}
@@ -163,13 +152,12 @@ export default function BrandAssets({ assets = {}, onUpdate }) {
                   </label>
                 ) : (
                   <>
-                    {/* Existing thumbnails */}
                     {logos.map((it) => (
                       <figure key={it.id} className={styles.thumb}>
                         <img
                           src={it.url}
                           alt=""
-                          onError={() => removeLogo(it.id)} // auto-remove broken images
+                          onError={() => removeLogo(it.id)} 
                         />
                         <button
                           type="button"
@@ -183,7 +171,6 @@ export default function BrandAssets({ assets = {}, onUpdate }) {
                       </figure>
                     ))}
 
-                    {/* Exactly one “＋” tile to add more */}
                     <label className={`${styles.thumb} ${styles.addThumb}`} title="Add logos">
                       <input
                         type="file"
@@ -200,7 +187,6 @@ export default function BrandAssets({ assets = {}, onUpdate }) {
               <small className={styles.help}>Upload one or many logos (PNG/SVG/JPG).</small>
             </fieldset>
 
-            {/* Primary Color */}
             <fieldset className={styles.groupCard}>
               <legend className={styles.groupTitle}>Primary Color</legend>
               <ColorPickerPopover
@@ -209,7 +195,6 @@ export default function BrandAssets({ assets = {}, onUpdate }) {
               />
             </fieldset>
 
-            {/* Font Family */}
             <fieldset className={styles.groupCard}>
               <legend className={styles.groupTitle}>Font Family</legend>
               <FontSelect

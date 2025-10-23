@@ -1,4 +1,4 @@
-// ClientPortalGate
+
 import React, { useState } from 'react';
 import styles from "./ClientPortalGate.module.css"
 
@@ -8,16 +8,15 @@ export default function ClientPortalGate({ packages, onContinue }) {
 
   return (
     <div className={styles.gateWrap}>
-      {/* floating bubbles background */}
       <ul className={styles.bubbles}>
   {Array.from({ length: 28 }).map((_, i) => {
-    const isFloat = Math.random() < 0.4;                 // 40% float in place, 60% rise
-    const left = 3 + Math.random() * 94;                 // 3–97%
-    const size = 18 + Math.random() * 64;                // 18–82px
-    const rise = 18 + Math.random() * 14;                // 18–32s
-    const sway = 6 + Math.random() * 6;                  // 6–12s
-    const delay = Math.random() * 12;                    // stagger
-    const top = 12 + Math.random() * 58;                 // for float mode: 12–70vh
+    const isFloat = Math.random() < 0.4;                 
+    const left = 3 + Math.random() * 94;                 
+    const size = 18 + Math.random() * 64;                
+    const rise = 18 + Math.random() * 14;            
+    const sway = 6 + Math.random() * 6;                 
+    const delay = Math.random() * 12;                    
+    const top = 12 + Math.random() * 58;
 
     return (
       <li

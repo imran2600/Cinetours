@@ -89,7 +89,6 @@
 .googleBtn:hover{ box-shadow:0 10px 24px rgba(0,0,0,.06); transform: translateY(-1px); }
 .iconGoogle{ width:18px; height:18px; flex:0 0 18px; }
 
-/* divider */
 .divider{
   display:flex; align-items:center; gap:12px;
   margin:16px 0;
@@ -99,10 +98,9 @@
   content:""; height:1px; background:#e5e7eb; flex:1 1 0;
 }
 
-/* form controls */
 .form{ display:grid; gap:12px; }
 .label{
-  display:block;                    /* ensure left alignment/spacing */
+  display:block;                    
   font-weight:600; color:#111827;
   margin:6px 0 6px;
 }
@@ -111,17 +109,16 @@
   border:1px solid var(--line);
   padding:0 14px; outline:none;
   font-size:16px; color:#0f172a;
-  text-align:left;                  /* explicit left align */
+  text-align:left;                  
   transition:border-color .15s ease, box-shadow .15s ease;
   background:#fff;
 }
 .input::placeholder{ color:#9ca3af; }
 .input:focus{
-  border-color:#c4b5fd; /* violet-300 */
+  border-color:#c4b5fd; 
   box-shadow:0 0 0 6px rgba(109,40,217,.12);
 }
 
-/* password eye like Make */
 .pwWrap{ position:relative; }
 .eyeBtn{
   position:absolute; right:10px; top:50%; transform:translateY(-50%);
@@ -150,7 +147,6 @@
   color:#b91c1c; padding:10px 12px; border-radius:10px; font-weight:600; margin:8px 0;
 }
 
-/* RIGHT — hero panel (Make-like) */
 
 .brandPane{
   flex: 1 1 auto;
@@ -161,28 +157,14 @@
   display:flex; flex-direction:column; justify-content:center;
   padding: clamp(40px, 6vw, 72px);
 
-  /* 1) Deep base gradient (like Make) */
   background:
-    /* bottom-right purple blob (SVG) */
     url("data:image/svg+xml,%3Csvg width='477' height='318' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath opacity='.12' fill-rule='evenodd' clip-rule='evenodd' d='M590.59 96.789c-43.291-86.67-147.485-121.564-232.726-77.954-46.33 23.723-77.526 65.757-89.394 113.106-23.882 65.703-80.186 80.071-113.884 75.336-28.648-6.511-58.642-2.719-84.827 10.725C6.996 250.121-18.002 327.98 13.927 391.904c31.93 63.924 108.71 89.698 171.473 57.578 25.624-13.074 46.087-34.59 58.018-61.007 39.781-67.976 101.13-60.453 127-50.464 44.989 18.918 97.459 18.619 144.222-5.311 85.24-43.617 119.241-149.241 75.95-235.911Z' fill='url(%23a)'/%3E%3Cdefs%3E%3CradialGradient id='a' cx='0' cy='0' r='1' gradientUnits='userSpaceOnUse' gradientTransform='matrix(406.88822 -381.56193 604.64261 644.77595 73.174 549.133)'%3E%3Cstop stop-color='%23a855f7' stop-opacity='0'/%3E%3Cstop offset='1' stop-color='%23a855f7'/%3E%3C/radialGradient%3E%3C/defs%3E%3C/svg%3E") no-repeat,
-    /* top-left green blob (SVG) */
-    /* url("data:image/svg+xml,%3Csvg width='477' height='318' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath opacity='.12' fill-rule='evenodd' clip-rule='evenodd' d='M590.59 96.789c-43.291-86.67-147.485-121.564-232.726-77.954-46.33 23.723-77.526 65.757-89.394 113.106-23.882 65.703-80.186 80.071-113.884 75.336-28.648-6.511-58.642-2.719-84.827 10.725C6.996 250.121-18.002 327.98 13.927 391.904c31.93 63.924 108.71 89.698 171.473 57.578 25.624-13.074 46.087-34.59 58.018-61.007 39.781-67.976 101.13-60.453 127-50.464 44.989 18.918 97.459 18.619 144.222-5.311 85.24-43.617 119.241-149.241 75.95-235.911Z' fill='url(%23a)'/%3E%3Cdefs%3E%3CradialGradient id='a' cx='0' cy='0' r='1' gradientUnits='userSpaceOnUse' gradientTransform='matrix(406.88822 -381.56193 604.64261 644.77595 73.174 549.133)'%3E%3Cstop stop-color='%2322C55E' stop-opacity='0'/%3E%3Cstop offset='1' stop-color='%2322C55E'/%3E%3C/radialGradient%3E%3C/defs%3E%3C/svg%3E") no-repeat, */
-    /* base panel gradient */
+
     linear-gradient( #14062a 100%);
 
-  /* 2) Place + size the blobs (responsive) */
-  /* background-position:
-    right -60px bottom -20px,     
-    left  -120px top    -60px;    */
-  /* background-size:
-    clamp(300px, 32vw, 520px) auto,
-    clamp(240px, 26vw, 420px) auto; */
-
-  /* Gentle drift like make.com */
   animation: blobDrift 22s ease-in-out infinite alternate;
 }
 
-/* soft glows you already have */
 .brandPane::before{
   content:"";
   position:absolute; inset:-20%;
@@ -194,7 +176,6 @@
   animation: bgDrift 26s ease-in-out infinite;
 }
 
-/* subtle vignette, keeps text readable */
 .brandPane::after{
   position:absolute; inset:0; 
   pointer-events:none;
@@ -207,7 +188,7 @@
   position:absolute; inset:-18% -12% -22% -12%;
   pointer-events:none;
   z-index: 2;
-  mix-blend-mode: screen;          /* glowy blending, still readable */
+  mix-blend-mode: screen;         
 }
 
 @keyframes blobDrift{
@@ -223,8 +204,6 @@
   }
 }
 
-/* Two soft, rotating “ribbons” built with conic-gradients.
-   They rotate + gently drift to feel alive without being distracting. */
 .aurora::before,
 .aurora::after{
   content:"";
@@ -245,7 +224,6 @@
   animation: auroraFloat1 64s linear infinite;
 }
 
-/* Green ribbon (softer) */
 .aurora::after{
   left:68%; top:74%;
   opacity:.58;
@@ -258,7 +236,6 @@
   animation: auroraFloat2 50s linear infinite;
 }
 
-/* slow orbit + tiny bob + micro-scale in one animation (efficient) */
 @keyframes auroraFloat1{
   0%   { transform: translate(-50%,-50%) rotate(0deg)   scale(1); }
   50%  { transform: translate(calc(-50% + 6px), calc(-50% - 4px)) rotate(180deg) scale(1.035); }
@@ -270,17 +247,13 @@
   100% { transform: translate(-50%,-50%) rotate(360deg) scale(1); }
 }
 
-
-/* slow idle motion for the glows */
 @keyframes bgDrift{
   0%,100% { transform: translate3d(0,0,0) scale(1) }
   50%     { transform: translate3d(-2%, 1%, 0) scale(1.04) }
 }
 
-/* Remove the old markup-driven waves if it still exists */
 .waves{ display:none !important; }
 
-/* gradient wordmark */
 .brandLogo{
   position:absolute; top:24px; right:28px;
   font-weight:800; letter-spacing:.2px;
@@ -289,7 +262,6 @@
   -webkit-background-clip:text; background-clip:text; color:transparent;
 }
 
-/* hero text */
 .hero{ 
   max-width: 720px;
   margin: 0 auto;
@@ -308,7 +280,6 @@
   max-width:52ch;
 }
 
-/* --- guest entry styles --- */
 .guestRow{
   margin-top: 12px;
   text-align: center;
@@ -334,9 +305,6 @@
   color: #6b7280;
   font-size: .88rem;
 }
-/* ------------------ Responsive ------------------ */
-
-/* Tablet & down: switch to single column; hero hidden */
 @media (max-width: 1024px){
   .authShell{
     flex-direction: column;
@@ -347,19 +315,19 @@
   .brandPane{ display:none !important; }
 
   .formPane{
-    flex: 1 1 auto !important;      /* allow it to fill width */
+    flex: 1 1 auto !important;      
     max-width: 100% !important;
     width: 100%;
     display:flex !important;
     justify-content: center !important;  
-    align-items: flex-start !important;   /* form starts near top */
+    align-items: flex-start !important;   
     background:#fff;
     padding: clamp(20px, 5vw, 32px);
-    overflow-y:auto;                      /* scroll if long sign-up */
+    overflow-y:auto;                      
   }
 
   .formCard{
-    width: min(680px, 94vw);             /* wide enough on tablets */
+    width: min(680px, 94vw);           
     max-width: 680px;
     margin: 0 auto;
     padding: clamp(20px, 3.4vw, 32px);
@@ -370,7 +338,6 @@
   }
 }
 
-/* Large phones / small tablets */
 @media (max-width: 768px){
   .formCard{
     width: min(560px, 94vw) !important;
@@ -379,9 +346,8 @@
   .title{ font-size: 30px; }
 }
 
-/* Phones */
 @media (max-width: 600px){
-  :root{ --form-col: 100vw; }            /* not used but keeps calc sane */
+  :root{ --form-col: 100vw; }            
   .formPane{ padding: 16px; }
   .formCard{
     margin-top: 50px;
@@ -392,7 +358,6 @@
   .submit{ height: 48px; }
 }
 
-/* Very small phones */
 @media (max-width: 380px){
   .formCard{
     width: 94vw !important;

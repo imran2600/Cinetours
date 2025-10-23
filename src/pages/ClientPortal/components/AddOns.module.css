@@ -1,4 +1,4 @@
-/* Add Ons */
+
 :root{
   --ink:rgba(255,255,255,.92);
   --ink-weak:rgba(255,255,255,.72);
@@ -7,7 +7,6 @@
   --violet:#a855f7; --emerald:#22c55e; --cyan:#38bdf8;
 }
 
-/* PAGE */
 .wrap{
   position:relative;
   min-height:100dvh;
@@ -21,7 +20,6 @@
     linear-gradient(180deg, var(--bg1), var(--bg0));
 }
 
-/* 🎬 Cinematic background: behind whole screen (incl. Back), fades before footer */
 .fx{
   position:fixed; inset:0; z-index:-1;
   pointer-events:none; overflow:hidden; filter:blur(44px);
@@ -47,14 +45,12 @@
   100% { transform:translate3d(-5vw,5vh,0) scale(1.02) }
 }
 
-/* CONTENT */
 .inner{ width:min(960px,92%); margin-inline:auto; position:relative; z-index:1; }
 
 .header{ text-align:center; margin-bottom:14px; display:grid; gap:8px; }
 .title{ margin:0; font-weight:700; letter-spacing:.2px; }
 .sub{ margin:0; color:var(--ink-weak); }
 
-/* Back button */
 .backBtn{
   position:absolute; left:calc(50% - 540px); transform:translateX(-16px);
   border:1px solid var(--line);
@@ -65,12 +61,11 @@
 }
 .backBtn:hover{ background:rgba(255,255,255,.06); }
 
-/* Cards */
 .card{
   max-width:920px; 
   margin:20px auto;
   padding:20px; 
- --bg-top: rgba(10,14,20,.78);   /* was ~.04–.02 */
+ --bg-top: rgba(10,14,20,.78);   
   --bg-bot: rgba(7,10,16,.72);
   --edge:   rgba(236,242,255,.28);
 
@@ -87,8 +82,6 @@
 .card > h3{ margin:2px 0 14px; text-align:center; font-weight:600; }
 .card >h3 .span{color: black;}
 
-/* ===== UNIFIED ROW GRID =====
-   | spacer | tick | text | controls | spacer |  */
 .row{
   --tick:18px;
   --text-max:720px;
@@ -104,30 +97,25 @@
 .row + .row{ margin-top:12px; }
 .row:hover{ background:rgba(255,255,255,.04); transform:translateY(-1px); }
 
-/* Tick directly left of text */
 .tick{
   width:var(--tick); height:var(--tick);
   grid-column:2; grid-row:1 / span 2; align-self:center;
 }
 .tick[type="checkbox"], .tick[type="radio"]{ accent-color:var(--emerald); }
 
-/* Placeholder tick (for spacer rows) */
 .placeholder{
   display:inline-block; border-radius:4px; background:transparent;
 }
 
-/* Selected state */
 .row:has(.tick:checked){
   background:linear-gradient(180deg, rgba(34,197,94,.10), rgba(255,255,255,.02));
   box-shadow:0 0 0 6px rgba(34,197,94,.12) inset;
 }
 
-/* Text column */
 .text{ grid-column:3; grid-row:1 / span 2; min-width:0; }
 .name{ font-weight:500; color:#fff!important; text-align:left; }
 .blurb{ color:var(--ink-weak); line-height:1.45; text-align:left; margin-top:4px; }
 
-/* Trailing controls (qty or radios) – close to text */
 .qty{
   grid-column:4; grid-row:1 / span 2;
   justify-self:start; align-self:center;
@@ -143,7 +131,6 @@
 }
 .qty span{ min-width:18px; text-align:center; font-weight:700; }
 
-/* Radios for format inline in controls column */
 .controlGroup{
   grid-column:4; grid-row:1 / span 2;
   display:flex; align-items:center; gap:12px; justify-self:start;
@@ -151,7 +138,6 @@
 }
 .controlGroup label{ display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
 
-/* Bundles use same columns (no controls) */
 .bundleRow{
   --tick:18px; --text-max:720px;
   display:grid;
@@ -166,7 +152,6 @@
 .bundleRow .name{ font-weight:500; color:#fff !important; text-align:left; }
 .bundleRow .blurb{ color:var(--ink-weak); text-align:left; margin-top:4px; }
 
-/* “Clear bundle” – glass ghost */
 .clear{
   display:inline-flex; align-items:center;
   border:1px solid var(--line); border-radius:12px;
@@ -183,7 +168,6 @@
 }
 .clear:disabled{ opacity:.45; cursor:not-allowed; filter: grayscale(.15); }
 
-/* FOOTER */
 .footer{ display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:12px; }
 .total{ color:#fff !important; }
 .next{
@@ -193,15 +177,14 @@
   transition:.18s ease;
 }
 .next:hover{ transform:translateY(-1px); filter:brightness(1.05); }
-/* Wandering bubbles (reused from DownloadCenter) */
 .bubbles {
   position: fixed;
   inset: 0;
   margin: 0;
   padding: 0;
   list-style: none;
-  z-index: 0;            /* behind content */
-  pointer-events: none;   /* don’t block UI */
+  z-index: 0;            
+  pointer-events: none;   
   overflow: hidden;
 }
 
@@ -228,8 +211,6 @@
   100% { transform: translate(var(--x4), var(--y4)) scale(var(--s)); }
 }
 
-
-/* ===== RESPONSIVE ===== */
 @media (max-width:1024px){
   .card{ padding:16px; }
   .backBtn{ position:static; transform:none; margin-bottom:10px; }
@@ -250,34 +231,31 @@
   .clear{ width:100%; justify-content:center; }
 }
 
-/* Base */
 .text { 
   overflow-wrap: break-word; 
   max-width: 100%; 
 }
 
-/* Tablet (≤1024px) */
 @media (max-width: 1024px){
   .row, .bundleRow { 
-    --text-max: 100%;      /* allow full width for text */
+    --text-max: 100%;      
   }
   .text { 
     width: 100%; 
     max-width: 100%; 
   }
 }
-/* FIX: put the checkbox back in column 1 on mobile and keep text in column 2 */
+
 @media (max-width: 768px){
   .row{
     grid-template-columns: var(--tick) 1fr;
-    grid-template-rows: auto auto; /* text, then controls */
+    grid-template-rows: auto auto; 
   }
 
-  /* Checkbox / radio placement */
   .row .tick{ 
     grid-column: 1; 
     grid-row: 1; 
-    align-self: start;           /* align nicely with text top */
+    align-self: start;           
     margin-top: 2px;
   }
   .row .placeholder{
@@ -285,7 +263,6 @@
     grid-row: 1;
   }
 
-  /* Text column spans the second column */
   .text{ 
     grid-column: 2; 
     grid-row: 1; 
@@ -294,7 +271,6 @@
     overflow-wrap: break-word;
   }
 
-  /* Controls drop under the text */
   .qty, 
   .controlGroup{
     grid-column: 2; 
@@ -303,7 +279,6 @@
     margin-top: 8px;
   }
 
-  /* Bundles use the same mapping */
   .bundleRow{
     grid-template-columns: var(--tick) 1fr;
     grid-template-rows: auto auto;
@@ -312,7 +287,6 @@
   .bundleRow .text{ grid-column: 2; grid-row: 1; }
 }
 
-/* Small Phones (≤480px) */
 @media (max-width: 480px){
   .title { font-size: 1.6rem; }
   .row, .bundleRow { padding: 12px; }
@@ -323,7 +297,7 @@
   .backBtn{
     position: fixed ;
     margin-bottom: 16px;
-    left: 16px;  /* space under the button */
+    left: 16px; 
   }
   .title{
     margin-top: 65px;
@@ -334,7 +308,7 @@
   .backBtn{
     position: fixed ;
     margin-bottom: 16px;
-    left: 16px;  /* space under the button */
+    left: 16px;  
   }
   .title{
     margin-top: 65px;

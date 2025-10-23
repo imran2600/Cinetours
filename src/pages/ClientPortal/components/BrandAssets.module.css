@@ -8,20 +8,17 @@
   --g-500:#22c55e; --g-700:#15803d; --violet:#a855f7;
 }
 
-/* host for particles + form */
 .bgHost{
   position: relative;
   min-height: 72vh;
   padding: 12px 0;
-  /* fallback accent if JS hasn’t set it yet */
   --accent: #22c55e;
 }
 
-/* Give the card a stacking context so particles sit behind */
 .portalCard{
   position:relative;
   z-index: 1;
-   --bg-top: rgba(10,14,20,.78);   /* was ~.04–.02 */
+   --bg-top: rgba(10,14,20,.78);   
   --bg-bot: rgba(7,10,16,.72);
   --edge:   rgba(236,242,255,.28);
 
@@ -35,7 +32,7 @@
     inset 0 1px 0 rgba(255,255,255,.06);
 }
 
-/* Header + Body */
+
 .cardHeader{
   background: transparent !important;
   color: var(--ink-strong) !important;
@@ -46,11 +43,11 @@
   background: transparent !important;
   color: var(--ink) !important;
   padding: 1.5rem !important;
-  max-width: 880px;      /* wider */
+  max-width: 880px;      
   margin: 0 auto;
 }
 
-/* Section “cards” (fieldset) */
+
 .groupCard{
   margin: 18px 0;
   width: 800px;
@@ -73,11 +70,10 @@
   margin-bottom: 8px;
 }
 
-/* Logo preview */
 .logoUploadWrapper{ display:block; margin:16px 0; }
 .logoPreview{
   display:flex; align-items:center; justify-content:center;
-  width:100%; min-height:160px;     /* taller */
+  width:100%; min-height:160px;     
   border:1px dashed var(--line-soft);
   border-radius:12px; color:var(--ink-weak); margin-bottom:10px;
   opacity:0; transform:scale(.95);
@@ -87,11 +83,10 @@
 .logoPreview.show{ opacity:1; transform:scale(1); }
 .logoPreview:hover{ filter:brightness(1.05); }
 
-/* Wiggle on error container */
 .isError .logoPreview{ animation: wiggle .5s ease; }
 @keyframes wiggle{ 0%,100%{transform:rotate(-2deg)} 50%{transform:rotate(2deg)} }
 
-/* Inputs */
+
 .fileInput,
 .cardBody :global(input[type="file"]){
   background: linear-gradient(180deg, var(--surface-2), var(--surface-1)) !important;
@@ -99,7 +94,7 @@
   border: 1px solid var(--line-soft) !important;
   border-radius: 12px !important;
   padding: .65rem .9rem !important;
-  height:52px; /* a little taller */
+  height:52px; 
 }
 .fileInput:focus,
 .cardBody :global(input[type="file"]:focus){
@@ -125,7 +120,6 @@
   100%{ box-shadow: 0 0 0 0 rgba(168,85,247,0); }
 }
 
-/* Color picker */
 .colorPicker,
 .cardBody :global(input[type="color"]){
   width:56px !important; height:44px !important;
@@ -134,16 +128,13 @@
   border-radius: 12px !important;
   overflow:hidden; cursor:pointer;
 }
-
-/* DARK SELECT (no white popout) */
-
 .cardBody :global(select.form-select){
   background: linear-gradient(180deg, var(--surface-2), var(--surface-1)) !important;
   color: var(--ink-strong) !important;
   border: 1px solid var(--line-soft) !important;
   border-radius: 12px !important;
   height:52px;
-  color-scheme: dark; /* native dark popout */
+  color-scheme: dark; 
 }
 .fontSelect option,
 .cardBody :global(select.form-select option){
@@ -156,7 +147,6 @@
   box-shadow: 0 0 0 6px rgba(168,85,247,.12) !important;
 }
 
-/* Submit button */
 .submitButton{
   margin-top:22px; width:100% !important; border:none !important; color:#fff !important;
   padding:1rem 1.15rem !important; border-radius:12px !important;
@@ -171,7 +161,6 @@
   box-shadow:0 16px 34px rgba(21,128,61,.32) !important;
 }
 
-/* Animated background layers */
 .fx{
   position: absolute;
   inset: -12% -6% -18% -6%;
@@ -202,7 +191,7 @@
   animation: driftB 32s ease-in-out infinite;
 }
 
-/* A gentle accent glow that follows the chosen Primary Color */
+
 .accentGlow{
   position: absolute;
   left: 70%; top: 42%;
@@ -224,8 +213,8 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  z-index: 0;            /* behind content */
-  pointer-events: none;   /* don’t block UI */
+  z-index: 0;           
+  pointer-events: none;   
   overflow: hidden;
 }
 
@@ -244,14 +233,12 @@
   animation: wander var(--d, 20s) cubic-bezier(.22,.61,.36,1) var(--delay, 0s) infinite;
 }
 
-/* --- Thumbnails grid for multi uploads --- */
 .thumbGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 16px;
 }
 
-/* Normal thumbnail tile */
 .thumb {
   position: relative;
   border-radius: 12px;
@@ -270,7 +257,6 @@
   object-fit: contain;
 }
 
-/* Remove button */
 .removeThumb {
   position: absolute;
   top: 6px;
@@ -282,7 +268,6 @@
   cursor: pointer;
 }
 
-/* The "+" tile */
 .addThumb {
   border: 2px dashed rgba(255,255,255,0.2);
   color: rgba(255,255,255,0.7);
@@ -290,7 +275,6 @@
 }
 
 .addThumb input {
-  /* keep the file input accessible but invisible */
   position: absolute;
   inset: 0;
   opacity: 0;
@@ -318,7 +302,6 @@
   100% { transform: translate(var(--x4), var(--y4)) scale(var(--s)); }
 }
 
-/* motion */
 @keyframes driftA{
   0%,100%{ transform: translate3d(0,0,0) scale(1); }
   50%    { transform: translate3d(6%, -4%, 0) scale(1.05); }
@@ -336,7 +319,6 @@
   50%    { transform: scale(1.05); opacity:.22; }
 }
 
-/* Respect reduced motion */
 @media (prefers-reduced-motion: reduce){
   .fx::before, .fx::after, .accentGlow { animation: none !important; }
   *{ animation: none !important; transition: none !important; }

@@ -1,4 +1,4 @@
-// src/pages/ClientPortal/components/UploadScreen.js
+
 import React from 'react';
 import { Container } from 'react-bootstrap';
 import UploadOrder from './UploadOrder';
@@ -7,7 +7,7 @@ import styles from './UploadScreen.module.css';
 export default function UploadScreen({
   packages,
   preselectedPackageId,
-  preselectedAddons,          // NEW: add-ons chosen on the previous screen
+  preselectedAddons,          
   onSubmitted,
   onBack
 }) {
@@ -36,7 +36,6 @@ export default function UploadScreen({
           packages={packages}
           preselectedPackageId={preselectedPackageId}
           onSubmit={onSubmitted}
-          // hide the in-form add-ons if we already collected them on AddonScreen
           showAddons={!preselectedAddons}
           initialAddons={preselectedAddons || null}
         />

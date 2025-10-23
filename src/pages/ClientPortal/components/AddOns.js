@@ -1,4 +1,4 @@
-// Add-Ons
+
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import styles from "./AddOns.module.css";
 import gsap from "gsap";
@@ -18,7 +18,6 @@ const DEFAULT = {
   revisionRounds: 0,
   bundle: null,
 
-  // free options
   freeSoundtrack: false,
   freeBrandingOverlay: false,
   freeTitleCards: false,
@@ -70,62 +69,17 @@ function total(a) {
   return t;
 }
 
-const saveInvoiceToLocalStorage = (invoiceData) => {
-  try {
-    // Get existing invoices or initialize empty array
-    const existingInvoices = JSON.parse(localStorage.getItem('qt_invoices') || '[]');
-    
-    // Check for recent duplicates (within last 5 minutes)
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-    const isDuplicate = existingInvoices.some(inv => 
-      inv.amount === invoiceData.grandTotal && 
-      new Date(inv.date) > fiveMinutesAgo
-    );
-    
-    if (isDuplicate) {
-      console.log('Duplicate invoice detected, skipping save');
-      return null;
-    }
-    
-    // Create new invoice object
-    const newInvoice = {
-      id: `local_${Date.now()}`, // Generate unique ID
-      date: new Date().toISOString(),
-      amount: invoiceData.grandTotal,
-      package_name: invoiceData.packageName,
-      package_price: invoiceData.packagePrice,
-      addons: invoiceData.addons,
-      addons_total: invoiceData.addonsTotal,
-      is_paid: true,
-      ...invoiceData
-    };
-    
-    // Add new invoice to the list
-    const updatedInvoices = [...existingInvoices, newInvoice];
-    
-    // Save back to localStorage
-    localStorage.setItem('qt_invoices', JSON.stringify(updatedInvoices));
-    
-    console.log('Invoice saved to localStorage:', newInvoice);
-    return newInvoice;
-  } catch (error) {
-    console.error('Error saving invoice to localStorage:', error);
-    return null;
-  }
-};
 
 export default function AddonScreen({ onBack, onContinue, userId, selectedPackage }) {
   const [a, setA] = useState(DEFAULT);
   const rootRef = useRef(null);
 
-  // --- animations (UNCHANGED)
   useEffect(() => {
     const wrapEl = rootRef.current;
     if (!wrapEl) return;
 
     const id = requestAnimationFrame(() => {
       const ctx = gsap.context(() => {
-        // cards reveal
         gsap.utils.toArray(`.${styles.card}`).forEach((card) => {
           gsap.fromTo(
             card,
@@ -145,7 +99,6 @@ export default function AddonScreen({ onBack, onContinue, userId, selectedPackag
           );
         });
 
-        // header fade
         gsap.from(`.${styles.header}`, {
           y: -40,
           autoAlpha: 0,
@@ -157,7 +110,6 @@ export default function AddonScreen({ onBack, onContinue, userId, selectedPackag
           },
         });
 
-        // parallax blobs
         gsap.to(`.${styles.blob}`, {
           y: 120,
           ease: "sine.inOut",
@@ -174,7 +126,6 @@ export default function AddonScreen({ onBack, onContinue, userId, selectedPackag
     return () => cancelAnimationFrame(id);
   }, []);
 
-  // --- selection helpers (UNCHANGED)
   const covered = new Set(a.bundle ? BUNDLES[a.bundle].includes : []);
   const pick = (k) => setA({ ...a, [k]: !a[k] });
   const qty = (k, d) => setA({ ...a, [k]: Math.max(0, (a[k] || 0) + d) });
@@ -182,84 +133,64 @@ export default function AddonScreen({ onBack, onContinue, userId, selectedPackag
   const pickFree = (k) => setA({ ...a, [k]: !a[k] });
   const setFreeFormat = (v) => setA({ ...a, freeFormat: v });
 
-  // --- totals (UNCHANGED)
   const pkgPrice = selectedPackage?.price ?? 0;
   const addonsTotal = total(a);
-  const grandTotal = pkgPrice + addonsTotal;
+  const grandTotal = pkgPrice + addonsTotal; 
 
-  // NEW: Updated handleCheckout function to save to localStorage
-  async function handleCheckout() {
-    try {
-      // Save invoice data to localStorage BEFORE processing payment
-      const invoiceData = {
-        grandTotal,
-        packageName: selectedPackage?.name || 'Unknown Package',
-        packagePrice: pkgPrice,
-        addons: a,
-        addonsTotal,
-        userId: userId || 'unknown',
-        timestamp: new Date().toISOString()
-      };
-      
-      saveInvoiceToLocalStorage(invoiceData);
-
-      // $0 case: skip Stripe
-      if (grandTotal <= 0) {
-        onContinue?.(a);
-        return;
-      }
-      if (!userId) {
-        alert("Please sign in again.");
-        return;
-      }
-
-      // Always come back to /portal so the post-payment effect runs
-      const origin = window.location.origin;
-      const success_url = `${origin}/portal?start=upload&paid=1&session_id={CHECKOUT_SESSION_ID}`;
-      const cancel_url  = `${origin}/portal?paid=0`;
-
-      localStorage.setItem("qt_pkgId", String(selectedPackage?.id ?? ""));
-      localStorage.setItem("qt_addons", JSON.stringify(a));
-
-      const payload = {
-        user_id: userId,
-        amount: Math.round(grandTotal * 100), // cents
-        currency: "usd",
-        success_url,
-        cancel_url,
-        addon_type: a.bundle || "custom",
-        metadata: {
-          package_name: selectedPackage?.name || "",
-          package_price: String(pkgPrice),
-          addons: JSON.stringify(a),
-          addons_total: String(addonsTotal),
-          grand_total: String(grandTotal),
-        },
-      };
-
-      // Create checkout session (backend unchanged)
-      const resp = await portalApi.createCheckoutSession(payload);
-
-      // Prefer Stripe.js redirect with sessionId; else fallback to URL
-      const sessionId =
-        resp?.id || (resp?.url?.match(/\/(cs_[^/?#]+)/)?.[1]) || null;
-
-      if (sessionId) {
-        const stripe = await getStripe();
-        const { error } = await stripe.redirectToCheckout({ sessionId });
-        if (error) throw error;
-      } else if (resp?.url) {
-        window.location.href = resp.url;
-      } else {
-        throw new Error("Checkout session missing id/url");
-      }
-    } catch (err) {
-      console.error(err);
-      alert(err.message || "Unable to start checkout");
+async function handleCheckout() {
+  try {
+    if (grandTotal <= 0) {
+      onContinue?.(a);
+      return;
     }
-  }
+    if (!userId) {
+      alert("Please sign in again.");
+      return;
+    }
 
-  // --- background bubbles (UNCHANGED)
+    const origin = window.location.origin;
+    const success_url = `${origin}/portal?start=upload&paid=1&session_id={CHECKOUT_SESSION_ID}`;
+    const cancel_url  = `${origin}/portal?paid=0`;
+
+    localStorage.setItem("qt_pkgId", String(selectedPackage?.id ?? ""));
+    localStorage.setItem("qt_addons", JSON.stringify(a));
+
+    const payload = {
+      user_id: userId,
+      amount: Math.round(grandTotal * 100), 
+      currency: "usd",
+      success_url,
+      cancel_url,
+      addon_type: a.bundle || "custom",
+      metadata: {
+        package_name: selectedPackage?.name || "",
+        package_price: String(pkgPrice),
+        addons: JSON.stringify(a),
+        addons_total: String(addonsTotal),
+        grand_total: String(grandTotal),
+      },
+    };
+
+    const resp = await portalApi.createCheckoutSession(payload);
+
+    const sessionId =
+      resp?.id || (resp?.url?.match(/\/(cs_[^/?#]+)/)?.[1]) || null;
+
+    if (sessionId) {
+      const stripe = await getStripe();
+      const { error } = await stripe.redirectToCheckout({ sessionId });
+      if (error) throw error;
+    } else if (resp?.url) {
+      window.location.href = resp.url;
+    } else {
+      throw new Error("Checkout session missing id/url");
+    }
+  } catch (err) {
+    console.error(err);
+    alert(err.message || "Unable to start checkout");
+  }
+}
+
   const bubbles = useMemo(() => {
     const N = 18;
     const rnd = (min, max) => Math.random() * (max - min) + min;
@@ -304,7 +235,6 @@ export default function AddonScreen({ onBack, onContinue, userId, selectedPackag
       </ul>
 
       <div className={styles.inner}>
-        {/* background blobs */}
         <div className={styles.fx} aria-hidden="true">
           <span className={`${styles.blob} ${styles.purple}`} />
           <span className={`${styles.blob} ${styles.green}`} />
@@ -319,8 +249,6 @@ export default function AddonScreen({ onBack, onContinue, userId, selectedPackag
           </p>
         </header>
 
-        {/* Rest of your JSX remains completely UNCHANGED */}
-        {/* Narration & Presentation section */}
         <section className={styles.card}>
           <h3><span>🎤</span> Narration & Presentation</h3>
 
@@ -359,7 +287,6 @@ export default function AddonScreen({ onBack, onContinue, userId, selectedPackag
           </label>
         </section>
 
-        {/* Social Media section */}
         <section className={styles.card}>
           <h3>📱 Social Media</h3>
 
@@ -387,7 +314,6 @@ export default function AddonScreen({ onBack, onContinue, userId, selectedPackag
           </label>
         </section>
 
-        {/* Delivery & Edits section */}
         <section className={styles.card}>
           <h3>⚡ Delivery & Edits</h3>
 
@@ -405,7 +331,6 @@ export default function AddonScreen({ onBack, onContinue, userId, selectedPackag
             </div>
           </label>
 
-          {/* Revisions row */}
           <div className={styles.row}>
             <span className={`${styles.tick} ${styles.placeholder}`} aria-hidden="true" />
             <div className={styles.text}>
@@ -436,7 +361,6 @@ export default function AddonScreen({ onBack, onContinue, userId, selectedPackag
           </label>
         </section>
 
-        {/* Bundles section */}
         <section className={styles.card}>
           <h3>📦 Packaged Add-On Bundles</h3>
           {Object.entries(BUNDLES).map(([k, b]) => (
@@ -460,7 +384,6 @@ export default function AddonScreen({ onBack, onContinue, userId, selectedPackag
           </button>
         </section>
 
-        {/* Free Options section */}
         <section className={styles.card}>
           <h3>✅ Free Options</h3>
 
@@ -517,7 +440,6 @@ export default function AddonScreen({ onBack, onContinue, userId, selectedPackag
           </label>
         </section>
 
-        {/* Footer */}
         <footer className={styles.footer}>
           <div className={styles.total} aria-live="polite">
             Total: <strong>${grandTotal}</strong>
@@ -525,7 +447,7 @@ export default function AddonScreen({ onBack, onContinue, userId, selectedPackag
               (Package ${pkgPrice} + Add-Ons ${addonsTotal})
             </small>
           </div>
-          <button className={styles.next} onClick={handleCheckout}>
+          <button className={styles.next}   onClick={handleCheckout} >
             Continue to Payment
           </button>
         </footer>

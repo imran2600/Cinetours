@@ -4,7 +4,6 @@ import styles from "./UploadOrder.module.css";
 import { useAuth } from "../../../auth/AuthContext";
 import portalApi from "../../../services/portalApi";
 
-/** --- Pricing tables (required to compute add-ons total) --- */
 const ADDON_PRICES = {
   voiceoverAI: 30,
   talkThrough: 80,
@@ -103,14 +102,14 @@ const UploadOrder = ({
     }
 
 
-    const userId = user?.id ?? user?.user?.id; // supports both shapes
+    const userId = user?.id ?? user?.user?.id; 
     if (!userId) return alert("Please sign in again.");
 
     setIsSubmitting(true);
     try {
       const order = await portalApi.createOrder(userId, selectedPkg.name, addons, selectedFiles);
 
-      onSubmit(order);            // keep this
+      onSubmit(order);            
       setSelectedFiles([]);
       setSelectedPackage("");
     } catch (err) {

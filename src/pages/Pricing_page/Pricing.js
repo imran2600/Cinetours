@@ -5,7 +5,6 @@ import useAdminData from '../AdminPortal/hooks/useAdminData.js';
 import { gsap } from '../../utils/gsapConfig';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-// Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
 
 const PricingPage = () => {
@@ -16,16 +15,13 @@ const PricingPage = () => {
   const sliderTrackRef = useRef(null);
   const addOnsRef = useRef(null);
 
-  // Refs for background animation elements
   const particlesRef = useRef(null);
   const floatingShapesRef = useRef(null);
   const gradientOrbsRef = useRef(null);
 
-  // Refs for animations
   const pricingCardsRef = useRef([]);
   const addOnItemsRef = useRef([]);
 
-  // Video length mapping
   const videoLengths = {
     Express: "30–45 seconds",
     Quick: "~60 seconds",
@@ -34,7 +30,6 @@ const PricingPage = () => {
     Ultra: "120–150 seconds"
   };
 
-  // Slider navigation functions
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev === pricingPlans.length - 1 ? 0 : prev + 1));
   };
@@ -43,15 +38,13 @@ const PricingPage = () => {
     setCurrentSlide((prev) => (prev === 0 ? pricingPlans.length - 1 : prev - 1));
   };
 
-  // Update slider position when currentSlide changes
   useEffect(() => {
     if (sliderTrackRef.current) {
-      const slideWidth = 100; // 100% per slide
+      const slideWidth = 100; 
       sliderTrackRef.current.style.transform = `translateX(-${currentSlide * slideWidth}%)`;
     }
   }, [currentSlide]);
 
-  // Background animation with GSAP
   useEffect(() => {
     const particles = particlesRef.current.children;
     const floatingShapes = floatingShapesRef.current.children;
@@ -115,12 +108,10 @@ const PricingPage = () => {
     };
   }, []);
 
-  // Simple fade-in animation
   useEffect(() => {
     gsap.fromTo(sectionRef.current, { opacity: 0 }, { opacity: 1, duration: 0.8 });
   }, []);
 
-  // Pricing cards animation
   useEffect(() => {
     if (pricingCardsRef.current.length > 0) {
       gsap.utils.toArray(pricingCardsRef.current).forEach((card, index) => {
@@ -134,7 +125,6 @@ const PricingPage = () => {
     }
   }, [pricingPlans]);
 
-  // Add-ons animation
   useEffect(() => {
     gsap.fromTo(addOnsRef.current, { opacity: 0, y: 50 }, {
       opacity: 1, y: 0, duration: 1,
@@ -153,7 +143,6 @@ const PricingPage = () => {
     }
   }, []);
 
-  // Add-ons data
   const addOns = {
     narration: [
       { name: "Voiceover (AI-generated)", price: "$30", description: "Professional AI voice reading your script or property highlights." },
@@ -177,7 +166,7 @@ const PricingPage = () => {
   return (
     <div style={{ paddingTop: '0px' }}>
       <section className={styles.pricingSection} ref={sectionRef}>
-        {/* Background Elements */}
+        
         <div className={styles.animatedBackground}>
           <div ref={particlesRef} className={styles.particlesContainer}>
             {[...Array(15)].map((_, i) => (<div key={i} className={styles.particle}></div>))}
@@ -235,7 +224,6 @@ const PricingPage = () => {
             ))}
           </Row>
 
-          {/* Mobile Slider */}
           <div className={styles.pricingSlider}>
             <div className={styles.sliderContainer}>
               <button className={styles.sliderArrow} onClick={prevSlide}>&#8249;</button>
@@ -272,7 +260,6 @@ const PricingPage = () => {
             </div>
           </div>
 
-          {/* Add-ons Section */}
           <div ref={addOnsRef} className={styles.addOnsSection}>
             <Row className="justify-content-center mb-5">
               <Col xs={12} className="text-center">
@@ -282,8 +269,6 @@ const PricingPage = () => {
               </Col>
             </Row>
             <Row>
-              {/* Categories rendering (same as before) */}
-              {/* Narration */}
               <Col md={6} lg={3} className={styles.addOnCategory}>
                 <div className={styles.addOnHeader}><h3>Narration & Presentation</h3></div>
                 {addOns.narration.map((item, index) => (
@@ -294,7 +279,6 @@ const PricingPage = () => {
                   </div>
                 ))}
               </Col>
-              {/* Social */}
               <Col md={6} lg={3} className={styles.addOnCategory}>
                 <div className={styles.addOnHeader}><h3>Social Media</h3></div>
                 {addOns.social.map((item, index) => (
@@ -305,7 +289,6 @@ const PricingPage = () => {
                   </div>
                 ))}
               </Col>
-              {/* Delivery */}
               <Col md={6} lg={3} className={styles.addOnCategory}>
                 <div className={styles.addOnHeader}><h3>Delivery & Edits</h3></div>
                 {addOns.delivery.map((item, index) => (
@@ -316,7 +299,6 @@ const PricingPage = () => {
                   </div>
                 ))}
               </Col>
-              {/* Bundles */}
               <Col md={6} lg={3} className={styles.addOnCategory}>
                 <div className={styles.addOnHeader}><h3>Add-On Bundles</h3></div>
                 {addOns.bundles.map((item, index) => (

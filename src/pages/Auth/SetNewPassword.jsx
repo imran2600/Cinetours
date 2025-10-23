@@ -2,7 +2,7 @@
 // src/pages/Auth/SetNewPassword.jsx
 import React, { useMemo, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import base from "./AuthMake.module.css"; // reuse the same theme / layout
+import base from "./AuthMake.module.css"; 
 import styles from "./SetNewPassword.module.css";
 
 const Eye = (props) => (
@@ -18,7 +18,7 @@ const EyeOff = (props) => (
 
 export default function SetNewPassword() {
   const [params] = useSearchParams();
-  const token = params.get("token"); // expect /set-password?token=...
+  const token = params.get("token"); 
 
   const [pw, setPw] = useState("");
   const [pw2, setPw2] = useState("");
@@ -29,7 +29,7 @@ export default function SetNewPassword() {
   const [ok, setOk] = useState("");
 
   const valid = useMemo(() => {
-    if (pw.length < 8) return false;        // 8+ chars per your spec
+    if (pw.length < 8) return false;       
     if (pw !== pw2) return false;
     return true;
   }, [pw, pw2]);
@@ -41,13 +41,6 @@ export default function SetNewPassword() {
     if (!token) return setErr("Reset link is invalid or expired.");
     if (!valid) return setErr("Please meet the password rules.");
 
-    // TODO: replace with your real backend call
-    // Example:
-    // await fetch(`${BASE_URL}/auth/reset-password`, {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ token, password: pw })
-    // })
     try {
       setLoading(true);
       await new Promise(r => setTimeout(r, 900));
@@ -61,7 +54,6 @@ export default function SetNewPassword() {
 
   return (
     <section className={base.authShell}>
-      {/* LEFT — form */}
       <div className={base.formPane}>
         <div className={base.formCard}>
           <h1 className={base.title}>Set new password</h1>
@@ -121,7 +113,6 @@ export default function SetNewPassword() {
                 </button>
               </div>
 
-              {/* helper text */}
               <p className={styles.help}>
                 Password must be at least <b>8 characters</b>. 
               </p>
@@ -134,7 +125,6 @@ export default function SetNewPassword() {
         </div>
       </div>
 
-      {/* RIGHT — same brand hero */}
       <aside className={base.brandPane}>
         <div className={base.brandLogo}>QuantumTours</div>
         <div className={base.aurora} aria-hidden />

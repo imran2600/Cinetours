@@ -16,7 +16,7 @@ const EyeOff = (props) => (
 );
 
 export default function SignUp() {
-  const { signUp, signInAsGuest } = useAuth(); // removed signInWithGoogle
+  const { signUp, signInAsGuest } = useAuth(); 
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
@@ -39,7 +39,7 @@ export default function SignUp() {
 
     try {
       setLoading(true);
-      await signUp({ name, email, password: pw }); // backend-only
+      await signUp({ name, email, password: pw }); 
       navigate(from, { replace: true });
     } catch (e2) {
       setErr(e2.message || "Could not create your account.");
@@ -51,7 +51,7 @@ export default function SignUp() {
   const handleGuest = async () => {
     setErr("");
     try {
-      await signInAsGuest(); // only if /auth/guest exists server-side
+      await signInAsGuest(); 
       navigate("/portal?new=1", { replace: true });
     } catch (e2) {
       setErr(e2.message || "Guest sign-in failed.");
@@ -63,9 +63,6 @@ export default function SignUp() {
       <div className={styles.formPane}>
         <div className={styles.formCard}>
           <h1 className={styles.title}>Sign Up</h1>
-
-          {/* Remove Google button until OAuth is fully wired to backend */}
-          {/* <button className={styles.googleBtn} type="button" onClick={...}><span>Sign up with Google</span></button> */}
 
           <div className={styles.divider}><span>Sign up with email</span></div>
 
@@ -116,7 +113,7 @@ export default function SignUp() {
             <label className={styles.label}>Confirm password</label>
             <input
               className={styles.input}
-              type={showPw ? "text" : "password"} // optional: mirror visibility
+              type={showPw ? "text" : "password"} 
               placeholder="••••••••"
               value={pw2}
               onChange={(e) => setPw2(e.target.value)}
@@ -129,12 +126,11 @@ export default function SignUp() {
             </button>
           </form>
 
-          {/* Guest entry — keep only if backend supports it */}
-          {/* <div className={styles.guestRow}>
+          <div className={styles.guestRow}>
             <button type="button" className={styles.guestBtn} onClick={handleGuest}>
               Continue as guest
             </button>
-          </div> */}
+          </div>
 
           <p className={styles.alt}>Already have an account? <Link to="/signin">Sign in</Link></p>
         </div>

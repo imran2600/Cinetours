@@ -35,7 +35,7 @@ export default function SignIn() {
     setErr("");
     try {
       setLoading(true);
-      await signIn({ email, password: pw }); // backend-only
+      await signIn({ email, password: pw }); 
       navigate(nextUrl, { replace: true });
     } catch (e2) {
       setErr(e2.message || "Could not sign you in.");
@@ -47,7 +47,7 @@ export default function SignIn() {
   const handleGuest = async () => {
     setErr("");
     try {
-      await signInAsGuest(); // backend /auth/guest only
+      await signInAsGuest();
       const guestNext = fromLocation
        ? `${fromLocation.pathname}${fromLocation.search || ""}`
        : "/portal?new=1";
@@ -59,13 +59,9 @@ export default function SignIn() {
 
   return (
     <section className={styles.authShell}>
-      {/* LEFT */}
       <div className={styles.formPane}>
         <div className={styles.formCard}>
           <h1 className={styles.title}>Sign in</h1>
-
-          {/* Remove Google button until you wire a real backend flow */}
-          {/* <button type="button" className={styles.googleBtn} onClick={...}>...</button> */}
 
           <div className={styles.divider}>Sign in with email</div>
 
@@ -110,12 +106,11 @@ export default function SignIn() {
             </button>
           </form>
 
-          {/* Guest entry (only if your backend supports /auth/guest) */}
-          {/* <div className={styles.guestRow}>
+          <div className={styles.guestRow}>
             <button type="button" className={styles.guestBtn} onClick={handleGuest}>
               Continue as guest
             </button>
-          </div> */}
+          </div>
 
           <p className={styles.alt}>
             No account? <Link to="/signup">Create one</Link>

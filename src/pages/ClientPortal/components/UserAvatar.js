@@ -5,15 +5,12 @@ import { gsap } from "gsap";
 export default function UserAvatar({ size = 32, withMenu = true }) {
   const { user, updateProfilePhoto, removeProfilePhoto } = useAuth();
 
-  // ⬇️ Hooks must be declared before any early returns
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
   const btnRef = useRef(null);
 
-  // This is safe even if user is null
   const letter = (user?.name?.[0] || user?.email?.[0] || "?").toUpperCase();
 
-  // pop-in animation
   useEffect(() => {
     if (!open || !menuRef.current) return;
     const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
@@ -25,7 +22,6 @@ export default function UserAvatar({ size = 32, withMenu = true }) {
     return () => tl.kill();
   }, [open]);
 
-  // click outside to close
   useEffect(() => {
     if (!open) return;
     const onDoc = (e) => {
@@ -52,7 +48,6 @@ export default function UserAvatar({ size = 32, withMenu = true }) {
     }
   };
 
-  // ✅ Now it’s fine to early return
   if (!user) return null;
 
   return (

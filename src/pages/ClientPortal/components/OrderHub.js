@@ -1,4 +1,4 @@
-// src/pages/ClientPortal/components/OrderHub.jsx
+
 import React from "react";
 import styles from "./OrderHub.module.css";
 
@@ -44,7 +44,6 @@ export default function OrderHub({ onGo, onStartOrder }) {
       on: () => onGo?.("branding"),
       ctaLabel: "Open",
     },
-    // ⬇️ put New Order at the end
     {
       key: "new",
       title: "New Order",
