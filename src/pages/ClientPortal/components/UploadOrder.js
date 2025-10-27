@@ -90,36 +90,80 @@ const UploadOrder = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (selectedFiles.length === 0) return alert("Please upload at least one photo.");
     if (!selectedPackage) return alert("Please select a package.");
 
-    const filesCount = selectedFiles.length;
     const limits = PACKAGE_LIMITS[selectedPkg?.name];
-    if (limits && (filesCount > limits.max)) {  // filesCount < limits.min ||
+    const filesCount = selectedFiles.length;
+    if (limits && filesCount > limits.max) {
       alert(`${selectedPkg.name} allows ${limits.min}-${limits.max} photos. You selected ${filesCount}.`);
-      setIsSubmitting(false);
       return;
     }
 
-
-    const userId = user?.id ?? user?.user?.id; 
+    const userId = user?.id ?? user?.user?.id;
     if (!userId) return alert("Please sign in again.");
 
     setIsSubmitting(true);
-    try {
-      const order = await portalApi.createOrder(userId, selectedPkg.name, addons, selectedFiles);
 
-      onSubmit(order);            
+    console.log("[UploadOrder] submit clicked ->", {
+      files: selectedFiles.map(f => ({ name: f.name, size: f.size })),
+      selectedPackage: selectedPkg?.name,
+      userId
+    });
+
+    try {
+      // 1) Create order (invoice etc.)
+      console.log("[UploadOrder] 1/2 POST /api/client/orders/new …");
+      const orderRes = await portalApi.createOrder(userId, selectedPkg.name, addons, selectedFiles);
+      console.log("[UploadOrder] 1/2 <- /orders/new response:", orderRes);
+
+      const createdOrderId = orderRes?.order?.id ?? orderRes?.order_id ?? null;
+      if (!createdOrderId) {
+        console.warn("[UploadOrder] /orders/new returned no order id. Response:", orderRes);
+      } else {
+        console.log(`[UploadOrder] ✅ Order created (#${createdOrderId})`);
+      }
+
+      // 2) Upload photos for AI video generation
+      console.log("[UploadOrder] 2/2 POST /upload …");
+      const uploadRes = await portalApi.uploadPhotos(selectedPkg.name, addons, selectedFiles);
+      console.log("[UploadOrder] 2/2 <- /upload response:", uploadRes);
+
+      if (uploadRes?.status === "success" && uploadRes?.order_id) {
+        console.log(`[UploadOrder] ✅ Upload accepted (order #${uploadRes.order_id})`);
+      } else {
+        console.log("[UploadOrder] Upload response:", uploadRes);
+      }
+
+      // 3) Merge both responses so the parent gets everything it might need
+      const merged = {
+        created_via: "orders+upload",
+        order_id: createdOrderId || uploadRes?.order_id || null,
+        order: orderRes?.order ?? null,
+        invoice: orderRes?.invoice ?? null,
+        upload: uploadRes ?? null,
+      };
+
+      // Friendly UX signal
+      if (merged.order_id) {
+        alert(`Order #${merged.order_id} submitted!`);
+      } else {
+        alert("Order submitted. (See console for details.)");
+      }
+
+      // 4) Bubble up + reset UI
+      onSubmit(merged);
       setSelectedFiles([]);
       setSelectedPackage("");
     } catch (err) {
-      console.error("Order submission error:", err);
-      alert(err.message || "Order submission failed.");
+      console.error("[UploadOrder] ❌ Submit failed:", err);
+      alert(err.message || "Submission failed.");
     } finally {
       setIsSubmitting(false);
     }
-
   };
+
 
   return (
     <Card className={styles.portalCard}>

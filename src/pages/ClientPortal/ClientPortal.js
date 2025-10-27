@@ -19,7 +19,6 @@ import AddonScreen from "./components/AddOns";
 
 import { getPortalState, setPortalState } from "./state";
 
-// --- Preselection helpers (persisted by AddOns before Stripe redirect)
 function readPreselection() {
   const rawPkg = localStorage.getItem("qt_pkgId");
   const rawAdd = localStorage.getItem("qt_addons");
@@ -58,6 +57,13 @@ export default function ClientPortal() {
   /* ------------------- INITIAL STAGE DECISION ------------------- */
   useEffect(() => {
     if (authLoading || !userId || checkedOrders) return;
+
+    if (searchParams.get("start") === "upload") {
+      console.log("[Portal] start=upload detected — jumping straight to upload stage.");
+      setStage("upload");
+      setCheckedOrders(true);   // prevent the other effect from running again
+      return;
+    }
 
     (async () => {
       try {
@@ -101,7 +107,6 @@ export default function ClientPortal() {
             }))
           );
         } catch (e) {
-          console.error("Orders fetch failed:", e);
           setOrders([]);
         } finally {
           setIsLoading(false);
@@ -174,7 +179,6 @@ export default function ClientPortal() {
         );
         setDlVideos(mapped);
       } catch (e) {
-        console.error("Download center fetch failed:", e);
         setDlVideos([]);
       }
     })();
@@ -188,14 +192,16 @@ export default function ClientPortal() {
 
     (async () => {
       try {
-        const data = await portalApi.getUserInvoices(userId);
+        const data = await portalApi.getUserInvoices();
+        console.log("Invoie Data: ",data);
         const mapped = (data?.invoices || []).map((inv) => ({
-          ...inv,
-          status: inv.status === "paid" ? "paid" : "pending",
+          id: inv.invoice_id,
+          amount: inv.amount,
+          date: inv.created_at,
+          is_paid: inv.is_paid,
         }));
         setInvoiceList(mapped);
       } catch (e) {
-        console.error("Invoices fetch failed:", e);
         setInvoiceList([]);
       }
     })();
