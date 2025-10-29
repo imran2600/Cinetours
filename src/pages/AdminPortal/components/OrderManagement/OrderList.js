@@ -174,10 +174,15 @@ const OrderList = () => {
                           {order.status?.toUpperCase() || 'UNKNOWN'}
                         </Badge>
                         <div className={styles.orderMeta}>
-                          <span className={styles.orderId}>Client #{order.id}</span>
-                          <span className={styles.orderDate}>
-                            {order.date ? new Date(order.date).toLocaleDateString() : 'N/A'}
-                          </span>
+                          <div className={styles.metaRow}>
+                            <span className={styles.orderId}>Client #{order.id}</span>
+                            <span className={styles.metaSeparator}>•</span>
+                            <span className={styles.orderSubId}>Order ID: {order.order_id || 'N/A'}</span>
+                            <span className={styles.metaSeparator}>•</span>
+                            <span className={styles.orderDate}>
+                              {order.date ? new Date(order.date).toLocaleDateString() : 'N/A'}
+                            </span>
+                          </div>
                         </div>
                       </div>
                       <div className={styles.packageInfo}>
@@ -186,7 +191,21 @@ const OrderList = () => {
                       </div>
                     </div>
 
-                    {/* Main Content - Single Video Preview Section */}
+                    {/* Client Information Section */}
+                    <div className={styles.clientSection}>
+                      <div className={styles.clientInfo}>
+                        <div className={styles.infoGroup}>
+                          <span className={styles.infoLabel}>CLIENT NAME</span>
+                          <span className={styles.infoValue}>{order.client_name}</span>
+                        </div>
+                        <div className={styles.infoGroup}>
+                          <span className={styles.infoLabel}>EMAIL</span>
+                          <span className={styles.infoValue}>{order.client_email}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Main Content - Compact Video Preview Section */}
                     <div className={styles.cardContent}>
                       <div className={styles.videoSection}>
                         <h4 className={styles.sectionTitle}>VIDEO PREVIEW</h4>
@@ -211,14 +230,14 @@ const OrderList = () => {
                             {additionalVideosCount > 0 && (
                               <div className={styles.additionalVideos}>
                                 <p className={styles.videoCount}>
-                                  +{additionalVideosCount} more video(s) available
+                                  +{additionalVideosCount} more video(s)
                                 </p>
                               </div>
                             )}
                           </div>
                         ) : (
                           <div className={styles.noVideoPlaceholder}>
-                            <span className={styles.noVideoText}>No preview videos available</span>
+                            <span className={styles.noVideoText}>No preview videos</span>
                           </div>
                         )}
                       </div>

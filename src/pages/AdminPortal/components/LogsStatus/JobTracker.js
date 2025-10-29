@@ -9,6 +9,7 @@ const JobTracker = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [expandedPrompt, setExpandedPrompt] = useState(null);
   const pageSize = 8;
 
   const cardsRef = useRef([]);
@@ -40,7 +41,7 @@ const JobTracker = () => {
       setData(transformedData);
       setLoading(false);
     } catch (err) {
-      console.error('Error fetching logs-status:', err);
+      console.error('Error fetching log_status:', err);
       setLoading(false);
     }
   };
@@ -122,6 +123,7 @@ const JobTracker = () => {
       duration: 0.3,
       onComplete: () => {
         setCurrentPage(page);
+        setExpandedPrompt(null);
         setTimeout(() => {
           gsap.fromTo(cardsRef.current, 
             { 
@@ -155,6 +157,15 @@ const JobTracker = () => {
       case 'error': return styles.error;
       default: return styles.queued;
     }
+  };
+
+  const truncatePrompt = (prompt, length = 80) => {
+    if (!prompt) return 'N/A';
+    return prompt.length > length ? prompt.substring(0, length) + '...' : prompt;
+  };
+
+  const togglePromptExpand = (logId) => {
+    setExpandedPrompt(expandedPrompt === logId ? null : logId);
   };
 
   if (loading) {
@@ -199,49 +210,142 @@ const JobTracker = () => {
 
         <div className={styles.logsTimeline}>
           {paginatedLogs.length > 0 ? (
-            paginatedLogs.map((log, index) => (
-              <div 
-                key={`${log.video_id}-${index}`} 
-                className={styles.timelineItem}
-                ref={el => cardsRef.current[index] = el}
-              >
-                <div className={styles.timelineConnector}></div>
-                
-                <div className={styles.logNode}>
-                  <div className={styles.nodeHeader}>
-                    <div className={styles.nodeMainInfo}>
-                      <Badge className={`${styles.statusIndicator} ${getStatusColor(log.status)}`}>
-                        {log.status}
-                      </Badge>
-                      <div className={styles.idInfo}>
-                        <span className={styles.videoId}>Video: {log.video_id}</span>
-                        <span className={styles.orderId}>Order: {log.order_id}</span>
-                        <span className={styles.email}>{log.username || 'Guest'}</span>
-                      </div>
-                    </div>
-                    <div className={styles.nodeMeta}>
-                      <span className={styles.packageTag}>{log.package || 'Standard'}</span>
-                      <div className={styles.timeInfo}>
-                        <span className={styles.createdTime}>
-                          {new Date(log.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+            paginatedLogs.map((log, index) => {
+              const logId = `${log.video_id}-${index}`;
+              const isExpanded = expandedPrompt === logId;
+              return (
+                <div 
+                  key={logId} 
+                  className={styles.timelineItem}
+                  ref={el => cardsRef.current[index] = el}
+                >
+                  <div className={styles.timelineConnector}></div>
                   
-                  <div className={styles.progressBar}>
-                    <div 
-                      className={`${styles.progressFill} ${getStatusColor(log.status)}`}
-                      style={{
-                        width: log.status === 'completed' || log.status === 'succeeded' ? '100%' :
-                               log.status === 'processing' ? '60%' :
-                               log.status === 'failed' || log.status === 'error' ? '100%' : '30%'
-                      }}
-                    ></div>
+                  <div className={styles.logNode}>
+                    {/* Header Section - Updated */}
+                    <div className={styles.cardHeader}>
+                      <div className={styles.headerMain}>
+                        <Badge className={`${styles.statusIndicator} ${getStatusColor(log.status)}`}>
+                          {log.status}
+                        </Badge>
+                        <div className={styles.jobInfo}>
+                          <div className={styles.jobIds}>
+                            <div className={styles.jobIdItem}>
+                              <span className={styles.jobIdLabel}>Video ID:</span>
+                              <span className={styles.jobIdValue}>{log.video_id || 'N/A'}</span>
+                            </div>
+                            <div className={styles.jobIdItem}>
+                              <span className={styles.jobIdLabel}>Order ID:</span>
+                              <span className={styles.jobIdValue}>{log.order_id || 'N/A'}</span>
+                            </div>
+                            {log.runwayjob_id && (
+                              <div className={styles.jobIdItem}>
+                                <span className={styles.jobIdLabel}>Runway Job:</span>
+                                <span className={styles.jobIdValue}>{log.runwayjob_id}</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className={styles.clientInfo}>
+                            <div className={styles.clientItem}>
+                              <span className={styles.jobIdLabel}>Client:</span>
+                              <span className={styles.jobIdValue}>{log.client_name || 'N/A'}</span>
+                            </div>
+                            <div className={styles.clientItem}>
+                              <span className={styles.jobIdLabel}>ID:</span>
+                              <span className={styles.jobIdValue}>{log.client_id || 'N/A'}</span>
+                            </div>
+                            <div className={styles.clientItem}>
+                              <span className={styles.jobIdLabel}>Email:</span>
+                              <span className={styles.jobIdValue}>{log.client_email || 'N/A'}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className={styles.packageTag}>{log.package || 'Standard'}</div>
+                    </div>
+
+                    {/* Main Content Grid */}
+                    <div className={styles.cardContent}>
+                      {/* Left Column */}
+                      <div className={styles.contentColumn}>
+                        <div className={styles.contentItem}>
+                          <span className={styles.contentLabel}>Username</span>
+                          <span className={styles.contentValue}>{log.username || 'Guest'}</span>
+                        </div>
+                        <div className={styles.contentItem}>
+                          <span className={styles.contentLabel}>Date Created</span>
+                          <span className={styles.contentValue}>
+                            {log.created_at ? new Date(log.created_at).toLocaleDateString() : 'N/A'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Right Column */}
+                      <div className={styles.contentColumn}>
+                        <div className={styles.contentItem}>
+                          <span className={styles.contentLabel}>Status Details</span>
+                          <span className={styles.contentValue}>
+                            {log.status === 'processing' ? 'Currently processing...' :
+                             log.status === 'queued' ? 'Waiting in queue' :
+                             log.status === 'succeeded' ? 'Completed successfully' :
+                             log.status === 'failed' ? 'Failed - check logs' : 'Unknown'}
+                          </span>
+                        </div>
+                        <div className={styles.contentItem}>
+                          <span className={styles.contentLabel}>Package Type</span>
+                          <span className={styles.contentValue}>{log.package || 'Standard'}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Prompt Section - Improved */}
+                    <div className={styles.promptSection}>
+                      <div className={styles.promptHeader}>
+                        <span className={styles.promptLabel}>Prompt</span>
+                        {log.prompt && log.prompt.length > 80 && (
+                          <button 
+                            className={styles.seeMoreBtn}
+                            onClick={() => togglePromptExpand(logId)}
+                          >
+                            {isExpanded ? 'See Less' : 'See More'}
+                          </button>
+                        )}
+                      </div>
+                      <div className={`${styles.promptText} ${isExpanded ? styles.expanded : ''}`}>
+                        {log.prompt || 'No prompt provided'}
+                      </div>
+                    </div>
+
+                    {/* Video URL Section - Improved */}
+                    {log.video_url && (
+                      <div className={styles.videoUrlSection}>
+                        <span className={styles.contentLabel}>Generated Video</span>
+                        <a 
+                          href={log.video_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className={styles.videoLink}
+                        >
+                          View Video
+                        </a>
+                      </div>
+                    )}
+
+                    {/* Progress Bar */}
+                    <div className={styles.progressBar}>
+                      <div 
+                        className={`${styles.progressFill} ${getStatusColor(log.status)}`}
+                        style={{
+                          width: log.status === 'completed' || log.status === 'succeeded' ? '100%' :
+                                 log.status === 'processing' ? '60%' :
+                                 log.status === 'failed' || log.status === 'error' ? '100%' : '30%'
+                        }}
+                      ></div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <div className={styles.noLogs}>
               <span className={styles.noLogsText}>No logs available</span>
@@ -283,7 +387,7 @@ const JobTracker = () => {
             </div>
             
             <div className={styles.pageInfo}>
-              Page {currentPage} of {totalPages} • {totalLogs} total logs
+              Page {currentPage} of {totalPages} • Showing {paginatedLogs.length} of {totalLogs} logs
             </div>
           </div>
         )}
