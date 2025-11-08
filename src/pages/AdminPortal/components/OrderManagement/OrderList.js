@@ -4,7 +4,7 @@ import styles from './OrderList.module.css';
 import { useOrders } from '../../../hooks/useOrders.js';
 import { gsap } from 'gsap';
 
-const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://qunatum-tour.onrender.com';
+const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://quantum-tour-backend.onrender.com';
 
 const OrderList = () => {
   const { orders, loading, error, fetchOrders, updateOrderStatus, uploadFinalVideo } = useOrders();

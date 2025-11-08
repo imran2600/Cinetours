@@ -21,7 +21,7 @@ const PromptViewer = () => {
 
   // Mock image_id for demonstration. In a real app, this would come from context or props.
   const MOCK_IMAGE_ID = 10; 
-  const BASE_URL = 'https://qunatum-tour.onrender.com'; // Adjust if your backend is on a different URL
+  const BASE_URL = 'https://quantum-tour-backend.onrender.com'; // Adjust if your backend is on a different URL
 
   useEffect(() => {
     if (cardRef.current) {

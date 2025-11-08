@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, Table, Spinner, Badge } from 'react-bootstrap';
 import styles from './Notifications.module.css';
 
-const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://qunatum-tour.onrender.com';
+const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://quantum-tour-backend.onrender.com';
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);

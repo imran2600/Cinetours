@@ -3,7 +3,7 @@ import { Card, Badge, Spinner } from 'react-bootstrap';
 import styles from './JobTracker.module.css';
 import { gsap } from 'gsap';
 
-const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://qunatum-tour.onrender.com';
+const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://quantum-tour-backend.onrender.com';
 
 const JobTracker = () => {
   const [data, setData] = useState(null);

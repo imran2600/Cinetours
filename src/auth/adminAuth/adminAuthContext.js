@@ -5,7 +5,7 @@ const AdminAuthContext = createContext();
 
 export const useAdminAuth = () => useContext(AdminAuthContext);
 
-const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://qunatum-tour.onrender.com'; // Your backend base URL (set in .env file for production)
+const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://quantum-tour-backend.onrender.com'; // Your backend base URL (set in .env file for production)
 
 export const AdminAuthProvider = ({ children }) => {
   const [admin, setAdmin] = useState(() => {

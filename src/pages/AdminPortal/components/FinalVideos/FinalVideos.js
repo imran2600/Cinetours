@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, Table, Button, Spinner, Badge } from 'react-bootstrap';
 import styles from './FinalVideos.module.css';
 
-const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://qunatum-tour.onrender.com';
+const BASE_URL = process.env.REACT_APP_BASE_URL || 'https://quantum-tour-backend.onrender.com';
 
 const FinalVideos = () => {
   const [videos, setVideos] = useState([]);
