@@ -125,7 +125,7 @@ export function useOrders() {
     }
   };
 
-  // Upload final video - only using user_id
+  // Upload final video - with user_id in request body
 const uploadFinalVideo = async (orderId, file) => {
   try {
     console.log('Uploading file for order:', orderId);
@@ -141,17 +141,20 @@ const uploadFinalVideo = async (orderId, file) => {
       throw new Error(`No user_id found for order: ${orderId}`);
     }
 
-    // Create form data (only file)
+    // Create form data with file AND user_id
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('user_id', order.user_id); // Add user_id to form data
 
-    // Send ONLY user_id as query parameter
-    const uploadUrl = `${BASE_URL}/api/admin/final-video?user_id=${order.user_id}`;
+    // URL without query parameters
+    const uploadUrl = `${BASE_URL}/api/admin/final-video`;
     console.log('Sending request to:', uploadUrl);
+    console.log('With user_id:', order.user_id);
 
     const res = await fetch(uploadUrl, {
       method: 'POST',
       body: formData,
+      // Don't set Content-Type header - browser will set it automatically with boundary
     });
 
     console.log('Upload response status:', res.status);
