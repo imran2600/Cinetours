@@ -12,7 +12,7 @@ const DEFAULT = {
   voiceoverAI: false,
   talkThrough: false,
   reelSplit: false,
-  rush12h: false,
+  rush4h: false,
   premiumEdit: false,
   extraReels: 0,
   revisionRounds: 0,
@@ -32,8 +32,8 @@ const BUNDLES = {
     blurb: "Reel Split + Voiceover + Rush Delivery",
   },
   agentPresenter: {
-    label: "Agent Presenter Pack — $150",
-    price: 150,
+    label: "Agent Presenter Pack — $100",
+    price: 100,
     includes: ["talkThrough", "premiumEdit"],
     blurb: "Talk-through narration + Premium Edit",
   },
@@ -321,13 +321,13 @@ async function handleCheckout() {
             <input
               className={styles.tick}
               type="checkbox"
-              checked={a.rush12h || covered.has("rush12h")}
-              onChange={() => pick("rush12h")}
-              disabled={covered.has("rush12h")}
-              aria-label="Rush delivery 12 hours"
+              checked={a.rush4h || covered.has("rush4h")}
+              onChange={() => pick("rush4h")}
+              disabled={covered.has("rush4h")}
+              aria-label="Rush delivery 4 hours"
             />
             <div className={styles.text}>
-              <div className={styles.name}>Rush Delivery (12 hr) — ${PRICES.rush12h}</div>
+              <div className={styles.name}>Rush Delivery (4 hr) — ${PRICES.rush4h}</div>
             </div>
           </label>
 
